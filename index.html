@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyperide — Work Reports</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;
+    background:#0d1117;color:#c9d1d9;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  a{color:#58a6ff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .container{max-width:800px;width:100%;padding:80px 24px 60px}
+  h1{
+    font-size:2.4rem;font-weight:700;
+    background:linear-gradient(135deg,#58a6ff,#bc8cff);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .subtitle{color:#8b949e;font-size:1.1rem;margin-bottom:48px}
+  .report-list{list-style:none;display:flex;flex-direction:column;gap:16px}
+  .report-card{
+    background:rgba(22,27,34,0.8);
+    border:1px solid #30363d;border-radius:12px;
+    padding:20px 24px;
+    backdrop-filter:blur(12px);
+    transition:border-color .2s,transform .15s;
+  }
+  .report-card:hover{border-color:#58a6ff;transform:translateY(-2px)}
+  .report-card a{display:block}
+  .report-title{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:4px}
+  .report-meta{font-size:.85rem;color:#8b949e;display:flex;gap:16px;flex-wrap:wrap}
+  .report-meta span{display:inline-flex;align-items:center;gap:4px}
+  .badge{
+    display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600;
+    background:rgba(88,166,255,.15);color:#58a6ff;
+  }
+  footer{
+    margin-top:auto;padding:32px 24px;
+    color:#484f58;font-size:.8rem;text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Hyperide Reports</h1>
+  <p class="subtitle">Technical work reports &amp; architecture documentation</p>
+  <ul class="report-list">
+    <!-- REPORTS_START -->
+    <li class="report-card">
+      <a href="reports/HYP-200/">
+        <div class="report-title">HYP-200: Unified Diagnostic Panel</div>
+        <div class="report-meta">
+          <span>2026-03-02</span>
+          <span class="badge">feat</span>
+          <span>68 files changed</span>
+          <span>+7,031 / −1,710</span>
+        </div>
+      </a>
+    </li>
+    <!-- REPORTS_END -->
+  </ul>
+</div>
+<footer>Hyperide &copy; 2026</footer>
+</body>
+</html>
