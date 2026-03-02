@@ -310,94 +310,7 @@ h3{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
 <div class="container">
 <section id="product">
   <h2>Product Changes</h2>
-
-  <div class="product-section">
-    <div class="product-header"><span class="emoji">&#10024;</span> What's New</div>
-    <ul class="product-list">
-      <li class="product-item">
-        <div class="product-item-title">Unified Diagnostic Panel</div>
-        <div class="product-item-desc">Single panel for all diagnostic logs — server stdout/stderr, iframe console, compilation errors. Replaces the old DockerLogsViewer with a modern, filterable interface.</div>
-        <div class="product-item-files">New: <code>DiagnosticLogsViewer.tsx</code>, <code>DiagnosticFilterBar.tsx</code>, <code>diagnosticStore.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Severity-Based Filtering</div>
-        <div class="product-item-desc">Filter logs by severity level — Error, Warning, Info, Debug. Active severity counts shown in filter bar badges.</div>
-        <div class="product-item-files">New: <code>useDiagnosticFilter.ts</code>, <code>DiagnosticFilterBar.tsx</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Real-Time Search &amp; Highlight</div>
-        <div class="product-item-desc">Full-text search across log messages with real-time highlighting. Matches are highlighted inline without regex — safe from ReDoS.</div>
-        <div class="product-item-files">New: <code>highlight.tsx</code>, <code>highlightSearch.test.tsx</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Log Persistence to Postgres</div>
-        <div class="product-item-desc">Diagnostic logs are batched and persisted to a Postgres table via a new API route. Logs survive page refresh and can be queried historically.</div>
-        <div class="product-item-files">New: <code>diagnostic-logs.ts</code> (route), <code>diagnostic-logs.ts</code> (schema), migration <code>0008</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">VS Code DiagnosticHub</div>
-        <div class="product-item-desc">Central aggregator in the VS Code extension that collects logs from DevServerManager, PreviewPanel, and iframe, forwarding them to the webview logs panel.</div>
-        <div class="product-item-files">New: <code>DiagnosticHub.ts</code>, <code>DiagnosticPersistenceService.ts</code>, <code>useDiagnosticSyncExt.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Iframe Console Capture</div>
-        <div class="product-item-desc">Injected script intercepts console.log/warn/error in the preview iframe and forwards entries to the parent window via postMessage.</div>
-        <div class="product-item-files">New: <code>iframe-console-capture.js</code></div>
-      </li>
-    </ul>
-  </div>
-
-  <div class="product-section">
-    <div class="product-header"><span class="emoji">&#128640;</span> Improvements</div>
-    <ul class="product-list">
-      <li class="product-item">
-        <div class="product-item-title">Delta Broadcasting</div>
-        <div class="product-item-desc">SSE now broadcasts only new log entries (delta) instead of the full buffer. Drastically reduces bandwidth and re-render cost at high log volume.</div>
-        <div class="product-item-files">Changed: <code>useDiagnosticSync.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Exponential Backoff for SSE Reconnection</div>
-        <div class="product-item-desc">SSE reconnection now uses exponential backoff (1s → 2s → 4s → ... → 30s max) instead of immediate retry, reducing server load during outages.</div>
-        <div class="product-item-files">Changed: <code>useDiagnosticSync.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Semantic Color Tokens</div>
-        <div class="product-item-desc">All severity colors now use semantic Tailwind tokens (bg-destructive, text-warning) instead of hardcoded values, ensuring consistent dark theme support.</div>
-        <div class="product-item-files">Changed: <code>DiagnosticFilterBar.tsx</code></div>
-      </li>
-    </ul>
-  </div>
-
-  <div class="product-section">
-    <div class="product-header"><span class="emoji">&#128295;</span> Fixes</div>
-    <ul class="product-list">
-      <li class="product-item">
-        <div class="product-item-title">Persistence Loop Prevention</div>
-        <div class="product-item-desc">Fixed infinite loop where store.subscribe → persist → store update → subscribe chain would never terminate. Dual-ref guard breaks the cycle.</div>
-        <div class="product-item-files">Fixed: <code>diagnosticStore.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Persistence Stuck After Clear</div>
-        <div class="product-item-desc">After clearing logs, persistence refs were not reset, causing new logs to never be persisted. Now resets both refs on clear.</div>
-        <div class="product-item-files">Fixed: <code>diagnosticStore.ts</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">XSS via Regex Injection</div>
-        <div class="product-item-desc">Search input was passed directly to RegExp constructor. Replaced with safe String.includes() matching.</div>
-        <div class="product-item-files">Fixed: <code>highlight.tsx</code></div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">Missing Auth on Diagnostic Routes</div>
-        <div class="product-item-desc">POST/GET /api/diagnostic-logs were accessible without authentication. Added inline authMiddleware + requireEditor.</div>
-        <div class="product-item-files">Fixed: <code>diagnostic-logs.ts</code> (route)</div>
-      </li>
-      <li class="product-item">
-        <div class="product-item-title">SSE Connection Leak</div>
-        <div class="product-item-desc">EventSource was never closed on component unmount. Added cleanup in useEffect return.</div>
-        <div class="product-item-files">Fixed: <code>useDiagnosticSync.ts</code></div>
-      </li>
-    </ul>
-  </div>
+  <div id="productChanges"></div>
 </section>
 </div>
 
@@ -699,6 +612,64 @@ const REPORT_DATA = {
     { path: 'vscode-extension/hypercanvas-preview/src/webview/App.tsx', ins: 29, del: 5, status: 'modified' },
     { path: 'vscode-extension/hypercanvas-preview/src/webview/DevServerLogsViewer.tsx', ins: 0, del: 202, status: 'deleted' },
   ],
+  product: {
+    new: [
+      { title: 'Unified Diagnostic Panel', desc: 'Single panel for all diagnostic logs — server stdout/stderr, iframe console, compilation errors. Replaces the old DockerLogsViewer.', files: [
+        { name: 'DiagnosticLogsViewer.tsx', path: 'client/components/DiagnosticLogsViewer.tsx' },
+        { name: 'DiagnosticFilterBar.tsx', path: 'client/components/DiagnosticFilterBar.tsx' },
+        { name: 'diagnosticStore.ts', path: 'client/stores/diagnosticStore.ts' },
+      ]},
+      { title: 'Severity-Based Filtering', desc: 'Filter logs by severity level — Error, Warning, Info, Debug. Active severity counts shown in filter bar badges.', files: [
+        { name: 'useDiagnosticFilter.ts', path: 'client/hooks/useDiagnosticFilter.ts' },
+        { name: 'DiagnosticFilterBar.tsx', path: 'client/components/DiagnosticFilterBar.tsx' },
+      ]},
+      { title: 'Real-Time Search & Highlight', desc: 'Full-text search across log messages with real-time highlighting. Matches are highlighted inline without regex — safe from ReDoS.', files: [
+        { name: 'highlight.tsx', path: 'client/utils/highlight.tsx' },
+        { name: 'highlightSearch.test.tsx', path: 'client/components/__tests__/highlightSearch.test.tsx' },
+      ]},
+      { title: 'Log Persistence to Postgres', desc: 'Diagnostic logs are batched and persisted to a Postgres table via a new API route. Logs survive page refresh.', files: [
+        { name: 'diagnostic-logs.ts (route)', path: 'server/routes/diagnostic-logs.ts' },
+        { name: 'diagnostic-logs.ts (schema)', path: 'server/database/schema/diagnostic-logs.ts' },
+        { name: 'migration 0008', path: 'server/database/migrations/0008_short_invaders.sql' },
+      ]},
+      { title: 'VS Code DiagnosticHub', desc: 'Central aggregator in the VS Code extension that collects logs from DevServerManager, PreviewPanel, and iframe.', files: [
+        { name: 'DiagnosticHub.ts', path: 'vscode-extension/hypercanvas-preview/src/DiagnosticHub.ts' },
+        { name: 'DiagnosticPersistenceService.ts', path: 'vscode-extension/hypercanvas-preview/src/services/DiagnosticPersistenceService.ts' },
+        { name: 'useDiagnosticSyncExt.ts', path: 'client/hooks/useDiagnosticSyncExt.ts' },
+      ]},
+      { title: 'Iframe Console Capture', desc: 'Injected script intercepts console.log/warn/error in the preview iframe and forwards entries to the parent window via postMessage.', files: [
+        { name: 'iframe-console-capture.js', path: 'shared/scripts/iframe-console-capture.js' },
+      ]},
+    ],
+    improvements: [
+      { title: 'Delta Broadcasting', desc: 'SSE now broadcasts only new log entries (delta) instead of the full buffer. Drastically reduces bandwidth at high log volume.', files: [
+        { name: 'useDiagnosticSync.ts', path: 'client/hooks/useDiagnosticSync.ts' },
+      ]},
+      { title: 'Exponential Backoff for SSE Reconnection', desc: 'SSE reconnection uses exponential backoff (1s → 2s → 4s → ... → 30s max) instead of immediate retry.', files: [
+        { name: 'useDiagnosticSync.ts', path: 'client/hooks/useDiagnosticSync.ts' },
+      ]},
+      { title: 'Semantic Color Tokens', desc: 'All severity colors now use semantic Tailwind tokens (bg-destructive, text-warning) instead of hardcoded values.', files: [
+        { name: 'DiagnosticFilterBar.tsx', path: 'client/components/DiagnosticFilterBar.tsx' },
+      ]},
+    ],
+    fixes: [
+      { title: 'Persistence Loop Prevention', desc: 'Fixed infinite loop: store.subscribe → persist → store update → subscribe. Dual-ref guard breaks the cycle.', files: [
+        { name: 'diagnosticStore.ts', path: 'client/stores/diagnosticStore.ts' },
+      ]},
+      { title: 'Persistence Stuck After Clear', desc: 'After clearing logs, persistence refs were not reset, causing new logs to never be persisted.', files: [
+        { name: 'diagnosticStore.ts', path: 'client/stores/diagnosticStore.ts' },
+      ]},
+      { title: 'XSS via Regex Injection', desc: 'Search input was passed directly to RegExp constructor. Replaced with safe String.includes() matching.', files: [
+        { name: 'highlight.tsx', path: 'client/utils/highlight.tsx' },
+      ]},
+      { title: 'Missing Auth on Diagnostic Routes', desc: 'POST/GET /api/diagnostic-logs were accessible without authentication. Added inline authMiddleware + requireEditor.', files: [
+        { name: 'diagnostic-logs.ts', path: 'server/routes/diagnostic-logs.ts' },
+      ]},
+      { title: 'SSE Connection Leak', desc: 'EventSource was never closed on component unmount. Added cleanup in useEffect return.', files: [
+        { name: 'useDiagnosticSync.ts', path: 'client/hooks/useDiagnosticSync.ts' },
+      ]},
+    ],
+  },
   findings: [
     { id: 'C1', severity: 'critical', title: 'XSS via regex injection in highlight matching', file: 'client/utils/highlight.tsx', desc: 'User search input was passed directly to new RegExp() without escaping. Malicious regex could cause ReDoS or break rendering.', fix: 'Replaced regex.test() with String.includes() for matching, escaped special chars for highlighting.', diff: { before: 'const regex = new RegExp(search, "gi");\nif (regex.test(text)) { ... }', after: 'if (text.toLowerCase().includes(search.toLowerCase())) {\n  // Safe string matching, no regex\n}' } },
     { id: 'C2', severity: 'critical', title: 'Missing auth middleware on diagnostic-logs routes', file: 'server/routes/diagnostic-logs.ts', desc: 'POST/GET /api/diagnostic-logs routes were registered without authMiddleware, allowing unauthenticated access.', fix: 'Added inline authMiddleware and requireEditor to each route.', diff: { before: 'app.post("/api/diagnostic-logs", async (c) => {', after: 'app.post("/api/diagnostic-logs", authMiddleware, requireEditor, async (c) => {' } },
@@ -805,6 +776,31 @@ function fileUrl(path) {
 
 function prFileUrl(path) {
   return `${REPORT_DATA.pr.url}/files#diff-${path.replace(/[/.]/g, '')}`;
+}
+
+// ═══════════════════ PRODUCT CHANGES ═══════════════════
+function renderProduct() {
+  const p = REPORT_DATA.product;
+  const container = document.getElementById('productChanges');
+  const sections = [
+    { emoji: '&#10024;', label: "What's New", items: p.new },
+    { emoji: '&#128640;', label: 'Improvements', items: p.improvements },
+    { emoji: '&#128295;', label: 'Fixes', items: p.fixes },
+  ];
+  container.innerHTML = sections.filter(s => s.items.length > 0).map(s => `
+    <div class="product-section">
+      <div class="product-header"><span class="emoji">${s.emoji}</span> ${s.label}</div>
+      <ul class="product-list">${s.items.map(it => `
+        <li class="product-item">
+          <div class="product-item-title">${escHtml(it.title)}</div>
+          <div class="product-item-desc">${escHtml(it.desc)}</div>
+          <div class="product-item-files">${it.files.map(f =>
+            `<a href="${fileUrl(f.path)}" target="_blank"><code>${escHtml(f.name)}</code></a>`
+          ).join(', ')}</div>
+        </li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
 }
 
 // ═══════════════════ FILE IMPACT GRAPH ═══════════════════
@@ -1032,6 +1028,7 @@ function setupScrollReveal() {
 
 // ═══════════════════ INIT ═══════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  renderProduct();
   renderFileGraph();
   renderFindings();
   setupFilters();
