@@ -68,8 +68,7 @@ h3{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
   padding:24px;overflow:hidden;position:relative;
 }
 .diagram-wrap svg{width:100%;height:auto;display:block}
-.node-group{cursor:grab}
-.node-group:active{cursor:grabbing}
+.node-group{cursor:pointer}
 .node-rect{
   rx:8;fill:rgba(22,27,34,.9);stroke:#30363d;stroke-width:1.5;
   transition:stroke .2s;
@@ -80,13 +79,17 @@ h3{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
 .edge{stroke:#30363d;stroke-width:1.5;fill:none;marker-end:url(#arrow)}
 .edge-animated{stroke:#58a6ff;stroke-dasharray:6 4;animation:dash 1.5s linear infinite}
 @keyframes dash{to{stroke-dashoffset:-20}}
+.zone-rect{rx:12;fill-opacity:.06;stroke-width:1.5;stroke-dasharray:6 3}
+.zone-label{font-size:11px;font-weight:700;letter-spacing:.5px;font-family:inherit}
 .tooltip-box{
-  position:absolute;background:rgba(13,17,23,.95);border:1px solid #58a6ff;
-  border-radius:8px;padding:10px 14px;font-size:.82rem;color:#c9d1d9;
-  pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;
-  max-width:280px;backdrop-filter:blur(8px);
+  position:absolute;background:rgba(13,17,23,.97);border:1px solid #58a6ff;
+  border-radius:8px;padding:12px 16px;font-size:.82rem;color:#c9d1d9;
+  pointer-events:auto;opacity:0;transition:opacity .2s;z-index:10;
+  max-width:320px;backdrop-filter:blur(12px);
 }
 .tooltip-box.show{opacity:1}
+.tooltip-box a{color:#58a6ff;text-decoration:underline;font-size:.78rem;display:inline-block;margin-top:6px}
+.tooltip-box a:hover{color:#bc8cff}
 
 /* ── File Impact Graph ── */
 .file-graph{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
@@ -432,136 +435,133 @@ h3{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
   <h2>Architecture</h2>
   <div class="diagram-wrap" id="diagramWrap">
     <div class="tooltip-box" id="tooltip"></div>
-    <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 940 580" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff"/>
         </marker>
-        <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#58a6ff"/>
-          <stop offset="100%" stop-color="#bc8cff"/>
-        </linearGradient>
       </defs>
 
-      <!-- Data Flow Layer -->
-      <text x="20" y="20" fill="#484f58" font-size="11" font-weight="600">DATA FLOW</text>
+      <!-- ── Zone: Browser (SaaS client) ── -->
+      <rect class="zone-rect" x="10" y="10" width="920" height="180" fill="#58a6ff" stroke="#58a6ff"/>
+      <text class="zone-label" x="24" y="30" fill="#58a6ff">BROWSER (SaaS Client)</text>
 
-      <!-- SSE/Polling -->
-      <g class="node-group" data-x="30" data-y="40" data-desc="Server-Sent Events or polling for real-time log updates from dev server">
-        <rect class="node-rect" x="30" y="40" width="130" height="50"/>
-        <text class="node-label" x="95" y="62" text-anchor="middle">SSE / Polling</text>
-        <text class="node-desc" x="95" y="76" text-anchor="middle">Transport</text>
+      <g class="node-group" data-desc="React hook: SSE connection, reconnection with exponential backoff, delta broadcasting" data-href="client/hooks/useDiagnosticSync.ts">
+        <rect class="node-rect" x="24" y="44" width="170" height="50"/>
+        <text class="node-label" x="109" y="66" text-anchor="middle">useDiagnosticSync</text>
+        <text class="node-desc" x="109" y="80" text-anchor="middle">SSE + Reconnect</text>
       </g>
 
-      <!-- useDiagnosticSync -->
-      <g class="node-group" data-x="220" data-y="40" data-desc="React hook managing SSE connection, reconnection logic, and delta broadcasting">
-        <rect class="node-rect" x="220" y="40" width="170" height="50"/>
-        <text class="node-label" x="305" y="62" text-anchor="middle">useDiagnosticSync</text>
-        <text class="node-desc" x="305" y="76" text-anchor="middle">React Hook</text>
+      <g class="node-group" data-desc="Zustand store: log buffer (max 5000), severity counts, search/filter state, persistence triggers" data-href="client/stores/diagnosticStore.ts">
+        <rect class="node-rect" x="244" y="44" width="160" height="50"/>
+        <text class="node-label" x="324" y="66" text-anchor="middle">diagnosticStore</text>
+        <text class="node-desc" x="324" y="80" text-anchor="middle">Zustand Store</text>
       </g>
 
-      <!-- diagnosticStore -->
-      <g class="node-group" data-x="450" data-y="40" data-desc="Zustand store: log buffer, severity counts, search/filter state, max 5000 entries">
-        <rect class="node-rect" x="450" y="40" width="160" height="50"/>
-        <text class="node-label" x="530" y="62" text-anchor="middle">diagnosticStore</text>
-        <text class="node-desc" x="530" y="76" text-anchor="middle">Zustand Store</text>
+      <g class="node-group" data-desc="Filter bar with severity toggles, active count badges, semantic color tokens" data-href="client/components/DiagnosticFilterBar.tsx">
+        <rect class="node-rect" x="454" y="44" width="180" height="50"/>
+        <text class="node-label" x="544" y="66" text-anchor="middle">DiagnosticFilterBar</text>
+        <text class="node-desc" x="544" y="80" text-anchor="middle">Filter UI</text>
       </g>
 
-      <!-- DiagnosticLogsViewer -->
-      <g class="node-group" data-x="680" data-y="40" data-desc="React component: virtualized log list, severity badges, search highlighting, auto-scroll">
-        <rect class="node-rect" x="680" y="40" width="190" height="50"/>
-        <text class="node-label" x="775" y="62" text-anchor="middle">DiagnosticLogsViewer</text>
-        <text class="node-desc" x="775" y="76" text-anchor="middle">React Component</text>
+      <g class="node-group" data-desc="Unified log viewer: virtualized list, severity badges, search highlighting (String.includes)" data-href="client/components/DiagnosticLogsViewer.tsx">
+        <rect class="node-rect" x="684" y="44" width="200" height="50"/>
+        <text class="node-label" x="784" y="66" text-anchor="middle">DiagnosticLogsViewer</text>
+        <text class="node-desc" x="784" y="80" text-anchor="middle">Log Viewer UI</text>
       </g>
 
-      <!-- Edges: Data Flow -->
-      <path class="edge edge-animated" d="M 160 65 L 218 65"/>
-      <path class="edge edge-animated" d="M 390 65 L 448 65"/>
-      <path class="edge edge-animated" d="M 610 65 L 678 65"/>
-
-      <!-- Persistence Layer -->
-      <text x="20" y="150" fill="#484f58" font-size="11" font-weight="600">PERSISTENCE</text>
-
-      <!-- diagnosticStore (ref to above) -->
-      <g class="node-group" data-x="450" data-y="160" data-desc="Store triggers batch POST on threshold (100 logs or 5s interval)">
-        <rect class="node-rect" x="450" y="160" width="160" height="50" style="stroke:#bc8cff"/>
-        <text class="node-label" x="530" y="182" text-anchor="middle">Batch POST</text>
-        <text class="node-desc" x="530" y="196" text-anchor="middle">Persistence trigger</text>
+      <g class="node-group" data-desc="Safe highlight utility: String.includes() matching, no regex, no ReDoS risk" data-href="client/utils/highlight.tsx">
+        <rect class="node-rect" x="684" y="114" width="200" height="50"/>
+        <text class="node-label" x="784" y="136" text-anchor="middle">highlight.tsx</text>
+        <text class="node-desc" x="784" y="150" text-anchor="middle">Search Highlight</text>
       </g>
 
-      <!-- API Route -->
-      <g class="node-group" data-x="220" data-y="160" data-desc="Hono route: POST /api/diagnostic-logs — validates batch, inserts to Postgres">
-        <rect class="node-rect" x="220" y="160" width="170" height="50"/>
-        <text class="node-label" x="305" y="182" text-anchor="middle">/api/diagnostic-logs</text>
-        <text class="node-desc" x="305" y="196" text-anchor="middle">Hono Route</text>
+      <g class="node-group" data-desc="Filter logic hook: severity filter state, filtered logs selector" data-href="client/hooks/useDiagnosticFilter.ts">
+        <rect class="node-rect" x="454" y="114" width="180" height="50"/>
+        <text class="node-label" x="544" y="136" text-anchor="middle">useDiagnosticFilter</text>
+        <text class="node-desc" x="544" y="150" text-anchor="middle">Filter Logic</text>
       </g>
 
-      <!-- Postgres -->
-      <g class="node-group" data-x="30" data-y="160" data-desc="diagnostic_logs table with project_id, severity, message, source, created_at">
-        <rect class="node-rect" x="30" y="160" width="130" height="50" style="stroke:#3fb950"/>
-        <text class="node-label" x="95" y="182" text-anchor="middle">Postgres</text>
-        <text class="node-desc" x="95" y="196" text-anchor="middle">diagnostic_logs</text>
+      <!-- Browser edges -->
+      <path class="edge edge-animated" d="M 194 69 L 242 69"/>
+      <path class="edge edge-animated" d="M 404 69 L 452 69"/>
+      <path class="edge edge-animated" d="M 634 69 L 682 69"/>
+      <path class="edge" d="M 544 94 L 544 112"/>
+      <path class="edge" d="M 784 94 L 784 112"/>
+
+      <!-- ── Zone: Server (Node.js / Hono) ── -->
+      <rect class="zone-rect" x="10" y="210" width="520" height="130" fill="#3fb950" stroke="#3fb950"/>
+      <text class="zone-label" x="24" y="230" fill="#3fb950">SERVER (Node.js / Hono)</text>
+
+      <g class="node-group" data-desc="POST /api/diagnostic-logs — Zod validation (.max(1000)), authMiddleware + requireEditor, batch insert to Postgres" data-href="server/routes/diagnostic-logs.ts">
+        <rect class="node-rect" x="24" y="244" width="190" height="50"/>
+        <text class="node-label" x="119" y="266" text-anchor="middle">/api/diagnostic-logs</text>
+        <text class="node-desc" x="119" y="280" text-anchor="middle">Hono Route</text>
       </g>
 
-      <!-- Edges: Persistence -->
-      <path class="edge" d="M 530 90 L 530 158"/>
-      <path class="edge edge-animated" d="M 448 185 L 392 185"/>
-      <path class="edge edge-animated" d="M 218 185 L 162 185"/>
-
-      <!-- VS Code Extension Layer -->
-      <text x="20" y="280" fill="#484f58" font-size="11" font-weight="600">VS CODE EXTENSION</text>
-
-      <!-- DevServerManager -->
-      <g class="node-group" data-x="30" data-y="300" data-desc="Manages dev server process, captures stdout/stderr, forwards to DiagnosticHub">
-        <rect class="node-rect" x="30" y="300" width="160" height="50"/>
-        <text class="node-label" x="110" y="322" text-anchor="middle">DevServerManager</text>
-        <text class="node-desc" x="110" y="336" text-anchor="middle">Process Manager</text>
+      <g class="node-group" data-desc="diagnostic_logs table: project_id, severity, message, source, created_at. Migration 0008." data-href="server/database/schema/diagnostic-logs.ts">
+        <rect class="node-rect" x="264" y="244" width="130" height="50" style="stroke:#3fb950"/>
+        <text class="node-label" x="329" y="266" text-anchor="middle">Postgres</text>
+        <text class="node-desc" x="329" y="280" text-anchor="middle">diagnostic_logs</text>
       </g>
 
-      <!-- DiagnosticHub -->
-      <g class="node-group" data-x="250" data-y="300" data-desc="Central hub: aggregates logs from all sources (server, iframe, preview), applies severity classification">
-        <rect class="node-rect" x="250" y="300" width="150" height="50"/>
-        <text class="node-label" x="325" y="322" text-anchor="middle">DiagnosticHub</text>
-        <text class="node-desc" x="325" y="336" text-anchor="middle">Aggregator</text>
+      <!-- Server edges -->
+      <path class="edge edge-animated" d="M 214 269 L 262 269"/>
+      <!-- Browser → Server: batch POST -->
+      <path class="edge edge-animated" d="M 324 164 L 324 190 L 119 190 L 119 242"/>
+
+      <!-- ── Zone: VS Code Extension ── -->
+      <rect class="zone-rect" x="10" y="360" width="920" height="130" fill="#bc8cff" stroke="#bc8cff"/>
+      <text class="zone-label" x="24" y="380" fill="#bc8cff">VS CODE EXTENSION (Node.js host + Webview)</text>
+
+      <g class="node-group" data-desc="Manages dev server child process, captures stdout/stderr, forwards output to DiagnosticHub" data-href="vscode-extension/hypercanvas-preview/src/services/DevServerManager.ts">
+        <rect class="node-rect" x="24" y="394" width="170" height="50"/>
+        <text class="node-label" x="109" y="416" text-anchor="middle">DevServerManager</text>
+        <text class="node-desc" x="109" y="430" text-anchor="middle">Process Manager</text>
       </g>
 
-      <!-- LogsPanelProvider -->
-      <g class="node-group" data-x="460" data-y="300" data-desc="Webview provider for the Logs panel, receives messages from DiagnosticHub">
-        <rect class="node-rect" x="460" y="300" width="170" height="50"/>
-        <text class="node-label" x="545" y="322" text-anchor="middle">LogsPanelProvider</text>
-        <text class="node-desc" x="545" y="336" text-anchor="middle">Webview Provider</text>
+      <g class="node-group" data-desc="Central hub: aggregates logs from DevServer, PreviewPanel, iframe console. Severity classification. Disposable." data-href="vscode-extension/hypercanvas-preview/src/DiagnosticHub.ts">
+        <rect class="node-rect" x="244" y="394" width="150" height="50"/>
+        <text class="node-label" x="319" y="416" text-anchor="middle">DiagnosticHub</text>
+        <text class="node-desc" x="319" y="430" text-anchor="middle">Aggregator</text>
       </g>
 
-      <!-- diagnosticStore (ext) -->
-      <g class="node-group" data-x="690" data-y="300" data-desc="Same diagnosticStore running inside VS Code webview context">
-        <rect class="node-rect" x="690" y="300" width="170" height="50" style="stroke:#bc8cff"/>
-        <text class="node-label" x="775" y="322" text-anchor="middle">diagnosticStore</text>
-        <text class="node-desc" x="775" y="336" text-anchor="middle">Webview Store</text>
+      <g class="node-group" data-desc="Webview provider for the Logs panel, postMessage bridge to webview, receives from DiagnosticHub" data-href="vscode-extension/hypercanvas-preview/src/LogsPanelProvider.ts">
+        <rect class="node-rect" x="444" y="394" width="180" height="50"/>
+        <text class="node-label" x="534" y="416" text-anchor="middle">LogsPanelProvider</text>
+        <text class="node-desc" x="534" y="430" text-anchor="middle">Webview Provider</text>
       </g>
 
-      <!-- Edges: VS Code -->
-      <path class="edge edge-animated" d="M 192 325 L 248 325"/>
-      <path class="edge edge-animated" d="M 400 325 L 458 325"/>
-      <path class="edge edge-animated" d="M 630 325 L 688 325"/>
-
-      <!-- Shared Types -->
-      <text x="20" y="420" fill="#484f58" font-size="11" font-weight="600">SHARED</text>
-
-      <g class="node-group" data-x="30" data-y="440" data-desc="DiagnosticEntry, DiagnosticSeverity, DiagnosticSource — shared between client, server, and extension">
-        <rect class="node-rect" x="30" y="440" width="180" height="50" style="stroke:#d29922"/>
-        <text class="node-label" x="120" y="462" text-anchor="middle">diagnostic-types.ts</text>
-        <text class="node-desc" x="120" y="476" text-anchor="middle">Shared Types</text>
+      <g class="node-group" data-desc="Extension-specific sync hook, receives logs via postMessage from LogsPanelProvider, feeds diagnosticStore" data-href="client/hooks/useDiagnosticSyncExt.ts">
+        <rect class="node-rect" x="674" y="394" width="200" height="50" style="stroke:#bc8cff"/>
+        <text class="node-label" x="774" y="416" text-anchor="middle">useDiagnosticSyncExt</text>
+        <text class="node-desc" x="774" y="430" text-anchor="middle">Webview Hook</text>
       </g>
 
-      <g class="node-group" data-x="270" data-y="440" data-desc="iframe-console-capture.js — injected into preview iframe to capture console.* calls">
-        <rect class="node-rect" x="270" y="440" width="220" height="50" style="stroke:#d29922"/>
-        <text class="node-label" x="380" y="462" text-anchor="middle">iframe-console-capture.js</text>
-        <text class="node-desc" x="380" y="476" text-anchor="middle">Console Interceptor</text>
+      <!-- Extension edges -->
+      <path class="edge edge-animated" d="M 194 419 L 242 419"/>
+      <path class="edge edge-animated" d="M 394 419 L 442 419"/>
+      <path class="edge edge-animated" d="M 624 419 L 672 419"/>
+
+      <!-- ── Zone: Shared ── -->
+      <rect class="zone-rect" x="550" y="210" width="380" height="130" fill="#d29922" stroke="#d29922"/>
+      <text class="zone-label" x="564" y="230" fill="#d29922">SHARED (client + server + extension)</text>
+
+      <g class="node-group" data-desc="DiagnosticEntry, DiagnosticSeverity, DiagnosticSource — shared type definitions used by all layers" data-href="shared/diagnostic-types.ts">
+        <rect class="node-rect" x="564" y="244" width="180" height="50" style="stroke:#d29922"/>
+        <text class="node-label" x="654" y="266" text-anchor="middle">diagnostic-types.ts</text>
+        <text class="node-desc" x="654" y="280" text-anchor="middle">Shared Types</text>
       </g>
 
-      <!-- Dashed lines to shared -->
-      <path class="edge" d="M 120 440 L 120 352" stroke-dasharray="4 4" style="stroke:#d29922"/>
-      <path class="edge" d="M 530 210 L 530 240 L 120 240 L 120 438" stroke-dasharray="4 4" style="stroke:#d29922;marker-end:none"/>
+      <g class="node-group" data-desc="Injected into preview iframe, intercepts console.log/warn/error, forwards to parent via postMessage" data-href="shared/scripts/iframe-console-capture.js">
+        <rect class="node-rect" x="764" y="244" width="150" height="50" style="stroke:#d29922"/>
+        <text class="node-label" x="839" y="266" text-anchor="middle">console-capture</text>
+        <text class="node-desc" x="839" y="280" text-anchor="middle">Iframe Interceptor</text>
+      </g>
+
+      <!-- Dashed import lines from shared -->
+      <path class="edge" d="M 654 244 L 654 190 L 324 190 L 324 96" stroke-dasharray="4 4" style="stroke:#d29922;marker-end:none"/>
+      <path class="edge" d="M 654 296 L 654 340 L 319 340 L 319 392" stroke-dasharray="4 4" style="stroke:#d29922;marker-end:none"/>
     </svg>
   </div>
 </section>
@@ -797,6 +797,16 @@ const REPORT_DATA = {
   ]
 };
 
+// ═══════════════════ HELPERS ═══════════════════
+function fileUrl(path) {
+  const headSha = REPORT_DATA.commits[REPORT_DATA.commits.length - 1].full;
+  return `${REPORT_DATA.repo}/blob/${headSha}/${path}`;
+}
+
+function prFileUrl(path) {
+  return `${REPORT_DATA.pr.url}/files#diff-${path.replace(/[/.]/g, '')}`;
+}
+
 // ═══════════════════ FILE IMPACT GRAPH ═══════════════════
 function renderFileGraph() {
   const container = document.getElementById('fileGraph');
@@ -819,13 +829,19 @@ function renderFileGraph() {
       node.className = 'file-node';
       node.innerHTML = `
         <span class="file-dot ${statusClass}"></span>
-        <span class="file-name mono" title="${f.path}">${name}</span>
+        <a class="file-name mono" href="${fileUrl(f.path)}" target="_blank" title="${f.path}" style="color:#c9d1d9">${name}</a>
         <span class="file-stat">+${f.ins} −${f.del}</span>
       `;
       const detail = document.createElement('div');
       detail.className = 'file-detail';
-      detail.innerHTML = `<strong>${f.path}</strong><br>Status: ${f.status} · Total: ${total} lines · Size factor: ${Math.ceil(total/50)}`;
-      node.addEventListener('click', () => detail.classList.toggle('open'));
+      detail.innerHTML = `
+        <strong>${f.path}</strong><br>
+        Status: ${f.status} · Total: ${total} lines<br>
+        <a href="${fileUrl(f.path)}" target="_blank">View file</a> ·
+        <a href="${prFileUrl(f.path)}" target="_blank">View in PR diff</a>
+      `;
+      node.querySelector('.file-dot').addEventListener('click', (e) => { e.stopPropagation(); detail.classList.toggle('open'); });
+      node.querySelector('.file-stat').addEventListener('click', () => detail.classList.toggle('open'));
       group.appendChild(node);
       group.appendChild(detail);
     }
@@ -842,7 +858,7 @@ function renderFindings() {
     card.dataset.severity = f.severity;
     const diffHtml = f.diff ? `
       <div class="diff-block">
-        <div class="diff-header">${f.file}</div>
+        <div class="diff-header"><a href="${fileUrl(f.file)}" target="_blank" style="color:#8b949e">${f.file}</a></div>
         ${f.diff.before ? f.diff.before.split('\n').map(l => `<div class="diff-line del mono">- ${escHtml(l)}</div>`).join('') : ''}
         ${f.diff.after ? f.diff.after.split('\n').map(l => `<div class="diff-line add mono">+ ${escHtml(l)}</div>`).join('') : ''}
       </div>
@@ -857,7 +873,7 @@ function renderFindings() {
       <div class="finding-body">
         <p>${f.desc}</p>
         <p class="mt-8"><strong>Fix:</strong> ${f.fix}</p>
-        <div class="finding-file">File: <code>${f.file}</code></div>
+        <div class="finding-file">File: <a href="${fileUrl(f.file)}" target="_blank"><code>${f.file}</code></a></div>
         ${diffHtml}
       </div>
     `;
@@ -958,67 +974,47 @@ function renderADRs() {
   }
 }
 
-// ═══════════════════ DRAGGABLE NODES ═══════════════════
-function setupDraggableNodes() {
+// ═══════════════════ DIAGRAM TOOLTIPS WITH LINKS ═══════════════════
+function setupDiagramTooltips() {
   const svg = document.querySelector('.diagram-wrap svg');
+  if (!svg) return;
   const tooltip = document.getElementById('tooltip');
   const wrap = document.getElementById('diagramWrap');
-  let dragging = null;
-  let offset = { x: 0, y: 0 };
+  let hideTimeout = null;
 
-  function getSVGPoint(e) {
-    const pt = svg.createSVGPoint();
-    const rect = svg.getBoundingClientRect();
-    const vb = svg.viewBox.baseVal;
-    pt.x = (e.clientX - rect.left) / rect.width * vb.width;
-    pt.y = (e.clientY - rect.top) / rect.height * vb.height;
-    return pt;
+  function fileUrl(path) {
+    // Link to the file at the PR head commit
+    const headSha = REPORT_DATA.commits[REPORT_DATA.commits.length - 1].full;
+    return `${REPORT_DATA.repo}/blob/${headSha}/${path}`;
+  }
+
+  function showTooltip(g, e) {
+    clearTimeout(hideTimeout);
+    const desc = g.dataset.desc || '';
+    const href = g.dataset.href || '';
+    let html = `<div>${escHtml(desc)}</div>`;
+    if (href) {
+      html += `<a href="${fileUrl(href)}" target="_blank">${href}</a>`;
+    }
+    tooltip.innerHTML = html;
+    tooltip.classList.add('show');
+    const wr = wrap.getBoundingClientRect();
+    const x = Math.min(e.clientX - wr.left + 12, wr.width - 340);
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = (e.clientY - wr.top - 50) + 'px';
+  }
+
+  function scheduleHide() {
+    hideTimeout = setTimeout(() => tooltip.classList.remove('show'), 200);
   }
 
   svg.querySelectorAll('.node-group').forEach(g => {
-    g.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      dragging = g;
-      const pt = getSVGPoint(e);
-      const rect = g.querySelector('.node-rect');
-      offset.x = pt.x - parseFloat(rect.getAttribute('x'));
-      offset.y = pt.y - parseFloat(rect.getAttribute('y'));
-    });
-
-    g.addEventListener('mouseenter', (e) => {
-      if (dragging) return;
-      const desc = g.dataset.desc;
-      if (!desc) return;
-      tooltip.textContent = desc;
-      tooltip.classList.add('show');
-      const wrapRect = wrap.getBoundingClientRect();
-      tooltip.style.left = (e.clientX - wrapRect.left + 12) + 'px';
-      tooltip.style.top = (e.clientY - wrapRect.top - 40) + 'px';
-    });
-
-    g.addEventListener('mouseleave', () => {
-      tooltip.classList.remove('show');
-    });
+    g.addEventListener('mouseenter', (e) => showTooltip(g, e));
+    g.addEventListener('mouseleave', scheduleHide);
   });
 
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const pt = getSVGPoint(e);
-    const newX = pt.x - offset.x;
-    const newY = pt.y - offset.y;
-    const rect = dragging.querySelector('.node-rect');
-    rect.setAttribute('x', newX);
-    rect.setAttribute('y', newY);
-    const w = parseFloat(rect.getAttribute('width'));
-    const h = parseFloat(rect.getAttribute('height'));
-    const labels = dragging.querySelectorAll('text');
-    if (labels[0]) { labels[0].setAttribute('x', newX + w/2); labels[0].setAttribute('y', newY + 22); }
-    if (labels[1]) { labels[1].setAttribute('x', newX + w/2); labels[1].setAttribute('y', newY + 36); }
-    dragging.dataset.x = newX;
-    dragging.dataset.y = newY;
-  });
-
-  document.addEventListener('mouseup', () => { dragging = null; });
+  tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+  tooltip.addEventListener('mouseleave', scheduleHide);
 }
 
 // ═══════════════════ SCROLL REVEAL ═══════════════════
@@ -1042,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTimeline();
   renderReviews();
   renderADRs();
-  setupDraggableNodes();
+  setupDiagramTooltips();
   setupScrollReveal();
 });
 </script>
