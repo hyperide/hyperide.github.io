@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TASK_ID}}: {{TITLE}} — Hyperide Report</title>
+<style>
+/* ── Reset & Base ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;
+  background:#0d1117;color:#c9d1d9;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+code,pre,.mono{font-family:'SF Mono','Cascadia Code','Fira Code',monospace}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Layout ── */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+section{padding:60px 0;opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
+section.visible{opacity:1;transform:translateY(0)}
+h2{
+  font-size:1.6rem;font-weight:700;margin-bottom:24px;
+  background:linear-gradient(135deg,#58a6ff,#bc8cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h3{font-size:1.15rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
+
+/* ── Header ── */
+.header{padding:60px 0 40px;border-bottom:1px solid #21262d}
+.header h1{
+  font-size:2.8rem;font-weight:800;
+  background:linear-gradient(135deg,#58a6ff,#bc8cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+.header .task-name{font-size:1.3rem;color:#e6edf3;margin-bottom:16px}
+.header-meta{display:flex;gap:20px;flex-wrap:wrap;color:#8b949e;font-size:.9rem}
+.header-meta a{color:#58a6ff}
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:.8rem;font-weight:600;
+  background:rgba(88,166,255,.12);color:#58a6ff;
+}
+
+/* ── Summary Cards ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:8px}
+.card{
+  background:rgba(22,27,34,.7);border:1px solid #30363d;
+  border-radius:12px;padding:24px;text-align:center;
+  backdrop-filter:blur(12px);transition:border-color .2s,transform .15s;
+}
+.card:hover{border-color:#58a6ff;transform:translateY(-2px)}
+.card .val{font-size:2.2rem;font-weight:700;color:#e6edf3}
+.card .lbl{font-size:.85rem;color:#8b949e;margin-top:4px}
+.card.green .val{color:#3fb950}
+.card.red .val{color:#f85149}
+
+/* ── Product Section ── */
+.product-section{margin-bottom:32px}
+.product-header{
+  display:flex;align-items:center;gap:10px;
+  font-size:1.2rem;font-weight:700;color:#e6edf3;
+  margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #21262d;
+}
+.product-header .emoji{font-size:1.3rem}
+.product-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.product-item{
+  background:rgba(22,27,34,.6);border:1px solid #30363d;border-radius:10px;
+  padding:14px 18px;transition:border-color .2s;
+}
+.product-item:hover{border-color:#444c56}
+.product-item-title{font-weight:600;color:#e6edf3;margin-bottom:4px}
+.product-item-desc{font-size:.85rem;color:#8b949e}
+.product-item-files{font-size:.78rem;color:#484f58;margin-top:6px}
+.product-item-files code{color:#58a6ff;font-size:.76rem}
+
+/* ── Screenshots ── */
+.screenshot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.screenshot-card{
+  background:rgba(22,27,34,.6);border:1px solid #30363d;border-radius:10px;
+  overflow:hidden;transition:border-color .2s;
+}
+.screenshot-card:hover{border-color:#58a6ff}
+.screenshot-card img{width:100%;display:block}
+.screenshot-caption{padding:10px 14px;font-size:.82rem;color:#8b949e}
+
+/* ── Architecture Diagram ── */
+.diagram-wrap{
+  background:rgba(22,27,34,.5);border:1px solid #30363d;border-radius:12px;
+  padding:24px;overflow:hidden;position:relative;
+}
+.diagram-wrap svg{width:100%;height:auto;display:block}
+.node-group{cursor:grab}
+.node-group:active{cursor:grabbing}
+.node-rect{
+  rx:8;fill:rgba(22,27,34,.9);stroke:#30363d;stroke-width:1.5;
+  transition:stroke .2s;
+}
+.node-group:hover .node-rect{stroke:#58a6ff}
+.node-label{fill:#e6edf3;font-size:12px;font-weight:600;font-family:inherit;pointer-events:none}
+.node-desc{fill:#8b949e;font-size:10px;font-family:inherit;pointer-events:none}
+.edge{stroke:#30363d;stroke-width:1.5;fill:none;marker-end:url(#arrow)}
+.edge-animated{stroke:#58a6ff;stroke-dasharray:6 4;animation:dash 1.5s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.tooltip-box{
+  position:absolute;background:rgba(13,17,23,.95);border:1px solid #58a6ff;
+  border-radius:8px;padding:10px 14px;font-size:.82rem;color:#c9d1d9;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;
+  max-width:280px;backdrop-filter:blur(8px);
+}
+.tooltip-box.show{opacity:1}
+
+/* ── File Impact Graph ── */
+.file-graph{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.dir-group{flex:1;min-width:240px}
+.dir-label{
+  font-size:.85rem;font-weight:600;color:#8b949e;
+  margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #21262d;
+}
+.file-node{
+  display:flex;align-items:center;gap:8px;padding:6px 10px;
+  border-radius:6px;cursor:pointer;transition:background .15s;font-size:.8rem;
+}
+.file-node:hover{background:rgba(88,166,255,.08)}
+.file-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.file-dot.new{background:#3fb950}
+.file-dot.mod{background:#58a6ff}
+.file-dot.del{background:#f85149}
+.file-name{color:#c9d1d9;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-stat{color:#8b949e;font-size:.75rem;white-space:nowrap}
+.file-detail{
+  display:none;padding:8px 10px 8px 28px;font-size:.78rem;color:#8b949e;
+  border-left:2px solid #30363d;margin-left:14px;margin-bottom:4px;
+}
+.file-detail.open{display:block}
+
+/* ── Findings Table ── */
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{
+  padding:6px 14px;border-radius:8px;border:1px solid #30363d;
+  background:transparent;color:#c9d1d9;font-size:.82rem;cursor:pointer;
+  transition:all .15s;font-family:inherit;
+}
+.filter-btn:hover,.filter-btn.active{background:rgba(88,166,255,.12);border-color:#58a6ff;color:#58a6ff}
+.finding-card{
+  background:rgba(22,27,34,.6);border:1px solid #30363d;border-radius:10px;
+  margin-bottom:10px;overflow:hidden;transition:border-color .2s;
+}
+.finding-card:hover{border-color:#444c56}
+.finding-header{
+  padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;
+  user-select:none;
+}
+.finding-header .chevron{color:#484f58;transition:transform .2s;font-size:.8rem}
+.finding-header .chevron.open{transform:rotate(90deg)}
+.severity{
+  padding:2px 8px;border-radius:8px;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.severity.critical{background:rgba(248,81,73,.15);color:#f85149}
+.severity.high{background:rgba(210,153,34,.15);color:#d29922}
+.severity.medium{background:rgba(88,166,255,.15);color:#58a6ff}
+.severity.low{background:rgba(63,185,80,.15);color:#3fb950}
+.finding-id{color:#8b949e;font-size:.82rem;font-weight:600;min-width:28px}
+.finding-title{color:#e6edf3;font-size:.9rem;flex:1}
+.finding-body{display:none;padding:0 16px 16px;font-size:.85rem;color:#8b949e}
+.finding-body.open{display:block}
+.finding-file{margin-top:8px;font-size:.8rem}
+.finding-file code{color:#58a6ff}
+
+/* ── Diff Blocks ── */
+.diff-block{
+  background:#161b22;border:1px solid #30363d;border-radius:8px;
+  overflow:hidden;margin-top:12px;font-size:.8rem;
+}
+.diff-header{
+  padding:8px 12px;background:rgba(48,54,61,.5);color:#8b949e;
+  font-size:.78rem;border-bottom:1px solid #30363d;
+}
+.diff-line{padding:1px 12px;white-space:pre-wrap;word-break:break-all}
+.diff-line.add{background:rgba(63,185,80,.12);color:#aff5b4}
+.diff-line.del{background:rgba(248,81,73,.1);color:#ffa198}
+.diff-line.ctx{color:#8b949e}
+
+/* ── Timeline ── */
+.timeline-wrap{overflow-x:auto;padding:20px 0}
+.timeline{
+  display:flex;align-items:flex-start;gap:0;min-width:max-content;
+  position:relative;padding:40px 20px 20px;
+}
+.timeline::before{
+  content:'';position:absolute;top:52px;left:20px;right:20px;
+  height:2px;background:linear-gradient(90deg,#58a6ff,#bc8cff);border-radius:1px;
+}
+.timeline-item{
+  display:flex;flex-direction:column;align-items:center;
+  width:120px;position:relative;cursor:pointer;
+}
+.timeline-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:#58a6ff;border:2px solid #0d1117;
+  position:relative;z-index:1;transition:transform .2s,box-shadow .2s;
+}
+.timeline-item:hover .timeline-dot{
+  transform:scale(1.4);box-shadow:0 0 12px rgba(88,166,255,.5);
+}
+.timeline-sha{font-size:.72rem;color:#58a6ff;margin-top:8px}
+.timeline-msg{
+  font-size:.72rem;color:#8b949e;text-align:center;
+  margin-top:4px;max-width:110px;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.timeline-tooltip{
+  position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);
+  background:rgba(13,17,23,.95);border:1px solid #58a6ff;border-radius:8px;
+  padding:10px 14px;font-size:.78rem;color:#c9d1d9;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+  white-space:nowrap;z-index:10;backdrop-filter:blur(8px);
+}
+.timeline-item:hover .timeline-tooltip{opacity:1}
+
+/* ── Review Rounds ── */
+.round-card{
+  background:rgba(22,27,34,.6);border:1px solid #30363d;border-radius:10px;
+  padding:20px;margin-bottom:16px;
+}
+.round-title{font-size:1rem;font-weight:600;color:#e6edf3;margin-bottom:12px}
+.round-item{
+  display:flex;gap:8px;align-items:baseline;padding:4px 0;
+  font-size:.85rem;color:#c9d1d9;
+}
+.round-status{font-size:.75rem;font-weight:600}
+.round-status.fixed{color:#3fb950}
+.round-status.deferred{color:#d29922}
+
+/* ── ADR ── */
+.adr-card{
+  background:rgba(22,27,34,.6);border:1px solid #30363d;border-radius:10px;
+  margin-bottom:12px;overflow:hidden;
+}
+.adr-header{
+  padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;
+  user-select:none;
+}
+.adr-header .chevron{color:#484f58;transition:transform .2s;font-size:.8rem}
+.adr-header .chevron.open{transform:rotate(90deg)}
+.adr-title{color:#e6edf3;font-size:.9rem;flex:1}
+.adr-ref{font-size:.75rem;color:#8b949e}
+.adr-body{display:none;padding:0 16px 16px;font-size:.85rem;color:#8b949e}
+.adr-body.open{display:block}
+.adr-body dt{color:#e6edf3;font-weight:600;margin-top:10px}
+.adr-body dd{margin-left:0;margin-top:4px}
+
+/* ── Utility ── */
+.mt-8{margin-top:8px}
+.mt-16{margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<div class="container">
+<div class="header">
+  <h1>{{TASK_ID}}</h1>
+  <div class="task-name">{{TITLE}}</div>
+  <div class="header-meta">
+    <span>{{DATE}}</span>
+    <!-- Fill in: branch, PR link, tags -->
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════ SUMMARY CARDS ═══════════════════ -->
+<div class="container">
+<section id="summary">
+  <h2>Summary</h2>
+  <div class="cards" id="summaryCards">
+    <!-- Populated from REPORT_DATA.stats -->
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════ PRODUCT CHANGES ═══════════════════ -->
+<div class="container">
+<section id="product">
+  <h2>Product Changes</h2>
+  <div id="productChanges">
+    <!-- Populated from REPORT_DATA.product -->
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════ UI SCREENSHOTS ═══════════════════ -->
+<div class="container">
+<section id="screenshots">
+  <h2>UI Changes</h2>
+  <div class="screenshot-grid" id="screenshotGrid">
+    <!-- Populated from REPORT_DATA.screenshots -->
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════ ARCHITECTURE DIAGRAM ═══════════════════ -->
+<div class="container">
+<section id="architecture">
+  <h2>Architecture</h2>
+  <div class="diagram-wrap" id="diagramWrap">
+    <div class="tooltip-box" id="tooltip"></div>
+    <!-- SVG diagram goes here — custom per report -->
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════ FILE IMPACT ═══════════════════ -->
+<div class="container">
+<section id="files">
+  <h2>File Impact</h2>
+  <div class="file-graph" id="fileGraph"></div>
+</section>
+</div>
+
+<!-- ═══════════════════ FINDINGS ═══════════════════ -->
+<div class="container">
+<section id="findings">
+  <h2>Review Findings</h2>
+  <div class="filter-bar" id="filterBar"></div>
+  <div id="findingsList"></div>
+</section>
+</div>
+
+<!-- ═══════════════════ COMMIT TIMELINE ═══════════════════ -->
+<div class="container">
+<section id="timeline-section">
+  <h2>Commit Timeline</h2>
+  <div class="timeline-wrap">
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════ CODEX REVIEW ROUNDS ═══════════════════ -->
+<div class="container">
+<section id="reviews">
+  <h2>Codex Review Rounds</h2>
+  <div id="reviewRounds"></div>
+</section>
+</div>
+
+<!-- ═══════════════════ ADR ═══════════════════ -->
+<div class="container">
+<section id="adrs">
+  <h2>Architecture Decision Records</h2>
+  <div id="adrList"></div>
+</section>
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated {{DATE}} &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a>
+</footer>
+
+<script>
+// ═══════════════════ REPORT DATA — FILL THIS IN ═══════════════════
+const REPORT_DATA = {
+  task: { id: '{{TASK_ID}}', name: '{{TITLE}}' },
+  pr: { number: 0, url: '' },
+  branch: '',
+  repo: 'https://github.com/hyperide/hyper-saas',
+  stats: { files: 0, insertions: 0, deletions: 0 },
+  commits: [
+    // { sha: 'abc1234', full: 'abc1234...', msg: 'commit message', date: '2026-01-01' },
+  ],
+  files: [
+    // { path: 'client/file.tsx', ins: 100, del: 50, status: 'new|modified|deleted' },
+  ],
+  product: {
+    new: [
+      // { title: 'Feature', desc: 'Description', files: 'file1.tsx, file2.tsx' },
+    ],
+    improvements: [
+      // { title: 'Improvement', desc: 'Description', files: 'file.tsx' },
+    ],
+    fixes: [
+      // { title: 'Fix', desc: 'Description', files: 'file.tsx' },
+    ]
+  },
+  screenshots: [
+    // { src: 'data:image/jpeg;base64,...', caption: 'Description' },
+  ],
+  findings: [
+    // { id: 'C1', severity: 'critical|high|medium|low', title: '', file: '', desc: '', fix: '',
+    //   diff: { before: '', after: '' } },
+  ],
+  reviewRounds: [
+    // { title: 'Round 1', items: [{ finding: 'C1', status: 'fixed|deferred', note: '' }] },
+  ],
+  adrs: [
+    // { title: '', ref: 'C1', problem: '', options: ['A', 'B'], choice: '', rationale: '' },
+  ]
+};
+
+// ═══════════════════ RENDERERS ═══════════════════
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderSummary() {
+  const s = REPORT_DATA.stats;
+  const c = document.getElementById('summaryCards');
+  c.innerHTML = `
+    <div class="card"><div class="val">${s.files}</div><div class="lbl">Files Changed</div></div>
+    <div class="card green"><div class="val">+${s.insertions.toLocaleString()}</div><div class="lbl">Insertions</div></div>
+    <div class="card red"><div class="val">&minus;${s.deletions.toLocaleString()}</div><div class="lbl">Deletions</div></div>
+    <div class="card"><div class="val">${REPORT_DATA.commits.length}</div><div class="lbl">Commits</div></div>
+  `;
+}
+
+function renderProduct() {
+  const p = REPORT_DATA.product;
+  const c = document.getElementById('productChanges');
+  const sections = [
+    { emoji: '&#10024;', label: "What's New", items: p.new },
+    { emoji: '&#128640;', label: 'Improvements', items: p.improvements },
+    { emoji: '&#128295;', label: 'Fixes', items: p.fixes },
+  ];
+  c.innerHTML = sections.filter(s => s.items.length > 0).map(s => `
+    <div class="product-section">
+      <div class="product-header"><span class="emoji">${s.emoji}</span> ${s.label}</div>
+      <ul class="product-list">${s.items.map(it => `
+        <li class="product-item">
+          <div class="product-item-title">${it.title}</div>
+          <div class="product-item-desc">${it.desc}</div>
+          ${it.files ? `<div class="product-item-files"><code>${it.files}</code></div>` : ''}
+        </li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function renderScreenshots() {
+  const s = REPORT_DATA.screenshots;
+  if (!s.length) { document.getElementById('screenshots').style.display = 'none'; return; }
+  const c = document.getElementById('screenshotGrid');
+  c.innerHTML = s.map(sc => `
+    <div class="screenshot-card">
+      <img src="${sc.src}" alt="${escHtml(sc.caption)}" loading="lazy"/>
+      <div class="screenshot-caption">${escHtml(sc.caption)}</div>
+    </div>
+  `).join('');
+}
+
+function renderFileGraph() {
+  const container = document.getElementById('fileGraph');
+  const dirs = {};
+  for (const f of REPORT_DATA.files) {
+    const parts = f.path.split('/');
+    const dir = parts.length > 2 ? parts.slice(0, 2).join('/') : parts[0];
+    if (!dirs[dir]) dirs[dir] = [];
+    dirs[dir].push(f);
+  }
+  for (const [dir, files] of Object.entries(dirs)) {
+    const group = document.createElement('div');
+    group.className = 'dir-group';
+    group.innerHTML = `<div class="dir-label">${dir}/</div>`;
+    for (const f of files) {
+      const name = f.path.split('/').pop();
+      const statusClass = f.status === 'new' ? 'new' : f.status === 'deleted' ? 'del' : 'mod';
+      const node = document.createElement('div');
+      node.className = 'file-node';
+      node.innerHTML = `
+        <span class="file-dot ${statusClass}"></span>
+        <span class="file-name mono" title="${f.path}">${name}</span>
+        <span class="file-stat">+${f.ins} &minus;${f.del}</span>
+      `;
+      const detail = document.createElement('div');
+      detail.className = 'file-detail';
+      detail.innerHTML = `<strong>${f.path}</strong><br>Status: ${f.status} &middot; Total: ${f.ins + f.del} lines`;
+      node.addEventListener('click', () => detail.classList.toggle('open'));
+      group.appendChild(node);
+      group.appendChild(detail);
+    }
+    container.appendChild(group);
+  }
+}
+
+function renderFindings() {
+  const container = document.getElementById('findingsList');
+  const bar = document.getElementById('filterBar');
+  const counts = { all: 0, critical: 0, high: 0, medium: 0, low: 0 };
+  for (const f of REPORT_DATA.findings) { counts.all++; counts[f.severity]++; }
+  bar.innerHTML = Object.entries(counts).filter(([,v]) => v > 0)
+    .map(([k,v]) => `<button class="filter-btn${k === 'all' ? ' active' : ''}" data-sev="${k}">${k.charAt(0).toUpperCase() + k.slice(1)} (${v})</button>`)
+    .join('');
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sev = btn.dataset.sev;
+    document.querySelectorAll('.finding-card').forEach(c => {
+      c.style.display = (sev === 'all' || c.dataset.severity === sev) ? '' : 'none';
+    });
+  });
+  for (const f of REPORT_DATA.findings) {
+    const card = document.createElement('div');
+    card.className = 'finding-card';
+    card.dataset.severity = f.severity;
+    const diffHtml = f.diff ? `
+      <div class="diff-block">
+        <div class="diff-header">${f.file}</div>
+        ${f.diff.before ? f.diff.before.split('\n').map(l => `<div class="diff-line del mono">- ${escHtml(l)}</div>`).join('') : ''}
+        ${f.diff.after ? f.diff.after.split('\n').map(l => `<div class="diff-line add mono">+ ${escHtml(l)}</div>`).join('') : ''}
+      </div>` : '';
+    card.innerHTML = `
+      <div class="finding-header">
+        <span class="chevron">&#9654;</span>
+        <span class="severity ${f.severity}">${f.severity}</span>
+        <span class="finding-id">${f.id}</span>
+        <span class="finding-title">${f.title}</span>
+      </div>
+      <div class="finding-body">
+        <p>${f.desc}</p>
+        <p class="mt-8"><strong>Fix:</strong> ${f.fix}</p>
+        <div class="finding-file">File: <code>${f.file}</code></div>
+        ${diffHtml}
+      </div>`;
+    card.querySelector('.finding-header').addEventListener('click', () => {
+      card.querySelector('.chevron').classList.toggle('open');
+      card.querySelector('.finding-body').classList.toggle('open');
+    });
+    container.appendChild(card);
+  }
+}
+
+function renderTimeline() {
+  const container = document.getElementById('timeline');
+  for (const c of REPORT_DATA.commits) {
+    const item = document.createElement('a');
+    item.className = 'timeline-item';
+    item.href = `${REPORT_DATA.repo}/commit/${c.full}`;
+    item.target = '_blank';
+    item.innerHTML = `
+      <div class="timeline-tooltip">${escHtml(c.msg)}<br><span style="color:#8b949e">${c.date}</span></div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-sha mono">${c.sha}</div>
+      <div class="timeline-msg">${escHtml(c.msg.substring(0, 60))}</div>`;
+    container.appendChild(item);
+  }
+}
+
+function renderReviews() {
+  const container = document.getElementById('reviewRounds');
+  for (const round of REPORT_DATA.reviewRounds) {
+    const card = document.createElement('div');
+    card.className = 'round-card';
+    card.innerHTML = `
+      <div class="round-title">${round.title}</div>
+      ${round.items.map(it => `
+        <div class="round-item">
+          <span class="round-status ${it.status}">${it.status.toUpperCase()}</span>
+          <span class="finding-id" style="color:#8b949e">${it.finding}</span>
+          <span>${it.note}</span>
+        </div>`).join('')}`;
+    container.appendChild(card);
+  }
+}
+
+function renderADRs() {
+  const container = document.getElementById('adrList');
+  for (const adr of REPORT_DATA.adrs) {
+    const card = document.createElement('div');
+    card.className = 'adr-card';
+    card.innerHTML = `
+      <div class="adr-header">
+        <span class="chevron">&#9654;</span>
+        <span class="adr-title">${adr.title}</span>
+        <span class="adr-ref">${adr.ref}</span>
+      </div>
+      <div class="adr-body">
+        <dl>
+          <dt>Problem</dt><dd>${adr.problem}</dd>
+          <dt>Options considered</dt>
+          <dd><ol>${adr.options.map(o => `<li>${o}</li>`).join('')}</ol></dd>
+          <dt>Decision</dt><dd>${adr.choice}</dd>
+          <dt>Rationale</dt><dd>${adr.rationale}</dd>
+        </dl>
+      </div>`;
+    card.querySelector('.adr-header').addEventListener('click', () => {
+      card.querySelector('.chevron').classList.toggle('open');
+      card.querySelector('.adr-body').classList.toggle('open');
+    });
+    container.appendChild(card);
+  }
+}
+
+function setupDraggableNodes() {
+  const svg = document.querySelector('.diagram-wrap svg');
+  if (!svg) return;
+  const tooltip = document.getElementById('tooltip');
+  const wrap = document.getElementById('diagramWrap');
+  let dragging = null, offset = { x: 0, y: 0 };
+  function getSVGPoint(e) {
+    const pt = svg.createSVGPoint();
+    const rect = svg.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal;
+    pt.x = (e.clientX - rect.left) / rect.width * vb.width;
+    pt.y = (e.clientY - rect.top) / rect.height * vb.height;
+    return pt;
+  }
+  svg.querySelectorAll('.node-group').forEach(g => {
+    g.addEventListener('mousedown', (e) => {
+      e.preventDefault(); dragging = g;
+      const pt = getSVGPoint(e);
+      const r = g.querySelector('.node-rect');
+      offset.x = pt.x - parseFloat(r.getAttribute('x'));
+      offset.y = pt.y - parseFloat(r.getAttribute('y'));
+    });
+    g.addEventListener('mouseenter', (e) => {
+      if (dragging) return;
+      const desc = g.dataset.desc; if (!desc) return;
+      tooltip.textContent = desc; tooltip.classList.add('show');
+      const wr = wrap.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - wr.left + 12) + 'px';
+      tooltip.style.top = (e.clientY - wr.top - 40) + 'px';
+    });
+    g.addEventListener('mouseleave', () => { tooltip.classList.remove('show'); });
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const pt = getSVGPoint(e);
+    const r = dragging.querySelector('.node-rect');
+    const nx = pt.x - offset.x, ny = pt.y - offset.y;
+    r.setAttribute('x', nx); r.setAttribute('y', ny);
+    const w = parseFloat(r.getAttribute('width')), h = parseFloat(r.getAttribute('height'));
+    const labels = dragging.querySelectorAll('text');
+    if (labels[0]) { labels[0].setAttribute('x', nx + w/2); labels[0].setAttribute('y', ny + 22); }
+    if (labels[1]) { labels[1].setAttribute('x', nx + w/2); labels[1].setAttribute('y', ny + 36); }
+  });
+  document.addEventListener('mouseup', () => { dragging = null; });
+}
+
+function setupScrollReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) { if (entry.isIntersecting) entry.target.classList.add('visible'); }
+  }, { threshold: 0.1 });
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderSummary();
+  renderProduct();
+  renderScreenshots();
+  renderFileGraph();
+  renderFindings();
+  renderTimeline();
+  renderReviews();
+  renderADRs();
+  setupDraggableNodes();
+  setupScrollReveal();
+});
+</script>
+</body>
+</html>
