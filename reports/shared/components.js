@@ -81,8 +81,8 @@ window.Report = (function () {
     el.className = 'summary-grid fade-in';
     el.innerHTML =
       '<div class="summary-card"><div class="value">' + s.files + '</div><div class="label">Files Changed</div></div>' +
-      '<div class="summary-card"><div class="value">' + s.insertions.toLocaleString() + '</div><div class="label">Insertions</div></div>' +
-      '<div class="summary-card"><div class="value">' + s.deletions.toLocaleString() + '</div><div class="label">Deletions</div></div>' +
+      '<div class="summary-card green"><div class="value">+' + s.insertions.toLocaleString() + '</div><div class="label">Insertions</div></div>' +
+      '<div class="summary-card red"><div class="value">&minus;' + s.deletions.toLocaleString() + '</div><div class="label">Deletions</div></div>' +
       '<div class="summary-card"><div class="value">' + s.commits + '</div><div class="label">Commits</div></div>';
   }
 
@@ -101,11 +101,11 @@ window.Report = (function () {
     el.className = 'report-section fade-in';
     el.innerHTML =
       '<h2>Product Changes</h2>' +
-      '<h3 style="margin-top:16px;color:var(--accent1)">What\'s New</h3>' +
+      '<div class="product-header"><span class="emoji">&#10024;</span> What\'s New</div>' +
       renderChangeGroup(pc.new || [], '') +
-      '<h3 style="margin-top:24px;color:var(--accent2)">Improvements</h3>' +
+      '<div class="product-header" style="margin-top:28px"><span class="emoji">&#128640;</span> Improvements</div>' +
       renderChangeGroup(pc.improvements || [], 'improvement') +
-      '<h3 style="margin-top:24px;color:var(--green)">Fixes</h3>' +
+      '<div class="product-header" style="margin-top:28px"><span class="emoji">&#128295;</span> Fixes</div>' +
       renderChangeGroup(pc.fixes || [], 'fix');
   }
 
@@ -194,22 +194,21 @@ window.Report = (function () {
 
   function renderTimeline(el) {
     el.className = 'report-section fade-in';
-    el.innerHTML = '<h2>Commit Timeline</h2><div class="timeline"></div>';
+    el.innerHTML = '<h2>Commit Timeline</h2><div class="timeline-wrap"><div class="timeline"></div></div>';
     var tl = el.querySelector('.timeline');
-    (data.commits || []).forEach(function (c, i) {
-      if (i > 0) {
-        var line = document.createElement('div');
-        line.className = 'timeline-line';
-        tl.appendChild(line);
-      }
-      var dot = document.createElement('div');
-      dot.className = 'timeline-dot';
-      var tip = document.createElement('div');
-      tip.className = 'tip';
-      tip.innerHTML = '<strong>' + esc(c.sha) + '</strong><br>' + esc(c.message) + '<br><span style="color:var(--text-dim)">' + esc(c.date) + '</span>';
-      dot.appendChild(tip);
-      dot.addEventListener('click', function () { window.open(data.repo + '/commit/' + c.sha, '_blank'); });
-      tl.appendChild(dot);
+    (data.commits || []).forEach(function (c) {
+      var item = document.createElement('div');
+      item.className = 'timeline-item';
+      // Extract short type from commit message (e.g., "feat", "fix", "docs")
+      var typeMatch = c.message.match(/^(\w+)/);
+      var shortMsg = c.message.replace(/^[\w]+(\([^)]*\))?:\s*/, '');
+      item.innerHTML =
+        '<div class="timeline-tooltip"><strong>' + esc(c.sha) + '</strong> &mdash; ' + esc(c.message) + '<br><span style="color:var(--text-dim)">' + esc(c.date) + '</span></div>' +
+        '<div class="timeline-dot"></div>' +
+        '<div class="timeline-sha">' + esc(c.sha) + '</div>' +
+        '<div class="timeline-msg">' + esc(shortMsg) + '</div>';
+      item.addEventListener('click', function () { window.open(data.repo + '/commit/' + c.sha, '_blank'); });
+      tl.appendChild(item);
     });
   }
 
