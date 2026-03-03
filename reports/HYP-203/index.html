@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-203 — Deterministic Preview Pipeline</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--text-dim:#8b949e;--accent1:#58a6ff;--accent2:#bc8cff;--green:#3fb950;--red:#f85149;--yellow:#d29922;--orange:#db6d28}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;line-height:1.6;overflow-x:hidden}
+a{color:var(--accent1);text-decoration:none}a:hover{text-decoration:underline}
+code,pre,.mono{font-family:'SF Mono',Menlo,Consolas,monospace}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+/* Header */
+.header{padding:48px 0 32px;border-bottom:1px solid var(--border)}
+.header h1{font-size:2rem;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.875rem;color:var(--text-dim)}
+.header .meta a{color:var(--accent1)}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:600}
+.badge-feat{background:rgba(56,139,253,.15);color:var(--accent1)}
+.badge-fix{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-refactor{background:rgba(188,140,255,.15);color:var(--accent2)}
+.badge-docs{background:rgba(139,148,158,.15);color:var(--text-dim)}
+.badge-p1{background:rgba(248,81,73,.2);color:var(--red)}
+.badge-p2{background:rgba(210,153,34,.2);color:var(--yellow)}
+.badge-p3{background:rgba(63,185,80,.2);color:var(--green)}
+.badge-resolved{background:rgba(63,185,80,.2);color:var(--green)}
+.badge-accepted{background:rgba(56,139,253,.15);color:var(--accent1)}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin:16px 0;backdrop-filter:blur(8px)}
+.card h3{margin-bottom:12px;font-size:1.1rem}
+/* Summary cards */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin:32px 0}
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.summary-card .value{font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.summary-card .label{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+/* Sections */
+section{padding:32px 0}
+section h2{font-size:1.5rem;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+/* Product changes */
+.change-item{padding:16px 20px;border-left:3px solid var(--accent1);margin:12px 0;background:rgba(22,27,34,.8);border-radius:0 8px 8px 0}
+.change-item.improvement{border-left-color:var(--accent2)}
+.change-item.fix{border-left-color:var(--green)}
+.change-item h4{font-size:.95rem;margin-bottom:6px}
+.change-item p{font-size:.85rem;color:var(--text-dim)}
+.change-item .files{font-size:.75rem;color:var(--text-dim);margin-top:6px;font-family:'SF Mono',monospace}
+/* Architecture SVG */
+.arch-container{overflow-x:auto;margin:16px 0}
+.arch-container svg{max-width:100%}
+.arch-node{cursor:default}
+.arch-node rect{transition:filter .2s}
+.arch-node:hover rect{filter:brightness(1.3)}
+.arch-tooltip{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.8rem;max-width:300px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+/* File impact */
+.file-group{margin:12px 0}
+.file-group-header{font-size:.9rem;font-weight:600;padding:8px 12px;background:rgba(48,54,61,.5);border-radius:8px 8px 0 0;cursor:pointer;display:flex;align-items:center;gap:8px}
+.file-group-header:hover{background:rgba(48,54,61,.8)}
+.file-group-header .arrow{transition:transform .2s}
+.file-group-header .arrow.open{transform:rotate(90deg)}
+.file-item{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 24px;font-size:.8rem;font-family:'SF Mono',monospace;border-left:1px solid var(--border)}
+.file-item a{color:var(--text)}
+.file-item a:hover{color:var(--accent1)}
+.file-stat{display:flex;gap:4px;margin-left:auto;font-size:.75rem}
+.file-stat .add{color:var(--green)}
+.file-stat .del{color:var(--red)}
+.file-badge{font-size:.65rem;padding:1px 6px;border-radius:4px;font-weight:600}
+.file-badge.new{background:rgba(63,185,80,.2);color:var(--green)}
+.file-badge.modified{background:rgba(56,139,253,.15);color:var(--accent1)}
+/* Findings */
+.finding-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.finding-filters button{background:var(--card);border:1px solid var(--border);color:var(--text-dim);padding:4px 14px;border-radius:16px;cursor:pointer;font-size:.8rem;transition:all .2s}
+.finding-filters button:hover,.finding-filters button.active{border-color:var(--accent1);color:var(--accent1)}
+.finding-card{margin:12px 0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.finding-header{padding:12px 16px;background:var(--card);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.9rem}
+.finding-header:hover{background:rgba(22,27,34,.9)}
+.finding-body{padding:16px;background:rgba(13,17,23,.8);display:none;font-size:.85rem}
+.finding-body.open{display:block}
+.diff-block{background:#161b22;border-radius:6px;padding:12px;margin:8px 0;font-size:.8rem;overflow-x:auto}
+.diff-block .diff-header{font-size:.75rem;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.diff-line-del{color:var(--red);background:rgba(248,81,73,.1);padding:1px 4px;display:block}
+.diff-line-add{color:var(--green);background:rgba(63,185,80,.1);padding:1px 4px;display:block}
+/* Timeline */
+.timeline{display:flex;align-items:center;gap:0;padding:20px 0;overflow-x:auto;position:relative}
+.timeline-line{height:2px;background:var(--border);flex:1;min-width:40px}
+.timeline-dot{width:14px;height:14px;border-radius:50%;background:var(--accent1);cursor:pointer;flex-shrink:0;position:relative;transition:transform .2s}
+.timeline-dot:hover{transform:scale(1.5);background:var(--accent2)}
+.timeline-dot .tip{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:.75rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+.timeline-dot:hover .tip{opacity:1}
+/* ADR */
+.adr-card{margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.adr-header{padding:12px 16px;background:var(--card);cursor:pointer;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.adr-header:hover{background:rgba(22,27,34,.9)}
+.adr-body{padding:16px;display:none;font-size:.85rem}
+.adr-body.open{display:block}
+.adr-body dt{color:var(--accent1);font-weight:600;margin-top:12px}
+.adr-body dd{margin-left:16px;color:var(--text-dim)}
+/* Fade-in */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s}.fade-in.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="header">
+<h1>HYP-203: Deterministic Preview Pipeline</h1>
+<p style="margin-top:8px;color:var(--text-dim)">Sample* parsing, __canvas_preview__.tsx generator, unified AI client</p>
+<div class="meta">
+  <span>2026-03-03</span>
+  <span class="badge badge-feat">feat</span>
+  <span>Branch: <code>HYP-203-deterministic-preview-pipeline</code></span>
+  <a href="https://github.com/hyperide/hyper-saas/pull/82">PR #82</a>
+  <a href="https://linear.app/glide-vc/issue/HYP-203">Linear HYP-203</a>
+</div>
+</header>
+
+<div class="summary-grid fade-in">
+  <div class="summary-card"><div class="value">42</div><div class="label">Files Changed</div></div>
+  <div class="summary-card"><div class="value">3,419</div><div class="label">Insertions</div></div>
+  <div class="summary-card"><div class="value">1,281</div><div class="label">Deletions</div></div>
+  <div class="summary-card"><div class="value">10</div><div class="label">Commits</div></div>
+</div>
+
+<!-- PRODUCT CHANGES -->
+<section class="fade-in">
+<h2>Product Changes</h2>
+
+<h3 style="margin-top:16px;color:var(--accent1)">What's New</h3>
+<div class="change-item">
+  <h4>Deterministic __canvas_preview__.tsx Generator</h4>
+  <p>Preview files are now generated via regex scanning + string templates — no AI API key required for basic preview generation. Falls back to AI only when deterministic generation fails.</p>
+  <div class="files">lib/preview-generator/ (scanner.ts, generator.ts, preview-file-manager.ts)</div>
+</div>
+<div class="change-item">
+  <h4>Unified AI Client (callAI / callAIStream)</h4>
+  <p>Single abstraction routing to Anthropic SDK or OpenAI-compatible fetch based on provider config. Replaces 13 direct Anthropic SDK imports across server routes and services.</p>
+  <div class="files">lib/ai-client/ (client.ts, config.ts)</div>
+</div>
+<div class="change-item">
+  <h4>Shared Sample Prompt Builder</h4>
+  <p>Extracted buildSamplePrompt + extractCodeFromAIResponse to shared lib, eliminating prompt duplication between server and VS Code extension.</p>
+  <div class="files">lib/preview-generator/sample-prompt.ts</div>
+</div>
+<div class="change-item">
+  <h4>ensureSample() with Injectable AI Callback</h4>
+  <p>Generalized sample component ensurer works in both Node.js server and VS Code extension via SampleGeneratorFn callback pattern and FileIO abstraction.</p>
+  <div class="files">lib/preview-generator/sample-ensurer.ts</div>
+</div>
+
+<h3 style="margin-top:24px;color:var(--accent2)">Improvements</h3>
+<div class="change-item improvement">
+  <h4>Server AI Migration (13 files)</h4>
+  <p>All server routes migrated from direct Anthropic SDK to callAI/callAIStream + resolveServerAIConfig. Proxy provider resolution centralized in ai-config-resolver.</p>
+  <div class="files">server/routes/*.ts, server/services/*.ts</div>
+</div>
+<div class="change-item improvement">
+  <h4>Monorepo Package Import Support</h4>
+  <p>PreviewFileManager reads package.json via FileIO for scoped package names (@acme/ui) with fallback to directory name when package.json is unreadable.</p>
+  <div class="files">lib/preview-generator/preview-file-manager.ts</div>
+</div>
+<div class="change-item improvement">
+  <h4>VS Code Extension Integration</h4>
+  <p>Extension now uses PreviewFileManager for deterministic preview generation + SampleAIGenerator with shared prompt builder for AI-powered sample generation.</p>
+  <div class="files">vscode-extension/hypercanvas-preview/src/extension.ts, SampleAIGenerator.ts</div>
+</div>
+
+<h3 style="margin-top:24px;color:var(--green)">Fixes</h3>
+<div class="change-item fix">
+  <h4>Anthropic Client Cache Eviction</h4>
+  <p>Added max 8 entries with FIFO eviction to prevent unbounded memory growth on API key rotation.</p>
+  <div class="files">lib/ai-client/client.ts</div>
+</div>
+<div class="change-item fix">
+  <h4>OpenCode Provider Error Clarity</h4>
+  <p>Changed from silent null return to throwing AppError — callers now get a clear message instead of generic "AI config not found".</p>
+  <div class="files">server/services/ai-config-resolver.ts</div>
+</div>
+<div class="change-item fix">
+  <h4>Removed isNextPagesRouter Heuristic</h4>
+  <p>Filesystem-based heuristic removed from deterministic generator. URLSearchParams routing works universally. Framework detection delegated to AI prompt context.</p>
+  <div class="files">server/routes/generatePreview.ts</div>
+</div>
+<div class="change-item fix">
+  <h4>AI Fallback Error Logging</h4>
+  <p>When deterministic generation fails and AI fallback also fails, the fallback error is now logged before re-throwing the original error.</p>
+  <div class="files">server/routes/generatePreview.ts</div>
+</div>
+<div class="change-item fix">
+  <h4>Bare Block Artifact Cleanup</h4>
+  <p>Removed refactoring artifact (unnecessary bare block + code alias) from parseComponent.ts response processing.</p>
+  <div class="files">server/routes/parseComponent.ts</div>
+</div>
+</section>
+
+<!-- ARCHITECTURE DIAGRAM -->
+<section class="fade-in">
+<h2>Architecture</h2>
+<div class="arch-container">
+<svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui;font-size:12px">
+  <!-- Zones -->
+  <rect x="10" y="10" width="430" height="240" rx="12" fill="rgba(56,139,253,.06)" stroke="rgba(56,139,253,.2)" stroke-dasharray="4"/>
+  <text x="24" y="32" fill="#58a6ff" font-size="11" font-weight="600">SHARED (lib/)</text>
+
+  <rect x="460" y="10" width="430" height="240" rx="12" fill="rgba(248,81,73,.06)" stroke="rgba(248,81,73,.2)" stroke-dasharray="4"/>
+  <text x="474" y="32" fill="#f85149" font-size="11" font-weight="600">SERVER</text>
+
+  <rect x="10" y="270" width="430" height="230" rx="12" fill="rgba(188,140,255,.06)" stroke="rgba(188,140,255,.2)" stroke-dasharray="4"/>
+  <text x="24" y="292" fill="#bc8cff" font-size="11" font-weight="600">VS CODE EXTENSION</text>
+
+  <rect x="460" y="270" width="430" height="230" rx="12" fill="rgba(63,185,80,.06)" stroke="rgba(63,185,80,.2)" stroke-dasharray="4"/>
+  <text x="474" y="292" fill="#3fb950" font-size="11" font-weight="600">BROWSER (iframe)</text>
+
+  <!-- Shared Nodes -->
+  <g class="arch-node" data-href="lib/ai-client/client.ts" data-desc="Unified AI client: callAI + callAIStream, Anthropic SDK + OpenAI-compatible fetch">
+    <rect x="30" y="50" width="160" height="44" rx="8" fill="#1c2533" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="110" y="76" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">ai-client</text>
+  </g>
+  <g class="arch-node" data-href="lib/preview-generator/generator.ts" data-desc="String-template generator for __canvas_preview__.tsx with three maps model">
+    <rect x="30" y="110" width="160" height="44" rx="8" fill="#1c2533" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="110" y="136" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">preview-generator</text>
+  </g>
+  <g class="arch-node" data-href="lib/preview-generator/sample-prompt.ts" data-desc="Shared AI prompt builder + extractCodeFromAIResponse">
+    <rect x="30" y="170" width="160" height="44" rx="8" fill="#1c2533" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="110" y="196" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">sample-prompt</text>
+  </g>
+  <g class="arch-node" data-href="lib/preview-generator/sample-ensurer.ts" data-desc="ensureSample with injectable AI callback and validation">
+    <rect x="220" y="110" width="200" height="44" rx="8" fill="#1c2533" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="320" y="136" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">sample-ensurer</text>
+  </g>
+  <g class="arch-node" data-href="lib/preview-generator/preview-file-manager.ts" data-desc="Orchestrator: FileIO abstraction, merge entries, write __canvas_preview__.tsx">
+    <rect x="220" y="170" width="200" height="44" rx="8" fill="#1c2533" stroke="#58a6ff" stroke-width="1.5"/>
+    <text x="320" y="196" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">PreviewFileManager</text>
+  </g>
+
+  <!-- Server Nodes -->
+  <g class="arch-node" data-href="server/routes/generatePreview.ts" data-desc="POST /api/generate-preview: deterministic generation with AI fallback">
+    <rect x="480" y="50" width="180" height="44" rx="8" fill="#1c2533" stroke="#f85149" stroke-width="1.5"/>
+    <text x="570" y="76" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">generatePreview</text>
+  </g>
+  <g class="arch-node" data-href="server/routes/parseComponent.ts" data-desc="POST /api/parse-component: AST parsing + Sample* generation with framework detection">
+    <rect x="480" y="110" width="180" height="44" rx="8" fill="#1c2533" stroke="#f85149" stroke-width="1.5"/>
+    <text x="570" y="136" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">parseComponent</text>
+  </g>
+  <g class="arch-node" data-href="server/services/ai-config-resolver.ts" data-desc="resolveServerAIConfig: DB config to ResolvedAIConfig with proxy support">
+    <rect x="480" y="170" width="180" height="44" rx="8" fill="#1c2533" stroke="#f85149" stroke-width="1.5"/>
+    <text x="570" y="196" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">ai-config-resolver</text>
+  </g>
+  <g class="arch-node" data-href="server/services/ai-code-generator.ts" data-desc="AI-powered code generation (preview, sample renderers) - legacy fallback">
+    <rect x="690" y="50" width="180" height="44" rx="8" fill="#1c2533" stroke="rgba(248,81,73,.5)" stroke-width="1" stroke-dasharray="4"/>
+    <text x="780" y="76" text-anchor="middle" fill="var(--text-dim)" font-size="11">ai-code-generator</text>
+    <text x="780" y="89" text-anchor="middle" fill="var(--text-dim)" font-size="9">(AI fallback)</text>
+  </g>
+
+  <!-- Extension Nodes -->
+  <g class="arch-node" data-href="vscode-extension/hypercanvas-preview/src/extension.ts" data-desc="Extension activation: PreviewFileManager + ensureSample integration">
+    <rect x="30" y="310" width="180" height="44" rx="8" fill="#1c2533" stroke="#bc8cff" stroke-width="1.5"/>
+    <text x="120" y="336" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">extension.ts</text>
+  </g>
+  <g class="arch-node" data-href="vscode-extension/hypercanvas-preview/src/services/SampleAIGenerator.ts" data-desc="Creates SampleGeneratorFn using extension secrets + shared prompt">
+    <rect x="30" y="380" width="180" height="44" rx="8" fill="#1c2533" stroke="#bc8cff" stroke-width="1.5"/>
+    <text x="120" y="406" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">SampleAIGenerator</text>
+  </g>
+  <g class="arch-node" data-href="lib/ai-client/config.ts" data-desc="resolveAIConfig: normalize provider settings to ResolvedAIConfig">
+    <rect x="250" y="310" width="170" height="44" rx="8" fill="#1c2533" stroke="#bc8cff" stroke-width="1.5"/>
+    <text x="335" y="336" text-anchor="middle" fill="#c9d1d9" font-size="11" font-weight="600">resolveAIConfig</text>
+  </g>
+
+  <!-- Browser Node -->
+  <g class="arch-node" data-href="lib/preview-generator/generator.ts" data-desc="Generated __canvas_preview__.tsx rendered in iframe: componentRegistry, sampleRenderMap, sampleRenderersMap">
+    <rect x="500" y="340" width="360" height="60" rx="8" fill="#1c2533" stroke="#3fb950" stroke-width="1.5"/>
+    <text x="680" y="366" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="600">__canvas_preview__.tsx</text>
+    <text x="680" y="384" text-anchor="middle" fill="var(--text-dim)" font-size="10">componentRegistry + sampleRenderMap + sampleRenderersMap</text>
+  </g>
+
+  <!-- Edges -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 3 L 0 6 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <!-- Server uses shared -->
+  <line x1="420" y1="130" x2="480" y2="76" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <line x1="420" y1="130" x2="480" y2="130" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <line x1="190" y1="192" x2="480" y2="192" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <!-- Extension uses shared -->
+  <line x1="120" y1="310" x2="120" y2="214" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <line x1="120" y1="380" x2="110" y2="214" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <!-- ai-config-resolver uses ai-client -->
+  <line x1="480" y1="192" x2="190" y2="72" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <!-- SampleAIGenerator uses ai-client -->
+  <line x1="120" y1="380" x2="80" y2="94" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <!-- PreviewFileManager outputs to browser -->
+  <line x1="420" y1="192" x2="500" y2="360" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="6" style="animation:dash 1.5s linear infinite"/>
+  <!-- generatePreview uses PreviewFileManager -->
+  <line x1="480" y1="72" x2="420" y2="192" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4" style="animation:dash 1s linear infinite"/>
+  <!-- Fallback arrow -->
+  <line x1="660" y1="72" x2="690" y2="72" stroke="rgba(248,81,73,.4)" stroke-width="1" marker-end="url(#arrow)" stroke-dasharray="4"/>
+  <text x="670" y="64" fill="var(--text-dim)" font-size="8">fallback</text>
+
+  <style>@keyframes dash{to{stroke-dashoffset:-16}}</style>
+</svg>
+</div>
+</section>
+
+<!-- FILE IMPACT -->
+<section class="fade-in">
+<h2>File Impact</h2>
+<div id="file-impact"></div>
+</section>
+
+<!-- FINDINGS -->
+<section class="fade-in">
+<h2>Review Findings</h2>
+<div class="finding-filters" id="finding-filters"></div>
+<div id="findings-list"></div>
+</section>
+
+<!-- COMMIT TIMELINE -->
+<section class="fade-in">
+<h2>Commit Timeline</h2>
+<div class="timeline" id="timeline"></div>
+</section>
+
+<!-- CODEX REVIEW -->
+<section class="fade-in">
+<h2>Codex Review Rounds</h2>
+<div class="card">
+  <h3>Round 1 — Initial Review (7/10)</h3>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:12px">8 findings across the full PR diff. All addressed in commit <code>53ab3ab</code>.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="badge badge-p1">P1: 1</span>
+    <span class="badge badge-p2">P2: 3</span>
+    <span class="badge badge-p3">P3: 4</span>
+    <span class="badge badge-resolved">7 resolved</span>
+    <span class="badge badge-accepted">1 accepted (intentional)</span>
+  </div>
+</div>
+<div class="card">
+  <h3>Round 2 — Post-fix Review</h3>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:12px">Codex flagged 2 items on the fix commit. Both discussed and accepted as intentional design decisions per user instruction.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="badge badge-p1">P1: 1</span>
+    <span class="badge badge-p2">P2: 1</span>
+    <span class="badge badge-accepted">2 accepted</span>
+  </div>
+</div>
+</section>
+
+<!-- ADR -->
+<section class="fade-in">
+<h2>Architecture Decisions</h2>
+
+<div class="adr-card">
+  <div class="adr-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    ADR-1: Deterministic-first preview generation
+    <span style="color:var(--text-dim);font-size:.8rem">Click to expand</span>
+  </div>
+  <dl class="adr-body">
+    <dt>Problem</dt><dd>Preview file generation required AI API key and network calls, blocking offline / no-key users.</dd>
+    <dt>Options</dt><dd>1) Keep AI-only 2) AST-based with Babel 3) Regex scanner + string templates</dd>
+    <dt>Decision</dt><dd>Regex scanner + string templates (option 3). AI as fallback only.</dd>
+    <dt>Rationale</dt><dd>Regex is fast, Babel-free (no bundle cost for VS Code extension), and sufficient for detecting export patterns. Template strings produce deterministic, predictable output.</dd>
+  </dl>
+</div>
+
+<div class="adr-card">
+  <div class="adr-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    ADR-2: Unified AI client over direct SDK imports
+    <span style="color:var(--text-dim);font-size:.8rem">Click to expand</span>
+  </div>
+  <dl class="adr-body">
+    <dt>Problem</dt><dd>13 files imported Anthropic SDK directly. Adding OpenAI-compatible providers required changes everywhere.</dd>
+    <dt>Options</dt><dd>1) Adapter per file 2) Single callAI abstraction 3) Middleware/proxy layer</dd>
+    <dt>Decision</dt><dd>Single callAI/callAIStream abstraction with ResolvedAIConfig discriminated union.</dd>
+    <dt>Rationale</dt><dd>Minimal API surface. Provider routing centralized. Anthropic SDK for native features, fetch-based SSE for OpenAI-compatible.</dd>
+  </dl>
+</div>
+
+<div class="adr-card">
+  <div class="adr-header" onclick="this.nextElementSibling.classList.toggle('open')">
+    ADR-3: FileIO abstraction for portability
+    <span style="color:var(--text-dim);font-size:.8rem">Click to expand</span>
+  </div>
+  <dl class="adr-body">
+    <dt>Problem</dt><dd>PreviewFileManager must work in both Node.js (server) and VS Code extension (virtual filesystem).</dd>
+    <dt>Options</dt><dd>1) Conditional imports 2) FileIO interface with DI 3) Abstract class</dd>
+    <dt>Decision</dt><dd>FileIO interface with dependency injection (readFile, writeFile, access).</dd>
+    <dt>Rationale</dt><dd>Simple 3-method interface. InMemoryFileIO for tests. NodeFileIO for server. Extension provides its own implementation.</dd>
+  </dl>
+</div>
+</section>
+
+</div><!-- container -->
+
+<script>
+const REPORT_DATA = {
+  task: { id: 'HYP-203', title: 'Deterministic Preview Pipeline', pr: 82, branch: 'HYP-203-deterministic-preview-pipeline' },
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '1cfe389f4eb827fdb3862a0a1ebf56576c0b9d8a',
+  commits: [
+    { sha: '6a4866b', message: 'feat(ai): add shared callAI/callAIStream client and server-side config resolver', date: '2026-03-02' },
+    { sha: '84befc2', message: 'refactor(server): migrate all AI calls to callAI/callAIStream + resolveServerAIConfig', date: '2026-03-02' },
+    { sha: '0fe5ca3', message: 'feat(preview): add deterministic __canvas_preview__.tsx generator', date: '2026-03-02' },
+    { sha: '2be717c', message: 'feat(preview): integrate deterministic generator in server and extension', date: '2026-03-02' },
+    { sha: '6f4932b', message: 'docs: update serena memories with AI unification and preview architecture', date: '2026-03-02' },
+    { sha: '0932d42', message: 'fix(preview): address code review findings for HYP-203 PR #82', date: '2026-03-02' },
+    { sha: '3cf42e2', message: 'fix(preview): normalize component path to absolute before processing', date: '2026-03-02' },
+    { sha: 'a5dd730', message: 'chore: update playwright MCP tool prefixes in settings', date: '2026-03-02' },
+    { sha: '53ab3ab', message: 'fix(preview): address PR #82 code review findings', date: '2026-03-03' },
+    { sha: '1cfe389', message: 'docs: update deterministic-preview-architecture memory', date: '2026-03-03' },
+  ],
+  files: [
+    { path: '.claude/settings.local.json', dir: '.claude', add: 19, del: 19, status: 'modified' },
+    { path: '.serena/memories/common-pitfalls.md', dir: '.serena/memories', add: 21, del: 0, status: 'modified' },
+    { path: '.serena/memories/deterministic-preview-architecture.md', dir: '.serena/memories', add: 139, del: 0, status: 'new' },
+    { path: '.serena/memories/server-architecture.md', dir: '.serena/memories', add: 3, del: 1, status: 'modified' },
+    { path: 'lib/ai-client/__tests__/client.test.ts', dir: 'lib/ai-client', add: 242, del: 0, status: 'new' },
+    { path: 'lib/ai-client/__tests__/config.test.ts', dir: 'lib/ai-client', add: 153, del: 0, status: 'new' },
+    { path: 'lib/ai-client/client.ts', dir: 'lib/ai-client', add: 255, del: 0, status: 'new' },
+    { path: 'lib/ai-client/config.ts', dir: 'lib/ai-client', add: 85, del: 0, status: 'new' },
+    { path: 'lib/ai-client/index.ts', dir: 'lib/ai-client', add: 13, del: 0, status: 'new' },
+    { path: 'lib/component-scanner/ai-analyzer.ts', dir: 'lib/component-scanner', add: 11, del: 126, status: 'modified' },
+    { path: 'lib/preview-generator/__tests__/generator.test.ts', dir: 'lib/preview-generator', add: 245, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/preview-file-manager.test.ts', dir: 'lib/preview-generator', add: 289, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/sample-ensurer.test.ts', dir: 'lib/preview-generator', add: 237, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/scanner.test.ts', dir: 'lib/preview-generator', add: 122, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/generator.ts', dir: 'lib/preview-generator', add: 266, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/index.ts', dir: 'lib/preview-generator', add: 22, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/preview-file-manager.ts', dir: 'lib/preview-generator', add: 340, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/sample-ensurer.ts', dir: 'lib/preview-generator', add: 151, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/sample-prompt.ts', dir: 'lib/preview-generator', add: 87, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/scanner.ts', dir: 'lib/preview-generator', add: 71, del: 0, status: 'new' },
+    { path: 'server/routes/generatePreview.ts', dir: 'server/routes', add: 43, del: 28, status: 'modified' },
+    { path: 'server/routes/parseComponent.ts', dir: 'server/routes', add: 166, del: 694, status: 'modified' },
+    { path: 'server/services/ai-config-resolver.ts', dir: 'server/services', add: 83, del: 0, status: 'new' },
+    { path: 'server/services/ai-code-generator.ts', dir: 'server/services', add: 32, del: 124, status: 'modified' },
+    { path: 'server/services/commit-message-generator.ts', dir: 'server/services', add: 11, del: 54, status: 'modified' },
+    { path: 'server/services/ai-agent.ts', dir: 'server/services', add: 10, del: 33, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/SampleAIGenerator.ts', dir: 'vscode-extension', add: 57, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SampleAIGenerator.test.ts', dir: 'vscode-extension', add: 95, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', dir: 'vscode-extension', add: 47, del: 1, status: 'modified' },
+  ],
+  findings: [
+    { id: 1, severity: 'P2', status: 'resolved', title: 'getPackageImportPath lost package.json reading', file: 'lib/preview-generator/preview-file-manager.ts', desc: 'Old server code read package.json for scoped names (@acme/ui). New PreviewFileManager used directory name only.', fix: 'Made method async, reads package.json via FileIO abstraction.' },
+    { id: 2, severity: 'P3', status: 'resolved', title: 'Bare block artifact in parseComponent.ts', file: 'server/routes/parseComponent.ts', desc: 'After replacing if-block with callAI(), braces remained as bare block with extra indentation.', fix: 'Removed bare block, fixed indentation, removed code alias.' },
+    { id: 3, severity: 'P3', status: 'accepted', title: 'App removed from entryPointNames exclusion', file: 'client/pages/Editor/components/hooks/useComponentAutoLoad.ts', desc: 'Reviewer flagged App removal from exclusion list.', fix: 'Intentional — preview was not generated for App before, removal aligns with new pipeline.' },
+    { id: 4, severity: 'P2', status: 'resolved', title: 'Anthropic client cache grows unbounded', file: 'lib/ai-client/client.ts', desc: 'Cache had no eviction policy — key rotation could leak memory.', fix: 'Added FIFO eviction with max 8 entries.' },
+    { id: 5, severity: 'P2', status: 'resolved', title: 'isNextPagesRouter filesystem heuristic', file: 'server/routes/generatePreview.ts', desc: 'existsSync checks for pages/ directories can false-positive and break deterministic behavior.', fix: 'Removed heuristic, URLSearchParams routing works universally.' },
+    { id: 6, severity: 'P1', status: 'resolved', title: 'Duplicate prompt between server and extension', file: 'vscode-extension/hypercanvas-preview/src/services/SampleAIGenerator.ts', desc: 'buildSamplePrompt (35 lines) and extractCode duplicated between extension and server.', fix: 'Extracted to shared lib/preview-generator/sample-prompt.ts. Server adds framework instructions.' },
+    { id: 7, severity: 'P3', status: 'resolved', title: 'AI fallback error swallowed in generatePreview', file: 'server/routes/generatePreview.ts', desc: 'When deterministic fails and AI fallback also fails, original error was lost.', fix: 'Wrapped fallback in try-catch, logs error before re-throwing original.' },
+    { id: 8, severity: 'P3', status: 'resolved', title: 'OpenCode provider returns silent null', file: 'server/services/ai-config-resolver.ts', desc: 'Callers get null and show generic "AI config not found" for a programming error.', fix: 'Changed to throw AppError with clear message about OpenCode SDK requirement.' },
+  ],
+};
+
+// Render timeline
+const tl = document.getElementById('timeline');
+REPORT_DATA.commits.forEach((c, i) => {
+  if (i > 0) { const line = document.createElement('div'); line.className = 'timeline-line'; tl.appendChild(line); }
+  const dot = document.createElement('div');
+  dot.className = 'timeline-dot';
+  dot.innerHTML = `<div class="tip"><strong>${c.sha}</strong><br>${c.message}<br><span style="color:var(--text-dim)">${c.date}</span></div>`;
+  dot.onclick = () => window.open(`${REPORT_DATA.repo}/commit/${c.sha}`, '_blank');
+  tl.appendChild(dot);
+});
+
+// Render file impact
+const filesByDir = {};
+REPORT_DATA.files.forEach(f => {
+  if (!filesByDir[f.dir]) filesByDir[f.dir] = [];
+  filesByDir[f.dir].push(f);
+});
+const fi = document.getElementById('file-impact');
+Object.keys(filesByDir).sort().forEach(dir => {
+  const group = document.createElement('div');
+  group.className = 'file-group';
+  const files = filesByDir[dir];
+  const totalAdd = files.reduce((s, f) => s + f.add, 0);
+  const totalDel = files.reduce((s, f) => s + f.del, 0);
+  group.innerHTML = `<div class="file-group-header" onclick="const c=this.nextElementSibling;c.style.display=c.style.display==='none'?'block':'none';this.querySelector('.arrow').classList.toggle('open')"><span class="arrow">&#9654;</span> ${dir}/ <span style="margin-left:auto;font-size:.75rem;color:var(--text-dim)">${files.length} files <span style="color:var(--green)">+${totalAdd}</span> <span style="color:var(--red)">-${totalDel}</span></span></div><div style="display:none">${files.map(f => {
+    const name = f.path.split('/').pop();
+    const badge = f.status === 'new' ? '<span class="file-badge new">NEW</span>' : '<span class="file-badge modified">MOD</span>';
+    return `<div class="file-item">${badge} <a href="${REPORT_DATA.repo}/blob/${REPORT_DATA.headSha}/${f.path}" target="_blank">${name}</a><div class="file-stat"><span class="add">+${f.add}</span><span class="del">-${f.del}</span></div></div>`;
+  }).join('')}</div>`;
+  fi.appendChild(group);
+});
+
+// Render findings
+const fl = document.getElementById('findings-list');
+const ff = document.getElementById('finding-filters');
+const severities = ['All', 'P1', 'P2', 'P3'];
+severities.forEach(s => {
+  const btn = document.createElement('button');
+  btn.textContent = s;
+  if (s === 'All') btn.classList.add('active');
+  btn.onclick = () => {
+    ff.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    fl.querySelectorAll('.finding-card').forEach(card => {
+      card.style.display = s === 'All' || card.dataset.severity === s ? '' : 'none';
+    });
+  };
+  ff.appendChild(btn);
+});
+
+REPORT_DATA.findings.forEach(f => {
+  const card = document.createElement('div');
+  card.className = 'finding-card';
+  card.dataset.severity = f.severity;
+  const sevClass = f.severity === 'P1' ? 'badge-p1' : f.severity === 'P2' ? 'badge-p2' : 'badge-p3';
+  const statusClass = f.status === 'resolved' ? 'badge-resolved' : 'badge-accepted';
+  card.innerHTML = `<div class="finding-header" onclick="this.nextElementSibling.classList.toggle('open')"><span class="badge ${sevClass}">${f.severity}</span><span class="badge ${statusClass}">${f.status}</span><span>${f.title}</span></div><div class="finding-body"><p><strong>File:</strong> <a href="${REPORT_DATA.repo}/blob/${REPORT_DATA.headSha}/${f.file}" target="_blank">${f.file}</a></p><p style="margin-top:8px"><strong>Issue:</strong> ${f.desc}</p><p style="margin-top:8px"><strong>Resolution:</strong> ${f.fix}</p></div>`;
+  fl.appendChild(card);
+});
+
+// Fade-in observer
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// Architecture tooltips
+const tooltip = document.createElement('div');
+tooltip.className = 'arch-tooltip';
+document.body.appendChild(tooltip);
+document.querySelectorAll('.arch-node').forEach(node => {
+  node.addEventListener('mouseenter', e => {
+    const desc = node.dataset.desc;
+    const href = node.dataset.href;
+    tooltip.innerHTML = `<strong>${href}</strong><br>${desc}<br><a href="${REPORT_DATA.repo}/blob/${REPORT_DATA.headSha}/${href}" target="_blank" style="pointer-events:all">View source &rarr;</a>`;
+    tooltip.style.opacity = '1';
+    tooltip.style.pointerEvents = 'auto';
+  });
+  node.addEventListener('mousemove', e => {
+    tooltip.style.left = e.pageX + 12 + 'px';
+    tooltip.style.top = e.pageY - 10 + 'px';
+  });
+  node.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+    tooltip.style.pointerEvents = 'none';
+  });
+});
+</script>
+</body>
+</html>
