@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-237 — MCP Server for AI Agents</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <!-- Architecture diagram -->
+  <section class="fade-in">
+    <h2>Architecture</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;margin:0 auto;display:block">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+          </marker>
+          <linearGradient id="gMcp" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="gExt" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Extension Host box -->
+        <rect x="20" y="10" width="860" height="500" rx="12" fill="url(#gExt)" stroke="#06b6d4" stroke-opacity="0.4"/>
+        <text x="40" y="38" fill="#06b6d4" font-size="14" font-weight="600">VS Code Extension Host</text>
+
+        <!-- MCP Server box -->
+        <rect x="50" y="55" width="380" height="190" rx="10" fill="url(#gMcp)" stroke="#4f46e5" stroke-opacity="0.5"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts#L10-L125"
+          data-lines="L10-L125" data-desc="HTTP MCP server, stateless mode, new McpServer per request"/>
+        <text x="70" y="82" fill="#a78bfa" font-size="13" font-weight="600">HyperMcpServer (HTTP :random-port)</text>
+
+        <!-- Tool boxes inside MCP -->
+        <rect x="70" y="98" width="160" height="56" rx="6" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-opacity="0.4"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/tools/ast-tools.ts#L74-L241"
+          data-lines="L74-L241" data-desc="6 AST tools: insert, delete, update styles/props, duplicate, wrap"/>
+        <text x="90" y="121" fill="#c4b5fd" font-size="11">AST Tools (6)</text>
+        <text x="90" y="140" fill="#9ca3af" font-size="10">insert, delete, styles, props...</text>
+
+        <rect x="250" y="98" width="160" height="56" rx="6" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-opacity="0.4"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/tools/component-tools.ts#L8-L91"
+          data-lines="L8-L91" data-desc="3 component tools: tree, props, inject IDs"/>
+        <text x="270" y="121" fill="#c4b5fd" font-size="11">Component Tools (3)</text>
+        <text x="270" y="140" fill="#9ca3af" font-size="10">tree, props, inject IDs</text>
+
+        <rect x="70" y="168" width="160" height="56" rx="6" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-opacity="0.4"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/tools/tailwind-tools.ts#L94-L163"
+          data-lines="L94-L163" data-desc="3 Tailwind tools: parse styles, suggest color, list colors"/>
+        <text x="90" y="191" fill="#c4b5fd" font-size="11">Tailwind Tools (3)</text>
+        <text x="90" y="210" fill="#9ca3af" font-size="10">styles, colors, tokens</text>
+
+        <rect x="250" y="168" width="160" height="56" rx="6" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-opacity="0.4"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/tools/extension-tools.ts#L8-L146"
+          data-lines="L8-L146" data-desc="8 extension tools: selection, diagnostics, screenshots, navigation, refresh, open component"/>
+        <text x="270" y="191" fill="#c4b5fd" font-size="11">Extension Tools (8)</text>
+        <text x="270" y="210" fill="#9ca3af" font-size="10">selection, screenshots, nav...</text>
+
+        <!-- Services box -->
+        <rect x="470" y="55" width="390" height="190" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-opacity="0.4"/>
+        <text x="490" y="82" fill="#34d399" font-size="13" font-weight="600">Internal Services (direct access)</text>
+
+        <rect x="490" y="98" width="150" height="40" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/services/AstService.ts"
+          data-desc="AST manipulation: parse, mutate, inject IDs, element operations"/>
+        <text x="510" y="123" fill="#6ee7b7" font-size="11">AstService</text>
+
+        <rect x="660" y="98" width="180" height="40" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/services/ComponentService.ts"
+          data-desc="Component scanning, structure parsing, props extraction"/>
+        <text x="680" y="123" fill="#6ee7b7" font-size="11">ComponentService</text>
+
+        <rect x="490" y="152" width="150" height="40" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/StateHub.ts"
+          data-desc="Cross-panel state sync, currentComponent, selectedIds"/>
+        <text x="510" y="177" fill="#6ee7b7" font-size="11">StateHub</text>
+
+        <rect x="660" y="152" width="180" height="40" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/DiagnosticHub.ts"
+          data-desc="Aggregate diagnostics: runtime errors, build status, logs"/>
+        <text x="680" y="177" fill="#6ee7b7" font-size="11">DiagnosticHub</text>
+
+        <rect x="490" y="206" width="350" height="28" rx="6" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-opacity="0.2"/>
+        <text x="510" y="225" fill="#9ca3af" font-size="10">PreviewPanel (screenshots) &middot; EditorBridge (navigation)</text>
+
+        <!-- Arrows MCP → Services -->
+        <line x1="430" y1="120" x2="488" y2="118" stroke="#888" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+        <line x1="430" y1="190" x2="488" y2="172" stroke="#888" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+
+        <!-- AI Agents (external) -->
+        <rect x="50" y="280" width="380" height="210" rx="10" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-opacity="0.4"/>
+        <text x="70" y="308" fill="#fbbf24" font-size="13" font-weight="600">AI Agents (external)</text>
+
+        <rect x="70" y="322" width="160" height="36" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="90" y="345" fill="#fcd34d" font-size="11">VS Code Copilot</text>
+
+        <rect x="250" y="322" width="160" height="36" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="270" y="345" fill="#fcd34d" font-size="11">Claude Code</text>
+
+        <rect x="70" y="372" width="160" height="36" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="90" y="395" fill="#fcd34d" font-size="11">Codex / OpenCode</text>
+
+        <rect x="250" y="372" width="160" height="36" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="270" y="395" fill="#fcd34d" font-size="11">Continue / Cline</text>
+
+        <!-- Discovery methods -->
+        <text x="90" y="432" fill="#9ca3af" font-size="10">Copilot: registerMcpServerDefinitionProvider</text>
+        <text x="90" y="448" fill="#9ca3af" font-size="10">Claude/Codex/OpenCode: Setup MCP command</text>
+        <text x="90" y="464" fill="#9ca3af" font-size="10">All: HTTP POST http://127.0.0.1:&lt;port&gt;/mcp</text>
+
+        <!-- Arrow Agents → MCP -->
+        <line x1="240" y1="280" x2="240" y2="248" stroke="#f59e0b" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+
+        <!-- resolveFilePath box -->
+        <rect x="470" y="280" width="390" height="90" rx="10" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-opacity="0.3"
+          data-href="https://github.com/hyperide/hyper-saas/blob/HYP-237-mcp-server-for-ai-agents/vscode-extension/hypercanvas-preview/src/mcp/types.ts#L22-L25"
+          data-lines="L22-L25" data-desc="resolveFilePath: optional filePath with fallback to StateHub.currentComponent"/>
+        <text x="490" y="308" fill="#fca5a5" font-size="13" font-weight="600">Smart Defaults</text>
+        <text x="490" y="330" fill="#9ca3af" font-size="11">resolveFilePath(stateHub, filePath?)</text>
+        <text x="490" y="350" fill="#9ca3af" font-size="10">All tools default to active component &rarr; no stale references</text>
+
+        <!-- Screenshot flow -->
+        <rect x="470" y="390" width="390" height="90" rx="10" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" stroke-opacity="0.3"/>
+        <text x="490" y="418" fill="#93c5fd" font-size="13" font-weight="600">Screenshot Pipeline</text>
+        <text x="490" y="440" fill="#9ca3af" font-size="11">MCP &rarr; PreviewPanel &rarr; webview &rarr; iframe &rarr; html2canvas</text>
+        <text x="490" y="458" fill="#9ca3af" font-size="10">Saves PNG to /tmp, returns base64 + file path</text>
+      </svg>
+    </div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <div data-section="findings"></div>
+  <div data-section="timeline"></div>
+  <div data-section="adr"></div>
+</div>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '11ae3bb9b818787982bf3b8a0b7a401b128bccd9',
+
+  title: 'HYP-237: MCP Server for AI Agents',
+  subtitle: 'Expose 20 HyperCanvas tools to external AI agents via HTTP MCP protocol',
+  date: '2026-03-06',
+  badge: { label: 'feat', type: 'feat' },
+  branch: 'HYP-237-mcp-server-for-ai-agents',
+  links: [
+    { label: 'PR #123', href: 'https://github.com/hyperide/hyper-saas/pull/123' },
+    { label: 'Linear HYP-237', href: 'https://linear.app/glide-vc/issue/HYP-237' },
+  ],
+
+  motivation: '<strong>Why:</strong> AI agents (Copilot, Claude Code, Codex, OpenCode) in VS Code had no access to HyperCanvas\u2019s unique capabilities \u2014 AST manipulation, visual Tailwind editing, component discovery, canvas state. Each agent could only edit raw text files, missing the semantic JSX tree and visual context.' +
+    '<ul>' +
+    '<li>Agents couldn\u2019t insert/delete/style JSX elements through the structured AST API</li>' +
+    '<li>No way to see current selection, diagnostics, or take visual screenshots</li>' +
+    '<li>Switching components mid-session caused stale file references in tool calls</li>' +
+    '<li>Manual MCP configuration required for each agent type</li>' +
+    '</ul>',
+
+  stats: { files: 18, insertions: 2540, deletions: 51, commits: 5 },
+
+  productChanges: {
+    new: [
+      {
+        title: 'HTTP MCP Server (20 tools)',
+        desc: 'In-process HTTP server on random port exposes AST manipulation, component discovery, Tailwind editing, screenshots, color tokens, and canvas state to any MCP-compatible AI agent.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', lines: 'L10-L125', label: 'HyperMcpServer.ts:10 (HyperMcpServer)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/ast-tools.ts', lines: 'L74-L241', label: 'ast-tools.ts:74 (registerAstTools)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/component-tools.ts', lines: 'L8-L91', label: 'component-tools.ts:8 (registerComponentTools)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/extension-tools.ts', lines: 'L8-L146', label: 'extension-tools.ts:8 (registerExtensionTools)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/tailwind-tools.ts', lines: 'L94-L163', label: 'tailwind-tools.ts:94 (registerTailwindTools)' },
+        ]
+      },
+      {
+        title: 'Setup MCP Wizard',
+        desc: 'Two-step wizard: Step 1 selects agent types (Copilot, Claude Code, Codex, OpenCode) with pre-checked existing configs. Step 2 auto-installs companion servers (Playwright, Serena, Context7) directly into config files.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', lines: 'L681-L880', label: 'extension.ts:681 (setupMcp command)' },
+        ]
+      },
+      {
+        title: 'Screenshot Tools',
+        desc: 'Take screenshots of entire preview or specific elements via html2canvas. Saves PNG to /tmp and returns base64 inline + file path.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', lines: 'L537-L561', label: 'PreviewPanel.ts:537 (takeScreenshot)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L1-L32', label: 'iframe-interaction.ts (html2canvas handler)' },
+        ]
+      },
+      {
+        title: 'Tailwind Color Token Tools',
+        desc: 'hyper_suggest_color_token finds nearest Tailwind tokens by Euclidean RGB distance. hyper_list_tailwind_colors lists all tokens by family.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/tailwind-tools.ts', lines: 'L94-L163', label: 'tailwind-tools.ts:94 (color tools)' },
+        ]
+      },
+    ],
+    improvements: [
+      {
+        title: 'Optional filePath with active component fallback',
+        desc: 'All 12 tools that accept filePath now default to the currently active component from StateHub. Prevents stale references when user switches components mid-session.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/types.ts', lines: 'L22-L25', label: 'types.ts:22 (resolveFilePath)' },
+        ]
+      },
+      {
+        title: 'Smart style normalization for AI mistakes',
+        desc: 'normalizeStylesInput auto-corrects when AI agents pass Tailwind classes instead of CSS properties, or mix formats creatively.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/ast-tools.ts', lines: 'L39-L70', label: 'ast-tools.ts:39 (normalizeStylesInput)' },
+        ]
+      },
+      {
+        title: 'RGB-to-Tailwind token resolution',
+        desc: 'toColorClass now resolves rgb/rgba values to Tailwind tokens before falling back to arbitrary values. Commas/spaces escaped per TW v3 syntax.',
+        files: [
+          { path: 'lib/tailwind/generator.ts', lines: 'L269-L289', label: 'generator.ts:269 (rgb token resolution)' },
+        ]
+      },
+      {
+        title: 'Auto-open Preview on Explorer click',
+        desc: 'Clicking a component in HyperIDE Explorer sidebar auto-opens the Preview Panel as a split to the right if not already visible.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', lines: 'L184-L185', label: 'extension.ts:184 (auto-open)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', lines: 'L579-L585', label: 'PreviewPanel.ts:579 (StateHub fallback init)' },
+        ]
+      },
+    ],
+    fixes: [
+      {
+        title: 'Remove pulse animation from Auto Fix button',
+        desc: 'Static red button instead of constant pulsing. Less distracting.',
+        files: [
+          { path: 'client/components/DiagnosticLogsViewer.tsx', lines: 'L123', label: 'DiagnosticLogsViewer.tsx:123' },
+        ]
+      },
+    ],
+  },
+
+  files: [
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp', add: 125, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/types.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp', add: 25, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/ast-tools.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp/tools', add: 257, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/component-tools.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp/tools', add: 100, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/extension-tools.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp/tools', add: 146, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/tools/tailwind-tools.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp/tools', add: 163, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 544, del: 2, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 58, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/__tests__/HyperMcpServer.test.ts', dir: 'vscode-extension/hypercanvas-preview/src/__tests__', add: 182, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', dir: 'vscode-extension/hypercanvas-preview/src/services/scripts', add: 32, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/usePreviewBridge.ts', dir: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel', add: 14, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/package.json', dir: 'vscode-extension/hypercanvas-preview', add: 14, del: 1, status: 'modified' },
+    { path: 'lib/tailwind/generator.ts', dir: 'lib/tailwind', add: 21, del: 2, status: 'modified' },
+    { path: 'lib/tailwind/generator.test.ts', dir: 'lib/tailwind', add: 1, del: 1, status: 'modified' },
+    { path: 'client/components/DiagnosticLogsViewer.tsx', dir: 'client/components', add: 1, del: 1, status: 'modified' },
+    { path: 'README.md', dir: '.', add: 3, del: 3, status: 'modified' },
+    { path: '.serena/memories/vscode-extension.md', dir: '.serena/memories', add: 23, del: 0, status: 'modified' },
+  ],
+
+  findings: [
+    {
+      id: 1, severity: 'P2', status: 'resolved',
+      title: 'Stale component references in MCP tools',
+      file: 'vscode-extension/hypercanvas-preview/src/mcp/types.ts', lines: 'L22-L25',
+      desc: 'All tools required filePath as mandatory parameter. When user switched components between tool calls, AI agent continued using the old path.',
+      fix: 'Made filePath optional in all 12 tools with resolveFilePath() fallback to StateHub.currentComponent. Added guidance in tool descriptions.',
+    },
+    {
+      id: 2, severity: 'P2', status: 'resolved',
+      title: 'Tailwind v3 rejects commas in arbitrary values',
+      file: 'lib/tailwind/generator.ts', lines: 'L285-L287',
+      desc: 'bg-[rgb(127,29,29)] is invalid in TW v3 \u2014 commas must be underscores.',
+      fix: 'Added rgb-to-token resolution first, then escape commas/spaces to underscores for arbitrary fallback.',
+    },
+    {
+      id: 3, severity: 'P3', status: 'accepted',
+      title: 'Port changes every VS Code restart',
+      file: 'vscode-extension/hypercanvas-preview/src/extension.ts', lines: 'L306-L340',
+      desc: 'HTTP server uses random port. Config files need updating each session.',
+      fix: 'Auto-update on activation: reads existing .mcp.json/.vscode/mcp.json/opencode.json/.codex/config.toml and rewrites port silently.',
+    },
+  ],
+
+  commits: [
+    { sha: '93505ac', message: 'feat(mcp): add MCP server with 20 tools for AI agents (HYP-237)', date: '2026-03-06' },
+    { sha: '84b6d9c', message: 'fix(ui): remove pulse animation from Auto Fix button (HYP-237)', date: '2026-03-06' },
+    { sha: '629a543', message: 'feat(ext): auto-open preview panel on component click from Explorer (HYP-237)', date: '2026-03-06' },
+    { sha: '391bae8', message: 'fix(mcp): make filePath optional in tools with fallback to active component (HYP-237)', date: '2026-03-06' },
+    { sha: '11ae3bb', message: 'docs: update vscode-extension memory with MCP server architecture (HYP-237)', date: '2026-03-06' },
+  ],
+
+  adrs: [
+    {
+      title: 'ADR-1: In-process HTTP server vs stdio subprocess',
+      problem: 'MCP servers typically run as separate processes with stdio transport. But our tools need direct access to StateHub, AstService, DiagnosticHub \u2014 all living in the extension host.',
+      options: '1. Stdio subprocess with IPC bridge\n2. In-process HTTP server with streamable-http transport\n3. WebSocket server in extension host',
+      decision: 'In-process HTTP server using @modelcontextprotocol/sdk StreamableHTTPServerTransport in stateless mode.',
+      rationale: 'Zero IPC overhead, direct object access, no serialization layer. HTTP transport works with all MCP clients. Stateless mode (new McpServer per request) avoids session management complexity. Port randomization + auto-config-update solves the ephemeral port problem.',
+    },
+    {
+      title: 'ADR-2: Optional filePath with StateHub fallback',
+      problem: 'AI agents cache tool parameters. When user switches components, agent keeps using old filePath \u2014 operating on the wrong file.',
+      options: '1. Require agents to always call hyper_get_selection first\n2. Make filePath optional, default to active component\n3. Add filePath to every tool response for agent to cache',
+      decision: 'Make filePath optional with resolveFilePath(stateHub, filePath?) centralized helper.',
+      rationale: 'Agents are unreliable at following "always call X first" instructions. Optional filePath with smart default is invisible to correct agents (they can still pass explicit paths) while automatically fixing the common mistake of stale references.',
+    },
+  ],
+});
+</script>
+</body>
+</html>
