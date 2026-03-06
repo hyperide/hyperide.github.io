@@ -298,47 +298,66 @@ window.Report = (function () {
   // ── Architecture tooltips — pinned to node, not following cursor ──
 
   function setupArchTooltips() {
-    var nodes = document.querySelectorAll('.arch-node, .arch-container [data-href]');
-    if (!nodes.length) return;
+    var containers = document.querySelectorAll('.arch-container');
+    if (!containers.length) return;
 
     var tooltip = document.createElement('div');
     tooltip.className = 'arch-tooltip';
     document.body.appendChild(tooltip);
     var hideTimer = null;
+    var activeNode = null;
 
     function show(node) {
       clearTimeout(hideTimer);
+      activeNode = node;
       var href = node.dataset.href || '';
       var desc = node.dataset.desc || '';
       var lines = node.dataset.lines || '';
       var lineHash = lines ? '#' + lines : '';
       var linesLabel = lines ? ' <code style="color:var(--accent2)">' + lines + '</code>' : '';
-      // Support both full URLs and relative paths
       var fullUrl = href.startsWith('http') ? href + lineHash : data.repo + '/blob/' + data.headSha + '/' + href + lineHash;
       var displayName = href.startsWith('http') ? href.split('/').pop() : href;
       tooltip.innerHTML =
+        '<div style="padding-top:12px">' +
         '<strong>' + esc(displayName) + '</strong>' + linesLabel + '<br>' + desc +
-        '<br><a href="' + fullUrl + '" target="_blank">View source &rarr;</a>';
+        '<br><a href="' + fullUrl + '" target="_blank">View source &rarr;</a>' +
+        '</div>';
 
       // Position pinned below the node
       var rect = node.getBoundingClientRect();
       tooltip.style.left = (rect.left + rect.width / 2 + window.scrollX) + 'px';
-      tooltip.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+      // Overlap the node by a few px so there's no dead zone
+      tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
       tooltip.style.transform = 'translateX(-50%)';
       tooltip.classList.add('visible');
     }
 
     function scheduleHide() {
-      hideTimer = setTimeout(function () { tooltip.classList.remove('visible'); }, 300);
+      hideTimer = setTimeout(function () {
+        tooltip.classList.remove('visible');
+        activeNode = null;
+      }, 200);
     }
 
-    nodes.forEach(function (node) {
-      node.addEventListener('mouseenter', function () { show(node); });
-      node.addEventListener('mouseleave', scheduleHide);
+    // Delegate events from arch-container to handle nested SVG elements
+    containers.forEach(function (container) {
+      container.addEventListener('mouseover', function (ev) {
+        var target = ev.target.closest('[data-href]');
+        if (!target || !container.contains(target)) return;
+        show(target);
+      });
+      container.addEventListener('mouseout', function (ev) {
+        var from = ev.target.closest('[data-href]');
+        var to = ev.relatedTarget ? (ev.relatedTarget.closest ? ev.relatedTarget.closest('[data-href]') : null) : null;
+        // Only schedule hide if we actually left the node (not moving between children)
+        if (from && from !== to) {
+          scheduleHide();
+        }
+      });
     });
 
     tooltip.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
-    tooltip.addEventListener('mouseleave', function () { tooltip.classList.remove('visible'); });
+    tooltip.addEventListener('mouseleave', scheduleHide);
   }
 
   // ── Public API ──
