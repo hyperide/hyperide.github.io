@@ -301,6 +301,39 @@ window.Report = (function () {
     var containers = document.querySelectorAll('.arch-container');
     if (!containers.length) return;
 
+    // Auto-wrap bare SVG rect[data-href] + adjacent <text> into <g>
+    // so hover works on both the box and its label
+    containers.forEach(function (c) {
+      var rects = c.querySelectorAll('rect[data-href]');
+      rects.forEach(function (rect) {
+        // Skip if already inside a <g> with data-href
+        if (rect.parentElement && rect.parentElement.tagName === 'g' && rect.parentElement.hasAttribute('data-href')) return;
+        var next = rect.nextElementSibling;
+        var svgNs = 'http://www.w3.org/2000/svg';
+        var g = document.createElementNS(svgNs, 'g');
+        // Move data attributes to the group
+        ['href', 'lines', 'desc'].forEach(function (attr) {
+          var val = rect.getAttribute('data-' + attr);
+          if (val) { g.setAttribute('data-' + attr, val); rect.removeAttribute('data-' + attr); }
+        });
+        rect.parentNode.insertBefore(g, rect);
+        g.appendChild(rect);
+        // Grab adjacent text(s) that belong to this box
+        while (g.nextElementSibling && g.nextElementSibling.tagName === 'text') {
+          var txt = g.nextElementSibling;
+          // Check if text is visually inside the rect (by y-coordinate)
+          var ry = parseFloat(rect.getAttribute('y') || 0);
+          var rh = parseFloat(rect.getAttribute('height') || 0);
+          var ty = parseFloat(txt.getAttribute('y') || 0);
+          if (ty >= ry && ty <= ry + rh + 4) {
+            g.appendChild(txt);
+          } else {
+            break;
+          }
+        }
+      });
+    });
+
     var tooltip = document.createElement('div');
     tooltip.className = 'arch-tooltip';
     document.body.appendChild(tooltip);
