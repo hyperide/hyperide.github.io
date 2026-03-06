@@ -315,8 +315,10 @@ window.Report = (function () {
       var lines = node.dataset.lines || '';
       var lineHash = lines ? '#' + lines : '';
       var linesLabel = lines ? ' <code style="color:var(--accent2)">' + lines + '</code>' : '';
-      var fullUrl = href.startsWith('http') ? href + lineHash : data.repo + '/blob/' + data.headSha + '/' + href + lineHash;
-      var displayName = href.startsWith('http') ? href.split('/').pop() : href;
+      // Don't append lineHash if href already contains a fragment
+      var hasFragment = href.indexOf('#') !== -1;
+      var fullUrl = href.startsWith('http') ? href + (hasFragment ? '' : lineHash) : data.repo + '/blob/' + data.headSha + '/' + href + lineHash;
+      var displayName = href.startsWith('http') ? href.replace(/#.*$/, '').split('/').pop() : href;
       tooltip.innerHTML =
         '<div style="padding-top:12px">' +
         '<strong>' + esc(displayName) + '</strong>' + linesLabel + '<br>' + desc +
