@@ -298,7 +298,7 @@ window.Report = (function () {
   // ── Architecture tooltips — pinned to node, not following cursor ──
 
   function setupArchTooltips() {
-    var nodes = document.querySelectorAll('.arch-node');
+    var nodes = document.querySelectorAll('.arch-node, .arch-container [data-href]');
     if (!nodes.length) return;
 
     var tooltip = document.createElement('div');
@@ -313,9 +313,12 @@ window.Report = (function () {
       var lines = node.dataset.lines || '';
       var lineHash = lines ? '#' + lines : '';
       var linesLabel = lines ? ' <code style="color:var(--accent2)">' + lines + '</code>' : '';
+      // Support both full URLs and relative paths
+      var fullUrl = href.startsWith('http') ? href + lineHash : data.repo + '/blob/' + data.headSha + '/' + href + lineHash;
+      var displayName = href.startsWith('http') ? href.split('/').pop() : href;
       tooltip.innerHTML =
-        '<strong>' + esc(href) + '</strong>' + linesLabel + '<br>' + desc +
-        '<br><a href="' + data.repo + '/blob/' + data.headSha + '/' + href + lineHash + '" target="_blank">View source &rarr;</a>';
+        '<strong>' + esc(displayName) + '</strong>' + linesLabel + '<br>' + desc +
+        '<br><a href="' + fullUrl + '" target="_blank">View source &rarr;</a>';
 
       // Position pinned below the node
       var rect = node.getBoundingClientRect();
