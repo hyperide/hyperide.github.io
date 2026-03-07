@@ -1006,24 +1006,44 @@
         <tr>
           <th>Product</th>
           <th>Visual Editor</th>
-          <th>Real Code</th>
+          <th>Edits Real Code</th>
+          <th>Live Preview</th>
           <th>VS Code</th>
           <th>AI</th>
           <th>Local Dev</th>
           <th>Team</th>
-          <th>Time to Ship</th>
         </tr>
       </thead>
       <tbody>
         <tr class="highlight-row">
           <td>HyperIDE</td>
           <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
+          <td class="check" title="AST-based, edits .tsx directly">&#10003; AST</td>
+          <td class="check" title="Same-origin iframe proxy with HMR">&#10003; HMR</td>
           <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td>1 dev</td>
-          <td>4 months</td>
+        </tr>
+        <tr>
+          <td>Pencil</td>
+          <td class="check" title="Vector design tool (Figma-like)">&#10003; Design</td>
+          <td style="color:var(--yellow)" title="AI generates code from .pen designs via Cmd+K prompts">AI gen</td>
+          <td class="cross" title="No running component preview, static design canvas">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="check" title="Depends on Claude Code for code gen">&#10003;</td>
+          <td style="color:var(--yellow)" title="No dev server, no HMR, no iframe preview">Design only</td>
+          <td>5+ eng</td>
+        </tr>
+        <tr>
+          <td>Tempo Labs</td>
+          <td class="check">&#10003;</td>
+          <td style="color:var(--yellow)" title="AI generates React code, credit-based">AI gen</td>
+          <td class="check">&#10003;</td>
+          <td style="color:var(--yellow)" title="Integration, not native extension">Plugin</td>
+          <td class="check" title="Credit-based: $30/mo = 150 credits">&#10003; $$</td>
+          <td style="color:var(--yellow)" title="Cloud-first, can edit locally">Cloud-first</td>
+          <td>10+ eng (YC)</td>
         </tr>
         <tr>
           <td>Figma</td>
@@ -1032,84 +1052,118 @@
           <td class="cross">&#10007;</td>
           <td class="cross">&#10007;</td>
           <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
           <td>5 eng</td>
-          <td>~18 months</td>
         </tr>
         <tr>
           <td>Builder.io</td>
           <td class="check">&#10003;</td>
           <td style="color:var(--yellow)">Partial</td>
+          <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td>10+ eng</td>
-          <td>~12 months</td>
         </tr>
         <tr>
           <td>Plasmic</td>
+          <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td class="cross">&#10007;</td>
           <td class="cross">&#10007;</td>
           <td>8 eng</td>
-          <td>~9 months</td>
         </tr>
         <tr>
           <td>v0 (Vercel)</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td>5+ eng</td>
-          <td>~6 months</td>
         </tr>
         <tr>
           <td>Cursor</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
           <td style="color:var(--yellow)">Fork</td>
           <td class="check">&#10003;</td>
           <td class="check">&#10003;</td>
           <td>10+ eng</td>
-          <td>~8 months</td>
         </tr>
         <tr>
           <td>Bolt (StackBlitz)</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td class="check">&#10003;</td>
           <td class="cross">&#10007;</td>
           <td>5+ eng</td>
-          <td>~6 months</td>
-        </tr>
-        <tr>
-          <td>Pencil</td>
-          <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
-          <td>5+ eng</td>
-          <td>~6 months</td>
-        </tr>
-        <tr>
-          <td>Tempo Labs</td>
-          <td class="check">&#10003;</td>
-          <td class="check">&#10003;</td>
-          <td style="color:var(--yellow)">Plugin</td>
-          <td class="check">&#10003;</td>
-          <td class="cross">&#10007;</td>
-          <td>10+ eng</td>
-          <td>~8 months</td>
         </tr>
       </tbody>
     </table>
-    <p style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:8px">
-      Only HyperIDE and Pencil check all five boxes &mdash; built by 1 dev in 4 months vs. a funded team.
-    </p>
+    <div class="card" style="margin-top:24px">
+      <h4 style="margin-bottom:12px">Key Differentiators vs. Pencil &amp; Tempo</h4>
+      <table class="comparison-table" style="margin:12px 0 0">
+        <thead><tr><th></th><th>HyperIDE</th><th>Pencil</th><th>Tempo</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text-dim)">What you edit</td>
+            <td>Actual <code>.tsx</code> source files</td>
+            <td><code>.pen</code> JSON design files</td>
+            <td>Cloud canvas &rarr; generated code</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">How code changes</td>
+            <td>AST manipulation (Babel + Recast), format-preserving</td>
+            <td>AI generates code from design via Cmd+K prompts</td>
+            <td>AI generates React code (credit-based)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">Live preview</td>
+            <td>Same-origin iframe proxy, actual dev server with HMR</td>
+            <td>Static design canvas (Figma-like)</td>
+            <td>Cloud-rendered preview</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">Undo/Redo</td>
+            <td>File snapshots + reverse AST operations</td>
+            <td>Design-level undo only</td>
+            <td>Version-based</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">AI dependency</td>
+            <td>Optional &mdash; visual editing works without AI</td>
+            <td>Required for code gen (depends on Claude Code)</td>
+            <td>Required ($30/mo for 150 credits)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">Framework support</td>
+            <td>Any React framework (Vite, Next.js, Remix, etc.)</td>
+            <td>React, Vue, Svelte, HTML (AI prompt-dependent)</td>
+            <td>React only</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-dim)">Self-hosted / SaaS</td>
+            <td>Both (K8s deployment + VS Code extension)</td>
+            <td>VS Code extension only</td>
+            <td>Cloud SaaS only (YC-funded)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.85rem;color:var(--text-dim);margin-top:16px">
+        <strong style="color:var(--text)">The fundamental difference:</strong>
+        Pencil and Tempo are <em>design tools that generate code</em>.
+        HyperIDE is a <em>code editor with a visual interface</em> &mdash;
+        it reads and writes your actual source files via AST, shows your running components
+        with HMR, and doesn't require AI credits for visual editing.
+      </p>
+    </div>
   </section>
 
   <!-- ════ TIMELINE / MILESTONES ════ -->
