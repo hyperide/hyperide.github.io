@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HyperIDE — 4 Month Development Report (Nov 2025 — Mar 2026)</title>
+<link rel="stylesheet" href="../shared/styles.css">
+<style>
+/* ── Overview-specific styles ── */
+.hero {
+  padding: 64px 0 48px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(88,166,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: 2.8rem;
+  background: linear-gradient(135deg, #58a6ff, #bc8cff, #f0883e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.hero .period {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+.hero .tagline {
+  font-size: 1.05rem;
+  color: var(--text);
+  max-width: 700px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+/* Stats grid — 6 columns */
+.mega-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+}
+.mega-stats .summary-card {
+  transition: transform 0.2s, border-color 0.2s;
+}
+.mega-stats .summary-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent1);
+}
+.mega-stats .summary-card .value {
+  font-size: 2rem;
+}
+
+/* Bar charts */
+.bar-chart {
+  margin: 24px 0;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  font-size: 0.85rem;
+}
+.bar-label {
+  width: 140px;
+  text-align: right;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1;
+  height: 28px;
+  background: rgba(48, 54, 61, 0.4);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e6edf3;
+  transition: width 0.8s ease-out;
+  min-width: fit-content;
+}
+.bar-value {
+  width: 60px;
+  text-align: right;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Gradient fills */
+.fill-blue { background: linear-gradient(90deg, rgba(88,166,255,0.3), rgba(88,166,255,0.6)); }
+.fill-green { background: linear-gradient(90deg, rgba(63,185,80,0.3), rgba(63,185,80,0.6)); }
+.fill-purple { background: linear-gradient(90deg, rgba(188,140,255,0.3), rgba(188,140,255,0.6)); }
+.fill-orange { background: linear-gradient(90deg, rgba(240,136,62,0.3), rgba(240,136,62,0.6)); }
+.fill-red { background: linear-gradient(90deg, rgba(248,81,73,0.3), rgba(248,81,73,0.6)); }
+.fill-cyan { background: linear-gradient(90deg, rgba(6,182,212,0.3), rgba(6,182,212,0.6)); }
+.fill-yellow { background: linear-gradient(90deg, rgba(210,153,34,0.3), rgba(210,153,34,0.6)); }
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.feature-card:hover {
+  border-color: var(--accent1);
+  transform: translateY(-2px);
+}
+.feature-card h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: #e6edf3;
+}
+.feature-card p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.feature-card .feature-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.tag-core { background: rgba(88,166,255,0.15); color: var(--accent1); }
+.tag-ai { background: rgba(188,140,255,0.15); color: var(--accent2); }
+.tag-infra { background: rgba(63,185,80,0.15); color: var(--green); }
+.tag-ext { background: rgba(6,182,212,0.15); color: #22d3ee; }
+.tag-security { background: rgba(248,81,73,0.15); color: var(--red); }
+
+/* Comparison table */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 0.9rem;
+}
+.comparison-table th {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.comparison-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+}
+.comparison-table tr:hover td {
+  background: rgba(22,27,34,0.6);
+}
+.comparison-table .highlight-row td {
+  background: rgba(88,166,255,0.08);
+  font-weight: 600;
+}
+.check { color: var(--green); }
+.cross { color: var(--red); opacity: 0.5; }
+
+/* Architecture layers */
+.arch-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+.arch-layer {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+.arch-layer:hover { border-color: var(--accent1); }
+.arch-layer .layer-name {
+  font-weight: 600;
+  width: 180px;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+.arch-layer .layer-tech {
+  font-size: 0.8rem;
+  color: var(--accent2);
+  font-family: 'SF Mono', monospace;
+}
+.arch-layer .layer-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  flex: 1;
+}
+.arch-layer .layer-lines {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Quality gauge */
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.quality-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.quality-item .q-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.quality-item .q-label { font-size: 0.9rem; font-weight: 600; }
+.quality-item .q-score {
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.quality-item .q-bar {
+  height: 6px;
+  background: rgba(48,54,61,0.6);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.quality-item .q-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  transition: width 0.8s ease-out;
+}
+.quality-item .q-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+/* Milestone timeline (vertical) */
+.milestones {
+  position: relative;
+  padding: 0 0 0 40px;
+  margin: 32px 0;
+}
+.milestones::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent1), var(--accent2), var(--green));
+}
+.milestone {
+  position: relative;
+  margin: 24px 0;
+  padding: 12px 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+.milestone:hover { border-color: var(--accent1); }
+.milestone::before {
+  content: '';
+  position: absolute;
+  left: -33px;
+  top: 18px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent1);
+  border: 2px solid var(--bg);
+}
+.milestone .m-date {
+  font-size: 0.78rem;
+  color: var(--accent2);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.milestone .m-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.milestone .m-desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+/* Two-column section */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0;
+}
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .mega-stats { grid-template-columns: repeat(2, 1fr); }
+  .bar-label { width: 100px; font-size: 0.78rem; }
+}
+
+/* AI collab section */
+.ai-stat {
+  text-align: center;
+  padding: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 24px 0;
+}
+.ai-stat .big-number {
+  font-size: 4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ai-stat .big-label {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* Verdict */
+.verdict {
+  text-align: center;
+  padding: 48px 32px;
+  margin: 32px 0;
+  background: linear-gradient(135deg, rgba(88,166,255,0.05), rgba(188,140,255,0.05));
+  border: 1px solid rgba(88,166,255,0.2);
+  border-radius: 16px;
+}
+.verdict h2 {
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+.verdict p {
+  font-size: 1.05rem;
+  color: var(--text-dim);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.verdict .verdict-line {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e6edf3;
+  margin-top: 24px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ════ HERO ════ -->
+  <div class="hero fade-in">
+    <h1>HyperIDE Development Report</h1>
+    <div class="period">November 7, 2025 &mdash; March 7, 2026 &middot; 121 days</div>
+    <div class="tagline">
+      A visual React component editor with code generation, AI integration,
+      VS Code extension, and Kubernetes deployment &mdash; built by a single developer.
+    </div>
+  </div>
+
+  <!-- ════ KEY METRICS ════ -->
+  <section class="fade-in">
+    <h2>Key Metrics</h2>
+    <div class="mega-stats">
+      <div class="summary-card">
+        <div class="value">1,315</div>
+        <div class="label">Total Commits</div>
+      </div>
+      <div class="summary-card green">
+        <div class="value">177K</div>
+        <div class="label">Lines of Code</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">935</div>
+        <div class="label">Source Files</div>
+      </div>
+      <div class="summary-card green">
+        <div class="value">1,357</div>
+        <div class="label">Test Cases</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">120+</div>
+        <div class="label">API Endpoints</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">93</div>
+        <div class="label">Features Shipped</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">272</div>
+        <div class="label">React Components</div>
+      </div>
+      <div class="summary-card">
+        <div class="value">1,117</div>
+        <div class="label">Type Definitions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ DEVELOPMENT VELOCITY ════ -->
+  <section class="fade-in">
+    <h2>Development Velocity</h2>
+
+    <h3 style="font-size:1.1rem;margin-bottom:16px;color:#e6edf3">Commits per Month</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Nov 2025</span>
+        <div class="bar-track"><div class="bar-fill fill-blue" style="width:97%">378</div></div>
+        <span class="bar-value" style="color:var(--accent1)">378</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Dec 2025</span>
+        <div class="bar-track"><div class="bar-fill fill-purple" style="width:100%">390</div></div>
+        <span class="bar-value" style="color:var(--accent2)">390</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Jan 2026</span>
+        <div class="bar-track"><div class="bar-fill fill-green" style="width:49%">192</div></div>
+        <span class="bar-value" style="color:var(--green)">192</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Feb 2026</span>
+        <div class="bar-track"><div class="bar-fill fill-orange" style="width:69%">270</div></div>
+        <span class="bar-value" style="color:var(--orange)">270</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Mar 2026 (7d)</span>
+        <div class="bar-track"><div class="bar-fill fill-cyan" style="width:22%">85</div></div>
+        <span class="bar-value" style="color:#22d3ee">85</span>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.1rem;margin:32px 0 16px;color:#e6edf3">Commit Types</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">fix (44%)</span>
+        <div class="bar-track"><div class="bar-fill fill-green" style="width:100%">580</div></div>
+        <span class="bar-value" style="color:var(--green)">580</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">feat (32%)</span>
+        <div class="bar-track"><div class="bar-fill fill-blue" style="width:73%">425</div></div>
+        <span class="bar-value" style="color:var(--accent1)">425</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">refactor (5%)</span>
+        <div class="bar-track"><div class="bar-fill fill-purple" style="width:12%">72</div></div>
+        <span class="bar-value" style="color:var(--accent2)">72</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">chore (4%)</span>
+        <div class="bar-track"><div class="bar-fill fill-orange" style="width:10%">58</div></div>
+        <span class="bar-value" style="color:var(--orange)">58</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">docs (3%)</span>
+        <div class="bar-track"><div class="bar-fill fill-cyan" style="width:7%">39</div></div>
+        <span class="bar-value" style="color:#22d3ee">39</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">test (2%)</span>
+        <div class="bar-track"><div class="bar-fill fill-yellow" style="width:4%">26</div></div>
+        <span class="bar-value" style="color:var(--yellow)">26</span>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:32px">
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:#e6edf3">Peak Days</h3>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Feb 25</span>
+            <div class="bar-track"><div class="bar-fill fill-blue" style="width:100%">72</div></div>
+            <span class="bar-value" style="color:var(--accent1)">72</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Nov 8</span>
+            <div class="bar-track"><div class="bar-fill fill-purple" style="width:88%">63</div></div>
+            <span class="bar-value" style="color:var(--accent2)">63</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Nov 7</span>
+            <div class="bar-track"><div class="bar-fill fill-green" style="width:74%">53</div></div>
+            <span class="bar-value" style="color:var(--green)">53</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Dec 15</span>
+            <div class="bar-track"><div class="bar-fill fill-orange" style="width:61%">44</div></div>
+            <span class="bar-value" style="color:var(--orange)">44</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Dec 24 &#127876;</span>
+            <div class="bar-track"><div class="bar-fill fill-red" style="width:60%">43</div></div>
+            <span class="bar-value" style="color:var(--red)">43</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:#e6edf3">Work Patterns</h3>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Business hrs</span>
+            <div class="bar-track"><div class="bar-fill fill-green" style="width:62%">62%</div></div>
+            <span class="bar-value" style="color:var(--green)">815</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Weekends</span>
+            <div class="bar-track"><div class="bar-fill fill-orange" style="width:21%">21%</div></div>
+            <span class="bar-value" style="color:var(--orange)">275</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:100px">Late night</span>
+            <div class="bar-track"><div class="bar-fill fill-purple" style="width:17%">17%</div></div>
+            <span class="bar-value" style="color:var(--accent2)">225</span>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-dim);margin-top:12px">
+          38% of commits outside business hours.
+          Peak productivity: 1&ndash;4 PM with a second spike at 9 PM.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ ARCHITECTURE ════ -->
+  <section class="fade-in">
+    <h2>Architecture</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:960px;margin:0 auto;display:block">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+          </marker>
+          <linearGradient id="gClient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#58a6ff" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#58a6ff" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="gServer" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="gExt" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="gLib" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#bc8cff" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#bc8cff" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="gInfra" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.06"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Client -->
+        <rect x="20" y="20" width="280" height="240" rx="12" fill="url(#gClient)" stroke="#58a6ff" stroke-opacity="0.4"
+          data-href="client/" data-desc="React SPA: 360 files, 64,907 lines. Canvas Engine, Inspector, AI Chat."/>
+        <text x="40" y="48" fill="#58a6ff" font-size="14" font-weight="700">Client (React SPA)</text>
+        <text x="40" y="68" fill="#9ca3af" font-size="11">360 files &middot; 64,907 lines</text>
+
+        <rect x="35" y="82" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/lib/canvas-engine/" data-desc="Canvas Engine: command pattern, undo/redo, event-driven state"/>
+        <text x="48" y="103" fill="#93c5fd" font-size="10">Canvas Engine</text>
+
+        <rect x="165" y="82" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/components/" data-desc="272 React components, 128 custom hooks"/>
+        <text x="178" y="103" fill="#93c5fd" font-size="10">272 Components</text>
+
+        <rect x="35" y="122" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/lib/platform/" data-desc="Platform abstraction: SaaS + VS Code shared code"/>
+        <text x="48" y="143" fill="#93c5fd" font-size="10">Platform Layer</text>
+
+        <rect x="165" y="122" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/stores/" data-desc="Zustand stores: editor, auth, git, network"/>
+        <text x="178" y="143" fill="#93c5fd" font-size="10">Zustand Stores</text>
+
+        <rect x="35" y="162" width="250" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/components/IframeCanvas.tsx" data-desc="Same-origin iframe proxy with direct DOM access"/>
+        <text x="90" y="183" fill="#93c5fd" font-size="10">Iframe Preview (same-origin proxy)</text>
+
+        <rect x="35" y="202" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/components/RightSidebar/" data-desc="Style inspector, layout, appearance panels"/>
+        <text x="48" y="223" fill="#93c5fd" font-size="10">Style Inspector</text>
+
+        <rect x="165" y="202" width="120" height="32" rx="6" fill="rgba(88,166,255,0.12)" stroke="#58a6ff" stroke-opacity="0.3"
+          data-href="client/components/AIAgentChat.tsx" data-desc="AI chat with streaming, tool calling, multi-provider"/>
+        <text x="193" y="223" fill="#93c5fd" font-size="10">AI Chat</text>
+
+        <!-- Server -->
+        <rect x="340" y="20" width="280" height="240" rx="12" fill="url(#gServer)" stroke="#10b981" stroke-opacity="0.4"
+          data-href="server/" data-desc="Bun + Hono server: 171 files, 42,569 lines. REST API, proxy, AI agent."/>
+        <text x="360" y="48" fill="#34d399" font-size="14" font-weight="700">Server (Bun + Hono)</text>
+        <text x="360" y="68" fill="#9ca3af" font-size="11">171 files &middot; 42,569 lines</text>
+
+        <rect x="355" y="82" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/routes/" data-desc="57 route files, 120+ REST endpoints"/>
+        <text x="368" y="103" fill="#6ee7b7" font-size="10">120+ Endpoints</text>
+
+        <rect x="485" y="82" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/middleware/" data-desc="Auth, RBAC, file snapshots, error handler"/>
+        <text x="505" y="103" fill="#6ee7b7" font-size="10">Middleware</text>
+
+        <rect x="355" y="122" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/proxy/" data-desc="Two-layer path rewriting, HMR WebSocket proxy"/>
+        <text x="370" y="143" fill="#6ee7b7" font-size="10">Iframe Proxy</text>
+
+        <rect x="485" y="122" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/services/ai-agent.ts" data-desc="AI orchestration: Claude, OpenAI, OpenCode with tool calling"/>
+        <text x="512" y="143" fill="#6ee7b7" font-size="10">AI Agent</text>
+
+        <rect x="355" y="162" width="250" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/database/" data-desc="PostgreSQL + Drizzle ORM, 10 schemas, 9 migrations"/>
+        <text x="400" y="183" fill="#6ee7b7" font-size="10">PostgreSQL + Drizzle ORM (10 schemas)</text>
+
+        <rect x="355" y="202" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/modules/auth/" data-desc="JWT, OAuth GitHub/Google, token refresh"/>
+        <text x="375" y="223" fill="#6ee7b7" font-size="10">Auth (JWT+OAuth)</text>
+
+        <rect x="485" y="202" width="120" height="32" rx="6" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-opacity="0.3"
+          data-href="server/services/k8s-manager.ts" data-desc="K8s pod lifecycle, container management"/>
+        <text x="502" y="223" fill="#6ee7b7" font-size="10">K8s Manager</text>
+
+        <!-- VS Code Extension -->
+        <rect x="660" y="20" width="280" height="240" rx="12" fill="url(#gExt)" stroke="#06b6d4" stroke-opacity="0.4"
+          data-href="vscode-extension/" data-desc="Two VS Code extensions: 78 files, 13,751 lines. 5 webview panels."/>
+        <text x="680" y="48" fill="#22d3ee" font-size="14" font-weight="700">VS Code Extension</text>
+        <text x="680" y="68" fill="#9ca3af" font-size="11">78 files &middot; 13,751 lines</text>
+
+        <rect x="675" y="82" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/PreviewPanel.ts" data-desc="Canvas preview webview panel"/>
+        <text x="688" y="103" fill="#67e8f9" font-size="10">Preview Panel</text>
+
+        <rect x="805" y="82" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/StateHub.ts" data-desc="Cross-panel state synchronization"/>
+        <text x="835" y="103" fill="#67e8f9" font-size="10">StateHub</text>
+
+        <rect x="675" y="122" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/PanelRouter.ts" data-desc="Message routing between panels"/>
+        <text x="688" y="143" fill="#67e8f9" font-size="10">PanelRouter</text>
+
+        <rect x="805" y="122" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts" data-desc="MCP server: 20 tools for AI agents"/>
+        <text x="815" y="143" fill="#67e8f9" font-size="10">MCP Server</text>
+
+        <rect x="675" y="162" width="250" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/esbuild.js" data-desc="6 webview bundles with alias resolution"/>
+        <text x="730" y="183" fill="#67e8f9" font-size="10">esbuild (6 webview bundles)</text>
+
+        <rect x="675" y="202" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"
+          data-href="vscode-extension/hypercanvas-preview/src/services/" data-desc="AST, Component, Style, Diagnostic services"/>
+        <text x="700" y="223" fill="#67e8f9" font-size="10">Bridges</text>
+
+        <rect x="805" y="202" width="120" height="32" rx="6" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-opacity="0.3"/>
+        <text x="815" y="223" fill="#67e8f9" font-size="10">5 Webview Panels</text>
+
+        <!-- Shared Libs -->
+        <rect x="20" y="290" width="300" height="120" rx="12" fill="url(#gLib)" stroke="#bc8cff" stroke-opacity="0.4"
+          data-href="lib/" data-desc="AST library: 64 files, 15,884 lines. Parser, traverser, mutator, Tailwind."/>
+        <text x="40" y="318" fill="#c4b5fd" font-size="14" font-weight="700">Core Library (AST + Tailwind)</text>
+        <text x="40" y="338" fill="#9ca3af" font-size="11">64 files &middot; 15,884 lines</text>
+
+        <rect x="35" y="352" width="130" height="28" rx="6" fill="rgba(188,140,255,0.12)" stroke="#bc8cff" stroke-opacity="0.3"/>
+        <text x="50" y="371" fill="#d8b4fe" font-size="10">Babel Parser + Recast</text>
+
+        <rect x="175" y="352" width="130" height="28" rx="6" fill="rgba(188,140,255,0.12)" stroke="#bc8cff" stroke-opacity="0.3"/>
+        <text x="185" y="371" fill="#d8b4fe" font-size="10">Tailwind Parser (1.3K)</text>
+
+        <!-- Shared types -->
+        <rect x="340" y="290" width="280" height="120" rx="12" fill="rgba(139,148,158,0.08)" stroke="#8b949e" stroke-opacity="0.3"
+          data-href="shared/" data-desc="Shared types and utilities: 32 files, 4,511 lines"/>
+        <text x="360" y="318" fill="#8b949e" font-size="14" font-weight="700">Shared Types &amp; Utils</text>
+        <text x="360" y="338" fill="#9ca3af" font-size="11">32 files &middot; 4,511 lines</text>
+
+        <rect x="355" y="352" width="120" height="28" rx="6" fill="rgba(139,148,158,0.08)" stroke="#8b949e" stroke-opacity="0.2"/>
+        <text x="368" y="371" fill="#9ca3af" font-size="10">API Types</text>
+
+        <rect x="485" y="352" width="120" height="28" rx="6" fill="rgba(139,148,158,0.08)" stroke="#8b949e" stroke-opacity="0.2"/>
+        <text x="498" y="371" fill="#9ca3af" font-size="10">AI Agent Tools (20)</text>
+
+        <!-- Infrastructure -->
+        <rect x="660" y="290" width="280" height="120" rx="12" fill="url(#gInfra)" stroke="#f59e0b" stroke-opacity="0.4"
+          data-href="k8s/" data-desc="K8s manifests, ArgoCD, Docker: 35 files. Staging + production."/>
+        <text x="680" y="318" fill="#fbbf24" font-size="14" font-weight="700">Infrastructure</text>
+        <text x="680" y="338" fill="#9ca3af" font-size="11">35 files &middot; Docker + K8s + ArgoCD</text>
+
+        <rect x="675" y="352" width="120" height="28" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="688" y="371" fill="#fcd34d" font-size="10">6 Dockerfiles</text>
+
+        <rect x="805" y="352" width="120" height="28" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-opacity="0.3"/>
+        <text x="818" y="371" fill="#fcd34d" font-size="10">SOPS + Kyverno</text>
+
+        <!-- Dependency arrows -->
+        <line x1="160" y1="260" x2="160" y2="288" stroke="#888" stroke-opacity="0.4" marker-end="url(#arrow)" stroke-dasharray="4"/>
+        <line x1="480" y1="260" x2="480" y2="288" stroke="#888" stroke-opacity="0.4" marker-end="url(#arrow)" stroke-dasharray="4"/>
+        <line x1="800" y1="260" x2="800" y2="288" stroke="#888" stroke-opacity="0.4" marker-end="url(#arrow)" stroke-dasharray="4"/>
+        <line x1="300" y1="140" x2="338" y2="140" stroke="#888" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+        <line x1="620" y1="140" x2="658" y2="140" stroke="#888" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+
+        <!-- User projects -->
+        <rect x="20" y="440" width="920" height="100" rx="12" fill="rgba(248,81,73,0.04)" stroke="#f85149" stroke-opacity="0.2"/>
+        <text x="40" y="468" fill="#f85149" font-size="14" font-weight="700">User Projects (Isolated Containers)</text>
+        <text x="40" y="490" fill="#9ca3af" font-size="11">Each project runs its own dev server (Vite/Next.js/etc.) in a Docker container or K8s pod.</text>
+        <text x="40" y="508" fill="#9ca3af" font-size="11">Proxied through iframe with two-layer path rewriting. Framework-agnostic. No configuration changes needed.</text>
+        <text x="40" y="526" fill="#9ca3af" font-size="11">WebSocket HMR preserved. Same-origin policy maintained for direct DOM manipulation.</text>
+
+        <line x1="480" y1="410" x2="480" y2="438" stroke="#f85149" stroke-opacity="0.4" marker-end="url(#arrow)" stroke-dasharray="4"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ════ CODEBASE BREAKDOWN ════ -->
+  <section class="fade-in">
+    <h2>Codebase Breakdown</h2>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">client/</span>
+        <div class="bar-track"><div class="bar-fill fill-blue" style="width:100%">64,907 lines &middot; 360 files</div></div>
+        <span class="bar-value" style="color:var(--accent1)">37%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">server/</span>
+        <div class="bar-track"><div class="bar-fill fill-green" style="width:66%">42,569 lines &middot; 171 files</div></div>
+        <span class="bar-value" style="color:var(--green)">24%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">tests/</span>
+        <div class="bar-track"><div class="bar-fill fill-yellow" style="width:26%">16,866 lines &middot; 86 files</div></div>
+        <span class="bar-value" style="color:var(--yellow)">9%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">lib/</span>
+        <div class="bar-track"><div class="bar-fill fill-purple" style="width:24%">15,884 lines &middot; 64 files</div></div>
+        <span class="bar-value" style="color:var(--accent2)">9%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">vscode-extension/</span>
+        <div class="bar-track"><div class="bar-fill fill-cyan" style="width:21%">13,751 lines &middot; 78 files</div></div>
+        <span class="bar-value" style="color:#22d3ee">8%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">shared/</span>
+        <div class="bar-track"><div class="bar-fill fill-orange" style="width:7%">4,511 lines &middot; 32 files</div></div>
+        <span class="bar-value" style="color:var(--orange)">3%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ FEATURES ════ -->
+  <section class="fade-in">
+    <h2>93 Features in 14 Categories</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Visual Component Editor</h4>
+        <p>Click-to-select, drag-to-move, style inspector, property editing with type-aware inputs. Real-time preview with data-uniq-id based identification. 12 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>AST-Based Code Generation</h4>
+        <p>Insert, delete, duplicate, wrap elements. Update styles, props, text. Edit conditionals and map iterations. Format-preserving output via Recast. 10 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Canvas Modes</h4>
+        <p>Design mode (single component) and Board mode (Excalidraw-style canvas with zoom/pan, multiple instances, arrows with labels, text stickers). 8 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Live Preview System</h4>
+        <p>Same-origin iframe proxy with two-layer path rewriting. HMR via WebSocket. Framework auto-detection. No project config changes needed. 6 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-ai">AI</span>
+        <h4>AI-Powered Development</h4>
+        <p>Claude, OpenAI, OpenCode integration. Component scaffolding, style suggestions, test generation, auto-fix. Streaming with tool calling. 8 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Undo/Redo System</h4>
+        <p>Dual strategy: reverse operations for insert/delete (fast), file snapshots for style changes (reliable). Batch operations for compound edits. 4 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-ext">EXTENSION</span>
+        <h4>VS Code Extension</h4>
+        <p>5 independent webview panels. Shared UI with SaaS. MCP server (20 tools). Keyboard routing. Theme sync. Published on VS Code Marketplace. 10 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-ext">EXTENSION</span>
+        <h4>Code-Server IDE</h4>
+        <p>Browser-based VS Code with live preview panel, Go to Code/Visual navigation, theme sync, user menu. 5 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Project Management</h4>
+        <p>CRUD, file tree, multi-workspace, role-based access (admin/editor/viewer), project sharing with invites, GitHub App integration. 8 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Git Integration</h4>
+        <p>Push/pull/merge from AI chat. Auto-generated commit messages. GitHub App credentials. Branch management. 4 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Tailwind CSS Integration</h4>
+        <p>Custom parser (1,366 lines). Responsive prefixes, state variants, arbitrary values, color opacity, class conflict resolution. JIT awareness. 7 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Diagnostics &amp; Testing</h4>
+        <p>Dev server logs with filtering. Runtime error detection from iframe. Auto-Fix with AI. Test generation and runner with streaming output. 8 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-core">CORE</span>
+        <h4>Comments &amp; Collaboration</h4>
+        <p>Canvas comments on elements, threaded discussions, comment resolution. 3 features.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-tag tag-infra">INFRA</span>
+        <h4>Kubernetes &amp; DevOps</h4>
+        <p>ArgoCD GitOps, SOPS encryption, Kyverno policies, auto-cleanup. 6 namespaces. GitHub Actions CI/CD. Pre-commit hooks. 8 features.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ CODE QUALITY ════ -->
+  <section class="fade-in">
+    <h2>Code Quality Assessment</h2>
+    <div class="quality-grid">
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Type Safety</span>
+          <span class="q-score">8/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:80%"></div></div>
+        <div class="q-note">1,117 type definitions. 221 any usages (mostly AI response parsing).</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Test Coverage</span>
+          <span class="q-score">7/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:70%"></div></div>
+        <div class="q-note">1,357 test cases across 86 files. 9.5% test-to-code ratio. BDD style.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Security</span>
+          <span class="q-score">9/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:90%"></div></div>
+        <div class="q-note">209 middleware usages. 29 CodeQL findings fixed. 28+ CVE patches. Per-route auth.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Code Organization</span>
+          <span class="q-score">8/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:80%"></div></div>
+        <div class="q-note">Avg file 190 lines. Clear module boundaries. 128 custom hooks.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Error Handling</span>
+          <span class="q-score">9/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:90%"></div></div>
+        <div class="q-note">AppError pattern. Global error handler. SQL sanitization. 1,978 error patterns.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Documentation</span>
+          <span class="q-score">8/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:80%"></div></div>
+        <div class="q-note">14 architecture docs. 200+ lines of CLAUDE.md rules. READMEs for all modules.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">CI/CD</span>
+          <span class="q-score">9/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:90%"></div></div>
+        <div class="q-note">GitHub Actions on every PR. Pre-commit hooks. Zero warnings policy.</div>
+      </div>
+      <div class="quality-item">
+        <div class="q-header">
+          <span class="q-label">Tech Debt</span>
+          <span class="q-score">8/10</span>
+        </div>
+        <div class="q-bar"><div class="q-bar-fill" style="width:80%"></div></div>
+        <div class="q-note">Only 10 TODO/FIXME in 177K lines. Known issues tracked in Linear.</div>
+      </div>
+    </div>
+    <div class="ai-stat">
+      <div class="big-number">8.1</div>
+      <div class="big-label">Overall Code Quality Score (out of 10)</div>
+    </div>
+  </section>
+
+  <!-- ════ AI COLLABORATION ════ -->
+  <section class="fade-in">
+    <h2>AI-Augmented Development</h2>
+    <div class="ai-stat">
+      <div class="big-number">85%</div>
+      <div class="big-label">Commits co-authored with AI (933 of 1,315)</div>
+    </div>
+    <div class="two-col">
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:#e6edf3">AI Models Used</h3>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label" style="width:120px">Opus 4.5</span>
+            <div class="bar-track"><div class="bar-fill fill-blue" style="width:100%">410</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:120px">Opus 4.6</span>
+            <div class="bar-track"><div class="bar-fill fill-purple" style="width:87%">358</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:120px">Opus 4.6 v2</span>
+            <div class="bar-track"><div class="bar-fill fill-green" style="width:23%">94</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:120px">Claude generic</span>
+            <div class="bar-track"><div class="bar-fill fill-orange" style="width:13%">55</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="width:120px">Sonnet 4.6</span>
+            <div class="bar-track"><div class="bar-fill fill-cyan" style="width:4%">16</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;margin-bottom:16px;color:#e6edf3">What AI Pair Programming Means</h3>
+        <div class="card" style="margin:0">
+          <p style="font-size:0.88rem;line-height:1.6">Every commit passed through:</p>
+          <ul style="margin:12px 0 0 20px;font-size:0.85rem;color:var(--text-dim);line-height:1.8">
+            <li>Human architectural direction &amp; review</li>
+            <li>Pre-commit hooks (Biome lint + TypeScript)</li>
+            <li>Test suite verification</li>
+            <li>AI-assisted code review (Codex)</li>
+            <li>Linear ticket tracking</li>
+          </ul>
+          <p style="font-size:0.85rem;color:var(--text-dim);margin-top:12px">
+            The progression Opus 4.5 &rarr; 4.6 &rarr; Sonnet 4.6 reflects deliberate experimentation
+            with model capabilities and costs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ MARKET COMPARISON ════ -->
+  <section class="fade-in">
+    <h2>Market Position</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Visual Editor</th>
+          <th>Real Code</th>
+          <th>VS Code</th>
+          <th>AI</th>
+          <th>Local Dev</th>
+          <th>Team</th>
+          <th>Time to Ship</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td>HyperIDE</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td>1 dev</td>
+          <td>4 months</td>
+        </tr>
+        <tr>
+          <td>Figma</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
+          <td>5 eng</td>
+          <td>~18 months</td>
+        </tr>
+        <tr>
+          <td>Builder.io</td>
+          <td class="check">&#10003;</td>
+          <td style="color:var(--yellow)">Partial</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td>10+ eng</td>
+          <td>~12 months</td>
+        </tr>
+        <tr>
+          <td>Plasmic</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
+          <td class="cross">&#10007;</td>
+          <td>8 eng</td>
+          <td>~9 months</td>
+        </tr>
+        <tr>
+          <td>v0 (Vercel)</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td>5+ eng</td>
+          <td>~6 months</td>
+        </tr>
+        <tr>
+          <td>Cursor</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td style="color:var(--yellow)">Fork</td>
+          <td class="check">&#10003;</td>
+          <td class="check">&#10003;</td>
+          <td>10+ eng</td>
+          <td>~8 months</td>
+        </tr>
+        <tr>
+          <td>Bolt (StackBlitz)</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td class="check">&#10003;</td>
+          <td class="cross">&#10007;</td>
+          <td>5+ eng</td>
+          <td>~6 months</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.9rem;margin-top:8px">
+      HyperIDE is the only product that checks all five capability boxes.
+    </p>
+  </section>
+
+  <!-- ════ TIMELINE / MILESTONES ════ -->
+  <section class="fade-in">
+    <h2>Key Milestones</h2>
+    <div class="milestones">
+      <div class="milestone">
+        <div class="m-date">Nov 7, 2025</div>
+        <div class="m-title">Project Created &mdash; Day 1</div>
+        <div class="m-desc">Initial repository setup. 53 commits on the first day.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Nov 8, 2025</div>
+        <div class="m-title">Canvas Engine Operational</div>
+        <div class="m-desc">63 commits. Command pattern with undo/redo, AST operations, event-driven state.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Nov 18, 2025</div>
+        <div class="m-title">AST Library Complete</div>
+        <div class="m-desc">Babel parser, traverser, mutator. Format-preserving code generation via Recast.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Nov 27, 2025</div>
+        <div class="m-title">Iframe Preview System</div>
+        <div class="m-desc">Same-origin proxy with two-layer path rewriting. HMR via WebSocket.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Dec 6, 2025</div>
+        <div class="m-title">AI Integration (Claude SDK)</div>
+        <div class="m-desc">Component scaffolding, style suggestions, streaming responses.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Dec 15, 2025</div>
+        <div class="m-title">Board Mode with Annotations</div>
+        <div class="m-desc">Excalidraw-style canvas. Multiple instances, arrows, text stickers, zoom/pan.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Dec 24, 2025</div>
+        <div class="m-title">Git Integration &#127876;</div>
+        <div class="m-desc">Push/pull/merge from AI chat. GitHub App credentials. (Yes, Christmas Eve.)</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Jan 7, 2026</div>
+        <div class="m-title">Security Audit Cycle</div>
+        <div class="m-desc">29 CodeQL findings addressed. Semgrep integration. CVE patches.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Feb 9, 2026</div>
+        <div class="m-title">VS Code Extension Multi-Panel</div>
+        <div class="m-desc">5 webview panels with StateHub, PanelRouter, message bus architecture.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Feb 25, 2026</div>
+        <div class="m-title">Platform Abstraction Sprint</div>
+        <div class="m-desc">72 commits &mdash; most productive day ever. Shared components for SaaS + VS Code.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Mar 2, 2026</div>
+        <div class="m-title">MCP Server (20 Tools)</div>
+        <div class="m-desc">AI agents (Copilot, Claude Code, OpenCode) can control HyperIDE programmatically.</div>
+      </div>
+      <div class="milestone">
+        <div class="m-date">Mar 7, 2026</div>
+        <div class="m-title">VS Code Marketplace Publication</div>
+        <div class="m-desc">Extension published. CI/CD pipeline for automated releases.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ WHY 4 MONTHS ════ -->
+  <section class="fade-in">
+    <h2>Time Investment Analysis</h2>
+    <div class="motivation-block">
+      <strong>Why did this take 4 months?</strong> Honestly &mdash; it didn't "take" 4 months. 4 months is remarkably
+      fast for the scope delivered. The complexity is not in any single feature &mdash; it's in the integration of all systems
+      together. The iframe proxy alone has edge cases that would take a team weeks to debug.
+    </div>
+
+    <h3 style="font-size:1.1rem;margin:24px 0 16px;color:#e6edf3">Where Time Went</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Bug fixing (44%)</span>
+        <div class="bar-track"><div class="bar-fill fill-green" style="width:100%">580 commits</div></div>
+        <span class="bar-value" style="color:var(--green)">580</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Features (32%)</span>
+        <div class="bar-track"><div class="bar-fill fill-blue" style="width:73%">425 commits</div></div>
+        <span class="bar-value" style="color:var(--accent1)">425</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Security (8%)</span>
+        <div class="bar-track"><div class="bar-fill fill-red" style="width:17%">~100 commits</div></div>
+        <span class="bar-value" style="color:var(--red)">~100</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Refactoring (5%)</span>
+        <div class="bar-track"><div class="bar-fill fill-purple" style="width:12%">72 commits</div></div>
+        <span class="bar-value" style="color:var(--accent2)">72</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Docs/Chore (10%)</span>
+        <div class="bar-track"><div class="bar-fill fill-orange" style="width:17%">97 commits</div></div>
+        <span class="bar-value" style="color:var(--orange)">97</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px">
+      <h4 style="margin-bottom:12px">The 44% fix ratio is healthy, not alarming.</h4>
+      <p style="font-size:0.88rem;color:var(--text-dim);line-height:1.7">
+        <strong style="color:var(--text)">Integration complexity:</strong> iframe proxy + WebSocket HMR + Vite/Next.js compatibility = hundreds of edge cases.<br>
+        <strong style="color:var(--text)">Security hardening:</strong> 29 CodeQL findings + 28 CVE patches classified as fixes.<br>
+        <strong style="color:var(--text)">AI code quality:</strong> Copilot-suggested improvements counted as fixes.<br>
+        <strong style="color:var(--text)">VS Code extension:</strong> 5 webview panels &times; 2 platforms = exponential edge cases.<br>
+        <strong style="color:var(--text)">Ship and polish:</strong> A developer who doesn't ship and forget &mdash; they ship and perfect.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════ VERDICT ════ -->
+  <div class="verdict fade-in">
+    <h2>The Bottom Line</h2>
+    <p>
+      In 121 days, a single developer built a production-grade visual IDE with a custom canvas engine,
+      same-origin iframe proxy, AST code generation, multi-provider AI integration, 5-panel VS Code extension,
+      Kubernetes deployment, and published it to the Marketplace &mdash; with 1,357 tests and an 8.1/10 code quality score.
+    </p>
+    <div class="verdict-line">One developer. Four months. A complete visual IDE.</div>
+  </div>
+
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated 2026-03-07 &middot; 1,315 commits analyzed &middot; 177,759 lines reviewed &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a>
+</footer>
+
+<script src="../shared/components.js"></script>
+<script>
+// Fade-in observer
+(function() {
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el) { obs.observe(el); });
+
+  // Arch tooltips
+  var containers = document.querySelectorAll('.arch-container');
+  if (!containers.length) return;
+  var tooltip = document.createElement('div');
+  tooltip.className = 'arch-tooltip';
+  document.body.appendChild(tooltip);
+  var hideTimer = null;
+
+  function show(node) {
+    clearTimeout(hideTimer);
+    var desc = node.dataset.desc || '';
+    var href = node.dataset.href || '';
+    tooltip.innerHTML = '<div>' +
+      '<strong>' + (href || 'Component') + '</strong><br>' + desc +
+      '</div>';
+    var rect = node.getBoundingClientRect();
+    tooltip.style.left = (rect.left + rect.width/2 + window.scrollX) + 'px';
+    tooltip.style.top = (rect.bottom + window.scrollY) + 'px';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.classList.add('visible');
+  }
+  function scheduleHide() {
+    hideTimer = setTimeout(function() { tooltip.classList.remove('visible'); }, 200);
+  }
+  containers.forEach(function(c) {
+    c.addEventListener('mouseover', function(ev) {
+      var t = ev.target.closest('[data-href],[data-desc]');
+      if (t && c.contains(t)) show(t);
+    });
+    c.addEventListener('mouseout', function(ev) {
+      var from = ev.target.closest('[data-href],[data-desc]');
+      var to = ev.relatedTarget ? (ev.relatedTarget.closest ? ev.relatedTarget.closest('[data-href],[data-desc]') : null) : null;
+      if (from && from !== to) scheduleHide();
+    });
+  });
+  tooltip.addEventListener('mouseenter', function() { clearTimeout(hideTimer); });
+  tooltip.addEventListener('mouseleave', scheduleHide);
+})();
+</script>
+</body>
+</html>
