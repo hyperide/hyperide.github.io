@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-269 — Phase 1: Visual Foundation</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <!-- Architecture Diagram -->
+  <section class="fade-in">
+    <h2>Architecture</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 920 620" xmlns="http://www.w3.org/2000/svg" style="font-family:system-ui,sans-serif">
+        <defs>
+          <linearGradient id="gFast" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ef4444" stop-opacity=".12"/><stop offset="1" stop-color="#ef4444" stop-opacity=".04"/></linearGradient>
+          <linearGradient id="gEngine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5" stop-opacity=".18"/><stop offset="1" stop-color="#4f46e5" stop-opacity=".06"/></linearGradient>
+          <linearGradient id="gHook" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981" stop-opacity=".12"/><stop offset="1" stop-color="#10b981" stop-opacity=".04"/></linearGradient>
+          <linearGradient id="gServer" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f59e0b" stop-opacity=".12"/><stop offset="1" stop-color="#f59e0b" stop-opacity=".04"/></linearGradient>
+          <linearGradient id="gShared" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6" stop-opacity=".12"/><stop offset="1" stop-color="#3b82f6" stop-opacity=".04"/></linearGradient>
+          <linearGradient id="gExt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa" stop-opacity=".12"/><stop offset="1" stop-color="#a78bfa" stop-opacity=".04"/></linearGradient>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#888"/></marker>
+        </defs>
+
+        <!-- Labels -->
+        <text x="460" y="20" text-anchor="middle" fill="#9ca3af" font-size="11" font-weight="600">PHASE 1: VISUAL FOUNDATION — DATA FLOW</text>
+
+        <!-- FastPatchService -->
+        <g data-href="client/lib/fast-patch-service.ts" data-lines="L15-L66" data-desc="Instant CSS injection into iframe &lt;style&gt; for visual feedback before AST commit">
+          <rect x="20" y="40" width="200" height="80" rx="10" fill="url(#gFast)" stroke="#ef4444" stroke-opacity=".4"/>
+          <text x="120" y="68" text-anchor="middle" fill="#f87171" font-size="13" font-weight="700">FastPatchService</text>
+          <text x="120" y="88" text-anchor="middle" fill="#9ca3af" font-size="10">CSS injection → iframe</text>
+          <text x="120" y="102" text-anchor="middle" fill="#9ca3af" font-size="10">applyPatch · clearPatch · flush</text>
+        </g>
+
+        <!-- CanvasEngine -->
+        <g data-href="client/lib/canvas-engine/core/CanvasEngine.ts" data-lines="L543-L804" data-desc="Main facade: executeBatchStyles, moveASTElement, swapASTElements + fastPatch property">
+          <rect x="280" y="40" width="260" height="80" rx="10" fill="url(#gEngine)" stroke="#6366f1" stroke-opacity=".4"/>
+          <text x="410" y="68" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">CanvasEngine</text>
+          <text x="410" y="88" text-anchor="middle" fill="#9ca3af" font-size="10">executeBatchStyles · moveASTElement</text>
+          <text x="410" y="102" text-anchor="middle" fill="#9ca3af" font-size="10">swapASTElements · fastPatch</text>
+        </g>
+
+        <!-- Operations -->
+        <g data-href="client/lib/canvas-engine/operations/ASTMoveOperation.ts" data-lines="L23-L71" data-desc="Fire-and-forget move operation with undo: stores original parent+index">
+          <rect x="600" y="40" width="140" height="35" rx="8" fill="url(#gEngine)" stroke="#6366f1" stroke-opacity=".3"/>
+          <text x="670" y="63" text-anchor="middle" fill="#a5b4fc" font-size="11">ASTMoveOperation</text>
+        </g>
+        <g data-href="client/lib/canvas-engine/operations/ASTSwapOperation.ts" data-lines="L18-L65" data-desc="Self-inverse swap operation: execute/undo/redo all call same swap">
+          <rect x="600" y="85" width="140" height="35" rx="8" fill="url(#gEngine)" stroke="#6366f1" stroke-opacity=".3"/>
+          <text x="670" y="108" text-anchor="middle" fill="#a5b4fc" font-size="11">ASTSwapOperation</text>
+        </g>
+
+        <!-- ASTApiService -->
+        <g data-href="client/lib/canvas-engine/services/ASTApiServiceImpl.ts" data-lines="L1-L20" data-desc="HTTP client: POST /api/move-element, /api/swap-elements">
+          <rect x="780" y="55" width="120" height="50" rx="8" fill="url(#gEngine)" stroke="#6366f1" stroke-opacity=".3"/>
+          <text x="840" y="78" text-anchor="middle" fill="#a5b4fc" font-size="11">ASTApiService</text>
+          <text x="840" y="92" text-anchor="middle" fill="#9ca3af" font-size="9">move · swap</text>
+        </g>
+
+        <!-- Hooks row -->
+        <g data-href="client/pages/Editor/components/hooks/useElementDrag.ts" data-lines="L221-L574" data-desc="Custom mouse drag hook: 5px threshold, drop indicator, swap detection, .map() awareness">
+          <rect x="20" y="170" width="200" height="70" rx="10" fill="url(#gHook)" stroke="#10b981" stroke-opacity=".4"/>
+          <text x="120" y="198" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">useElementDrag</text>
+          <text x="120" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">drag reorder · swap · .map()</text>
+          <text x="120" y="228" text-anchor="middle" fill="#9ca3af" font-size="10">computeDropPosition</text>
+        </g>
+
+        <g data-href="client/pages/Editor/components/hooks/useElementResize.ts" data-lines="L85-L182" data-desc="Drag-to-resize: mousedown→mousemove→mouseup, 4px snap grid, inline style feedback">
+          <rect x="250" y="170" width="200" height="70" rx="10" fill="url(#gHook)" stroke="#10b981" stroke-opacity=".4"/>
+          <text x="350" y="198" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">useElementResize</text>
+          <text x="350" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">4px snap · inline feedback</text>
+          <text x="350" y="228" text-anchor="middle" fill="#9ca3af" font-size="10">snapToGrid · computeResizeDelta</text>
+        </g>
+
+        <g data-href="client/components/RightSidebar/hooks/useStyleSync.ts" data-lines="L47-L284" data-desc="Style sync with FastPatch feedback, multi-select batch, verification pipeline">
+          <rect x="480" y="170" width="200" height="70" rx="10" fill="url(#gHook)" stroke="#10b981" stroke-opacity=".4"/>
+          <text x="580" y="198" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">useStyleSync</text>
+          <text x="580" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">fastPatch feedback · batch</text>
+          <text x="580" y="228" text-anchor="middle" fill="#9ca3af" font-size="10">verification · multi-select</text>
+        </g>
+
+        <g data-href="client/components/RightSidebar/hooks/useBatchStyleData.ts" data-lines="L14-L42" data-desc="Pure function: merge styles across selected elements, MIXED sentinel for differing values">
+          <rect x="710" y="170" width="190" height="70" rx="10" fill="url(#gHook)" stroke="#10b981" stroke-opacity=".4"/>
+          <text x="805" y="198" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">mergeStyleData</text>
+          <text x="805" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">style intersection · MIXED</text>
+          <text x="805" y="228" text-anchor="middle" fill="#9ca3af" font-size="10">multi-select inspector</text>
+        </g>
+
+        <!-- Shared layer -->
+        <g data-href="shared/canvas-interaction/overlay-renderer.ts" data-lines="L221-L334" data-desc="RAF overlay: resize handles (corner 8x8, edge 6x6), cursor styles, mousedown callbacks">
+          <rect x="20" y="290" width="270" height="70" rx="10" fill="url(#gShared)" stroke="#3b82f6" stroke-opacity=".4"/>
+          <text x="155" y="318" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">overlay-renderer</text>
+          <text x="155" y="336" text-anchor="middle" fill="#9ca3af" font-size="10">resize handles · computeResizeHandleSpecs</text>
+          <text x="155" y="348" text-anchor="middle" fill="#9ca3af" font-size="10">renderResizeHandles · corner/edge</text>
+        </g>
+
+        <g data-href="shared/canvas-interaction/spacing-guides.ts" data-lines="L101-L221" data-desc="Pure function: calculate horizontal/vertical gap guides between active element and siblings">
+          <rect x="320" y="290" width="270" height="70" rx="10" fill="url(#gShared)" stroke="#3b82f6" stroke-opacity=".4"/>
+          <text x="455" y="318" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">spacing-guides</text>
+          <text x="455" y="336" text-anchor="middle" fill="#9ca3af" font-size="10">calculateSpacingGuides</text>
+          <text x="455" y="348" text-anchor="middle" fill="#9ca3af" font-size="10">renderSpacingGuides · pink lines</text>
+        </g>
+
+        <g data-href="client/lib/canvas-engine/utils/hasExplicitSize.ts" data-lines="L4-L9" data-desc="Regex detection of Tailwind w-/h-/size- classes for resize handle visibility">
+          <rect x="620" y="290" width="190" height="70" rx="10" fill="url(#gShared)" stroke="#3b82f6" stroke-opacity=".4"/>
+          <text x="715" y="318" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">hasExplicitSize</text>
+          <text x="715" y="336" text-anchor="middle" fill="#9ca3af" font-size="10">WIDTH_PATTERN · HEIGHT_PATTERN</text>
+          <text x="715" y="348" text-anchor="middle" fill="#9ca3af" font-size="10">w- · h- · size- · min/max</text>
+        </g>
+
+        <!-- Server layer -->
+        <g data-href="server/routes/moveElement.ts" data-lines="L23-L124" data-desc="POST /api/move-element: AST manipulation with ancestor guard, targetIndex validation">
+          <rect x="20" y="410" width="200" height="70" rx="10" fill="url(#gServer)" stroke="#f59e0b" stroke-opacity=".4"/>
+          <text x="120" y="438" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">/api/move-element</text>
+          <text x="120" y="456" text-anchor="middle" fill="#9ca3af" font-size="10">moveElementInAST</text>
+          <text x="120" y="468" text-anchor="middle" fill="#9ca3af" font-size="10">ancestor guard · index validation</text>
+        </g>
+
+        <g data-href="server/routes/swapElements.ts" data-lines="L16-L123" data-desc="POST /api/swap-elements: swap two elements in AST with ancestor/self guard">
+          <rect x="250" y="410" width="200" height="70" rx="10" fill="url(#gServer)" stroke="#f59e0b" stroke-opacity=".4"/>
+          <text x="350" y="438" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">/api/swap-elements</text>
+          <text x="350" y="456" text-anchor="middle" fill="#9ca3af" font-size="10">swapElementsInAST</text>
+          <text x="350" y="468" text-anchor="middle" fill="#9ca3af" font-size="10">isAncestor · self-swap guard</text>
+        </g>
+
+        <g data-href="lib/ast/operations.ts" data-lines="L286-L337" data-desc="Pure AST mutation functions shared by server routes and VS Code extension">
+          <rect x="480" y="410" width="200" height="70" rx="10" fill="url(#gServer)" stroke="#f59e0b" stroke-opacity=".4"/>
+          <text x="580" y="438" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">lib/ast/operations</text>
+          <text x="580" y="456" text-anchor="middle" fill="#9ca3af" font-size="10">moveElementInAST (shared)</text>
+          <text x="580" y="468" text-anchor="middle" fill="#9ca3af" font-size="10">swapElementsInAST (shared)</text>
+        </g>
+
+        <!-- VS Code Extension -->
+        <g data-href="vscode-extension/hypercanvas-preview/src/bridges/AstBridge.ts" data-lines="L321-L348" data-desc="VS Code RPC bridge: _handleMoveElement, _handleSwapElements with undo tracking">
+          <rect x="20" y="530" width="270" height="70" rx="10" fill="url(#gExt)" stroke="#a78bfa" stroke-opacity=".4"/>
+          <text x="155" y="558" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700">AstBridge (VS Code)</text>
+          <text x="155" y="576" text-anchor="middle" fill="#9ca3af" font-size="10">_handleMoveElement · _handleSwapElements</text>
+          <text x="155" y="588" text-anchor="middle" fill="#9ca3af" font-size="10">undo tracking · message routing</text>
+        </g>
+
+        <g data-href="client/lib/platform/types.ts" data-lines="L137-L150" data-desc="PlatformMessage union: ast:moveElement and ast:swapElements types">
+          <rect x="320" y="530" width="220" height="70" rx="10" fill="url(#gExt)" stroke="#a78bfa" stroke-opacity=".4"/>
+          <text x="430" y="558" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700">PlatformMessage</text>
+          <text x="430" y="576" text-anchor="middle" fill="#9ca3af" font-size="10">ast:moveElement</text>
+          <text x="430" y="588" text-anchor="middle" fill="#9ca3af" font-size="10">ast:swapElements</text>
+        </g>
+
+        <g data-href="vscode-extension/hypercanvas-preview/src/services/AstService.ts" data-lines="L324-L364" data-desc="File-level AST operations: moveElement, swapElements for VS Code extension">
+          <rect x="570" y="530" width="200" height="70" rx="10" fill="url(#gExt)" stroke="#a78bfa" stroke-opacity=".4"/>
+          <text x="670" y="558" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700">AstService (ext)</text>
+          <text x="670" y="576" text-anchor="middle" fill="#9ca3af" font-size="10">moveElement · swapElements</text>
+          <text x="670" y="588" text-anchor="middle" fill="#9ca3af" font-size="10">file parse → mutate → write</text>
+        </g>
+
+        <!-- Arrows -->
+        <!-- FastPatch → Engine -->
+        <line x1="220" y1="80" x2="275" y2="80" stroke="#888" stroke-opacity=".5" marker-end="url(#arrow)"/>
+        <!-- Engine → Operations -->
+        <line x1="540" y1="60" x2="595" y2="60" stroke="#888" stroke-opacity=".5" marker-end="url(#arrow)"/>
+        <line x1="540" y1="100" x2="595" y2="100" stroke="#888" stroke-opacity=".5" marker-end="url(#arrow)"/>
+        <!-- Operations → ApiService -->
+        <line x1="740" y1="60" x2="775" y2="72" stroke="#888" stroke-opacity=".5" marker-end="url(#arrow)"/>
+        <line x1="740" y1="100" x2="775" y2="88" stroke="#888" stroke-opacity=".5" marker-end="url(#arrow)"/>
+
+        <!-- Hooks → Engine -->
+        <line x1="120" y1="170" x2="340" y2="125" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="350" y1="170" x2="390" y2="125" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="580" y1="170" x2="440" y2="125" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+        <!-- Hooks → Shared -->
+        <line x1="120" y1="240" x2="120" y2="285" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="350" y1="240" x2="200" y2="285" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="350" y1="240" x2="680" y2="285" stroke="#888" stroke-opacity=".2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+        <!-- ApiService → Server -->
+        <line x1="840" y1="105" x2="840" y2="380" stroke="#888" stroke-opacity=".2" stroke-dasharray="4"/>
+        <line x1="840" y1="380" x2="200" y2="405" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="840" y1="380" x2="380" y2="405" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+        <!-- Server → lib/ast -->
+        <line x1="220" y1="450" x2="475" y2="450" stroke="#888" stroke-opacity=".3" marker-end="url(#arrow)"/>
+        <line x1="450" y1="450" x2="475" y2="450" stroke="#888" stroke-opacity=".3" marker-end="url(#arrow)"/>
+
+        <!-- lib/ast → Extension -->
+        <line x1="580" y1="480" x2="580" y2="525" stroke="#888" stroke-opacity=".3" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="580" y1="525" x2="155" y2="525" stroke="#888" stroke-opacity=".2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+        <line x1="580" y1="525" x2="670" y2="525" stroke="#888" stroke-opacity=".2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+        <!-- Layer labels -->
+        <text x="870" y="80" fill="#9ca3af" font-size="10" text-anchor="end" transform="rotate(-90,870,80)">CLIENT ENGINE</text>
+        <text x="870" y="200" fill="#9ca3af" font-size="10" text-anchor="end" transform="rotate(-90,870,200)">HOOKS</text>
+        <text x="870" y="325" fill="#9ca3af" font-size="10" text-anchor="end" transform="rotate(-90,870,325)">SHARED</text>
+        <text x="870" y="445" fill="#9ca3af" font-size="10" text-anchor="end" transform="rotate(-90,870,445)">SERVER</text>
+        <text x="870" y="565" fill="#9ca3af" font-size="10" text-anchor="end" transform="rotate(-90,870,565)">VS CODE</text>
+      </svg>
+    </div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <div data-section="findings"></div>
+  <div data-section="timeline"></div>
+  <div data-section="codex-review"></div>
+  <div data-section="adr"></div>
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated 2026-03-09 &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a>
+</footer>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '7111eb10073956be918471e5a326fdd794b25f44',
+
+  title: 'HYP-269: Phase 1 — Visual Foundation',
+  subtitle: 'FastPatch, multi-select batch edit, drag reorder/swap, resize handles, spacing guides',
+  date: '2026-03-09',
+  badge: { label: 'feat', type: 'feat' },
+  branch: 'HYP-phase1-visual-foundation',
+  links: [
+    { label: 'Linear HYP-269', href: 'https://linear.app/glide-vc/issue/HYP-269' },
+  ],
+
+  motivation: '<strong>Why:</strong> HyperIDE\'s visual editor lacked fundamental direct-manipulation capabilities that users expect from design tools like Figma.' +
+    '<ul>' +
+    '<li><strong>No instant feedback</strong> — style changes waited for full AST commit + HMR round-trip (200-800ms delay). Users perceived lag.</li>' +
+    '<li><strong>Single-select only</strong> — changing padding on 5 buttons meant 5 separate operations with 5 undo steps.</li>' +
+    '<li><strong>No drag reorder</strong> — rearranging flex children required manual code editing. No swap for quickly exchanging element positions.</li>' +
+    '<li><strong>No resize handles</strong> — elements with explicit w/h couldn\'t be resized visually; had to type values into the inspector.</li>' +
+    '<li><strong>No spacing guides</strong> — no visual feedback showing gaps between elements during drag/resize.</li>' +
+    '</ul>' +
+    '<strong>Solution:</strong> A two-phase update architecture (FastPatchService for instant CSS injection → AST commit on completion) underpins all visual operations. ' +
+    'Six independent feature areas implemented in parallel across 14 commits.',
+
+  stats: { files: 45, insertions: 3580, deletions: 38, commits: 14 },
+
+  productChanges: {
+    new: [
+      {
+        title: 'FastPatchService — instant visual feedback',
+        desc: 'CSS injection into iframe <style> element for zero-latency visual updates. Patches keyed by elementId, cleared when HMR lands.',
+        files: [
+          { path: 'client/lib/fast-patch-service.ts', lines: 'L15-L66', label: 'fast-patch-service.ts:15 (FastPatchService)' },
+          { path: 'client/lib/__tests__/fast-patch-service.test.ts', lines: 'L1-L82', label: 'fast-patch-service.test.ts' },
+        ],
+      },
+      {
+        title: 'Multi-select batch editing',
+        desc: 'Cmd+Click multiple elements, change styles in inspector — all update simultaneously with single undo. Merged styles show "Mixed" for differing values.',
+        files: [
+          { path: 'client/components/RightSidebar/hooks/useBatchStyleData.ts', lines: 'L14-L42', label: 'useBatchStyleData.ts:14 (mergeStyleData)' },
+          { path: 'client/lib/canvas-engine/core/CanvasEngine.ts', lines: 'L543-L563', label: 'CanvasEngine.ts:543 (executeBatchStyles)' },
+          { path: 'client/components/RightSidebar/RightSidebar.tsx', lines: 'L1-L211', label: 'RightSidebar.tsx (multi-select UI)' },
+        ],
+      },
+      {
+        title: 'Drag reorder and element swap',
+        desc: 'Custom mouse event drag with 5px threshold, drop indicator line, swap detection for multi-select. Server endpoints for AST move/swap with ancestor guards.',
+        files: [
+          { path: 'client/pages/Editor/components/hooks/useElementDrag.ts', lines: 'L221-L574', label: 'useElementDrag.ts:221 (hook)' },
+          { path: 'client/pages/Editor/components/hooks/useElementDrag.ts', lines: 'L91-L190', label: 'useElementDrag.ts:91 (computeDropPosition)' },
+          { path: 'server/routes/moveElement.ts', lines: 'L23-L68', label: 'moveElement.ts:23 (moveElementInAST)' },
+          { path: 'server/routes/swapElements.ts', lines: 'L16-L60', label: 'swapElements.ts:16 (swapElementsInAST)' },
+        ],
+      },
+      {
+        title: 'Resize handles on selection overlay',
+        desc: 'Corner (8x8px) and edge (6x6px) handles rendered via RAF overlay on elements with explicit Tailwind width/height. Drag-to-resize with 4px snap grid.',
+        files: [
+          { path: 'shared/canvas-interaction/overlay-renderer.ts', lines: 'L221-L334', label: 'overlay-renderer.ts:221 (computeResizeHandleSpecs)' },
+          { path: 'client/pages/Editor/components/hooks/useElementResize.ts', lines: 'L85-L182', label: 'useElementResize.ts:85 (hook)' },
+          { path: 'client/lib/canvas-engine/utils/hasExplicitSize.ts', lines: 'L4-L9', label: 'hasExplicitSize.ts:4' },
+        ],
+      },
+      {
+        title: 'Spacing guides between elements',
+        desc: 'Pink lines with pixel distance labels between active element and siblings during drag/resize. Pure calculation function + DOM renderer.',
+        files: [
+          { path: 'shared/canvas-interaction/spacing-guides.ts', lines: 'L101-L143', label: 'spacing-guides.ts:101 (calculateSpacingGuides)' },
+          { path: 'shared/canvas-interaction/spacing-guides.ts', lines: 'L168-L221', label: 'spacing-guides.ts:168 (renderSpacingGuides)' },
+        ],
+      },
+      {
+        title: 'VS Code extension: move/swap platform messages',
+        desc: 'ast:moveElement and ast:swapElements added to PlatformMessage union, routed through AstBridge with undo tracking.',
+        files: [
+          { path: 'client/lib/platform/types.ts', lines: 'L137-L150', label: 'types.ts:137 (ast:moveElement)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/bridges/AstBridge.ts', lines: 'L321-L348', label: 'AstBridge.ts:321 (_handleMoveElement)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/AstService.ts', lines: 'L324-L364', label: 'AstService.ts:324 (moveElement)' },
+        ],
+      },
+    ],
+    improvements: [
+      {
+        title: 'Style sync with FastPatch feedback',
+        desc: 'useStyleSync now applies instant CSS via FastPatchService before AST commit. Stale patches cleared on verification cancel.',
+        files: [
+          { path: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L78-L224', label: 'useStyleSync.ts:78 (flushQueue)' },
+        ],
+      },
+      {
+        title: 'ASTMoveOperation + ASTSwapOperation with undo/redo',
+        desc: 'Fire-and-forget operations following existing pattern. Move stores original parent+index for reversal. Swap is self-inverse.',
+        files: [
+          { path: 'client/lib/canvas-engine/operations/ASTMoveOperation.ts', lines: 'L23-L71', label: 'ASTMoveOperation.ts:23' },
+          { path: 'client/lib/canvas-engine/operations/ASTSwapOperation.ts', lines: 'L18-L65', label: 'ASTSwapOperation.ts:18' },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        title: 'FastPatch selector used wrong attribute',
+        desc: 'applyPatch(selectedId, styles, selectedId) passed selectedId as instanceId (data-canvas-instance-id), but selectedId is data-uniq-id. CSS selector never matched.',
+        files: [
+          { path: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L133-L133', label: 'useStyleSync.ts:133' },
+        ],
+      },
+      {
+        title: 'Multi-select layout handler only applied to first element',
+        desc: 'handleLayoutChange iterated only selectedIds[0]. Fixed with for...of loop over all selectedIds.',
+        files: [
+          { path: 'client/components/RightSidebar/RightSidebar.tsx', lines: 'L1-L211', label: 'RightSidebar.tsx' },
+        ],
+      },
+    ],
+  },
+
+  files: [
+    { path: 'client/lib/fast-patch-service.ts', dir: 'client/lib', add: 66, del: 0, status: 'new' },
+    { path: 'client/lib/__tests__/fast-patch-service.test.ts', dir: 'client/lib/__tests__', add: 82, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/core/CanvasEngine.ts', dir: 'client/lib/canvas-engine/core', add: 77, del: 0, status: 'modified' },
+    { path: 'client/lib/canvas-engine/operations/ASTMoveOperation.ts', dir: 'client/lib/canvas-engine/operations', add: 71, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/operations/ASTSwapOperation.ts', dir: 'client/lib/canvas-engine/operations', add: 65, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/services/ASTApiService.ts', dir: 'client/lib/canvas-engine/services', add: 15, del: 0, status: 'modified' },
+    { path: 'client/lib/canvas-engine/services/ASTApiServiceImpl.ts', dir: 'client/lib/canvas-engine/services', add: 20, del: 0, status: 'modified' },
+    { path: 'client/lib/canvas-engine/utils/hasExplicitSize.ts', dir: 'client/lib/canvas-engine/utils', add: 9, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/__tests__/ASTMoveOperation.test.ts', dir: 'client/lib/canvas-engine/__tests__', add: 126, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/__tests__/ASTSwapOperation.test.ts', dir: 'client/lib/canvas-engine/__tests__', add: 117, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/__tests__/CanvasEngine.test.ts', dir: 'client/lib/canvas-engine/__tests__', add: 8, del: 0, status: 'modified' },
+    { path: 'client/lib/canvas-engine/__tests__/hasExplicitSize.test.ts', dir: 'client/lib/canvas-engine/__tests__', add: 28, del: 0, status: 'new' },
+    { path: 'client/lib/canvas-engine/__tests__/mocks/MockASTApiService.ts', dir: 'client/lib/canvas-engine/__tests__/mocks', add: 14, del: 0, status: 'modified' },
+    { path: 'client/lib/platform/types.ts', dir: 'client/lib/platform', add: 15, del: 0, status: 'modified' },
+    { path: 'client/components/RightSidebar/RightSidebar.tsx', dir: 'client/components/RightSidebar', add: 205, del: 6, status: 'modified' },
+    { path: 'client/components/RightSidebar/__tests__/useBatchStyleData.test.ts', dir: 'client/components/RightSidebar/__tests__', add: 69, del: 0, status: 'new' },
+    { path: 'client/components/RightSidebar/hooks/useBatchStyleData.ts', dir: 'client/components/RightSidebar/hooks', add: 42, del: 0, status: 'new' },
+    { path: 'client/components/RightSidebar/hooks/useStyleSync.ts', dir: 'client/components/RightSidebar/hooks', add: 40, del: 7, status: 'modified' },
+    { path: 'client/pages/Editor/CanvasEditor.tsx', dir: 'client/pages/Editor', add: 20, del: 0, status: 'modified' },
+    { path: 'client/pages/Editor/components/hooks/__tests__/useElementDrag.test.ts', dir: 'client/pages/Editor/components/hooks/__tests__', add: 203, del: 0, status: 'new' },
+    { path: 'client/pages/Editor/components/hooks/useElementDrag.ts', dir: 'client/pages/Editor/components/hooks', add: 574, del: 0, status: 'new' },
+    { path: 'client/pages/Editor/components/hooks/useElementResize.test.ts', dir: 'client/pages/Editor/components/hooks', add: 117, del: 0, status: 'new' },
+    { path: 'client/pages/Editor/components/hooks/useElementResize.ts', dir: 'client/pages/Editor/components/hooks', add: 182, del: 0, status: 'new' },
+    { path: 'client/pages/Editor/components/hooks/useSelectionOverlays.ts', dir: 'client/pages/Editor/components/hooks', add: 10, del: 0, status: 'modified' },
+    { path: 'lib/ast/operations.ts', dir: 'lib/ast', add: 57, del: 0, status: 'modified' },
+    { path: 'server/index.ts', dir: 'server', add: 4, del: 0, status: 'modified' },
+    { path: 'server/routes/moveElement.ts', dir: 'server/routes', add: 124, del: 0, status: 'new' },
+    { path: 'server/routes/swapElements.ts', dir: 'server/routes', add: 123, del: 0, status: 'new' },
+    { path: 'server/routes/__tests__/moveElement.test.ts', dir: 'server/routes/__tests__', add: 103, del: 0, status: 'new' },
+    { path: 'server/routes/__tests__/swapElements.test.ts', dir: 'server/routes/__tests__', add: 76, del: 0, status: 'new' },
+    { path: 'server/text-imports.d.ts', dir: 'server', add: 10, del: 0, status: 'new' },
+    { path: 'shared/canvas-interaction/overlay-renderer.ts', dir: 'shared/canvas-interaction', add: 160, del: 1, status: 'modified' },
+    { path: 'shared/canvas-interaction/overlay-renderer.test.ts', dir: 'shared/canvas-interaction', add: 199, del: 2, status: 'modified' },
+    { path: 'shared/canvas-interaction/spacing-guides.ts', dir: 'shared/canvas-interaction', add: 221, del: 0, status: 'new' },
+    { path: 'shared/canvas-interaction/spacing-guides.test.ts', dir: 'shared/canvas-interaction', add: 181, del: 0, status: 'new' },
+    { path: 'shared/canvas-interaction/types.ts', dir: 'shared/canvas-interaction', add: 5, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/bridges/AstBridge.ts', dir: 'vscode-extension/hypercanvas-preview/src/bridges', add: 55, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/AstService.ts', dir: 'vscode-extension/hypercanvas-preview/src/services', add: 45, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/types.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 15, del: 0, status: 'modified' },
+    { path: 'CLAUDE.md', dir: '.', add: 6, del: 1, status: 'modified' },
+  ],
+
+  findings: [
+    { id: 1, severity: 'P1', status: 'resolved', title: 'Move route: data loss on ancestor/descendant', file: 'server/routes/moveElement.ts', lines: 'L40-L55', desc: 'Moving element into its own descendant corrupts AST tree — element disappears.', fix: 'Added ancestor traversal guard checking if target is descendant of source element.' },
+    { id: 2, severity: 'P1', status: 'resolved', title: 'Swap route: ancestor/descendant corruption', file: 'server/routes/swapElements.ts', lines: 'L30-L45', desc: 'Swapping parent with child produces invalid AST — circular reference.', fix: 'Added isAncestor() helper that walks parentPath chain to detect relationship.' },
+    { id: 3, severity: 'P2', status: 'resolved', title: 'targetIndex accepts invalid values', file: 'server/routes/moveElement.ts', lines: 'L23-L30', desc: 'targetIndex accepted strings, NaN, negative numbers from JSON body.', fix: 'Added typeof/Number.isFinite/< 0 validation before processing.' },
+    { id: 4, severity: 'P2', status: 'resolved', title: 'Stale fast-patch CSS on verification cancel', file: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L114-L116', desc: 'When cancelling previous verification, fast-patch CSS persisted in iframe.', fix: 'Added engine.fastPatch.clearAll() in cleanup path before starting new operation.' },
+    { id: 5, severity: 'P2', status: 'resolved', title: 'FastPatch selector never matched', file: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L133-L133', desc: 'applyPatch used selectedId as instanceId (data-canvas-instance-id), but selectedId is data-uniq-id. CSS selector never matched.', fix: 'Removed instanceId argument — selector now uses data-uniq-id only.' },
+    { id: 6, severity: 'P2', status: 'resolved', title: 'Layout change only applied to first selected element', file: 'client/components/RightSidebar/RightSidebar.tsx', lines: 'L1-L211', desc: 'handleLayoutChange operated on selectedIds[0] only, ignoring other selected elements.', fix: 'Changed to for...of loop over all selectedIds.' },
+  ],
+
+  commits: [
+    { sha: '52669f5', message: 'chore(deps): bump docker/login-action from 3 to 4 (#135)', date: '2026-03-09' },
+    { sha: '3ed7fa7', message: 'fix: add text import type declarations for server CSS/HTML imports', date: '2026-03-09' },
+    { sha: '260d855', message: 'feat: integrate FastPatchService into CanvasEngine (HYP-270)', date: '2026-03-09' },
+    { sha: '0c487da', message: 'feat: wire FastPatchService into style sync + multi-select batch (HYP-270, HYP-271)', date: '2026-03-09' },
+    { sha: 'd3b0c19', message: 'feat: add mergeStyleData and multi-select UI in RightSidebar (HYP-271)', date: '2026-03-09' },
+    { sha: '4bd1db3', message: 'feat: add POST /api/move-element and /api/swap-elements endpoints (HYP-272)', date: '2026-03-09' },
+    { sha: '105d2b1', message: 'docs: update CLAUDE.md — no pre-existing errors, codex review command (HYP-269)', date: '2026-03-09' },
+    { sha: '90d9fd5', message: 'feat: add ASTMoveOperation and ASTSwapOperation with undo/redo (HYP-273)', date: '2026-03-09' },
+    { sha: '45f7692', message: 'feat: add hasExplicitSize utility for resize handle visibility (HYP-275)', date: '2026-03-09' },
+    { sha: '6bec9d8', message: 'fix: fast-patch selector and multi-select layout handler (HYP-271)', date: '2026-03-09' },
+    { sha: '592fca7', message: 'feat(canvas): add spacing guide calculations and rendering (HYP-276)', date: '2026-03-09' },
+    { sha: '9724d87', message: 'feat(ext): add move/swap platform messages for VS Code extension (HYP-277)', date: '2026-03-09' },
+    { sha: 'cfacbb8', message: 'feat(canvas): add useElementDrag hook for drag reorder and swap (HYP-274)', date: '2026-03-09' },
+    { sha: '7111eb1', message: 'feat(canvas): add resize handles and useElementResize hook (HYP-275)', date: '2026-03-09' },
+  ],
+
+  codexRounds: [
+    {
+      title: 'Round 1 — Server Endpoints & FastPatch (7/10)',
+      desc: 'First review after Tasks 1-9. Found critical tree corruption bugs in move/swap routes.',
+      badges: [
+        { label: 'P1: 2', cls: 'badge-p1' },
+        { label: 'P2: 2', cls: 'badge-p2' },
+        { label: '4 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        { severity: 'P1', status: 'resolved', title: 'Move route: ancestor/descendant data loss', file: 'server/routes/moveElement.ts', lines: 'L40-L55', resolution: 'Added ancestor traversal guard before performing move.' },
+        { severity: 'P1', status: 'resolved', title: 'Swap route: parent-child corruption', file: 'server/routes/swapElements.ts', lines: 'L30-L45', resolution: 'Added isAncestor() helper walking parentPath chain.' },
+        { severity: 'P2', status: 'resolved', title: 'targetIndex accepts NaN/negative/strings', file: 'server/routes/moveElement.ts', lines: 'L23-L30', resolution: 'Validated with typeof, Number.isFinite, and < 0 checks.' },
+        { severity: 'P2', status: 'resolved', title: 'Stale fast-patch CSS persists on cancel', file: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L114-L116', resolution: 'Added engine.fastPatch.clearAll() in verification cleanup path.' },
+      ],
+    },
+    {
+      title: 'Round 2 — Multi-select & Integration (8/10)',
+      desc: 'Second review found two bugs in multi-select wiring.',
+      badges: [
+        { label: 'P2: 2', cls: 'badge-p2' },
+        { label: '2 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        { severity: 'P2', status: 'resolved', title: 'FastPatch selector uses wrong attribute', file: 'client/components/RightSidebar/hooks/useStyleSync.ts', lines: 'L133-L133', resolution: 'Removed instanceId argument — uses data-uniq-id selector only.' },
+        { severity: 'P2', status: 'resolved', title: 'Layout change only applies to first element', file: 'client/components/RightSidebar/RightSidebar.tsx', lines: 'L1-L211', resolution: 'Changed to for...of loop iterating all selectedIds.' },
+      ],
+    },
+  ],
+
+  adrs: [
+    {
+      title: 'ADR-1: Two-phase update (FastPatch → AST)',
+      problem: 'Style changes had 200-800ms latency due to AST parse + HMR round-trip. Users perceived the editor as sluggish.',
+      options: '(A) Optimistic UI state in React — complex, duplicates engine state. (B) Direct DOM mutation — unreliable with HMR. (C) CSS injection via <style> tag in iframe — instant, clean, no state duplication.',
+      decision: 'Option C: FastPatchService injects CSS !important rules into iframe <style>, then caller commits via AST. Patches cleared when HMR lands.',
+      rationale: 'CSS injection is side-effect-free (no DOM mutation), works across all styling approaches (Tailwind, inline, CSS modules), and naturally integrates with the existing verification pipeline.',
+    },
+    {
+      title: 'ADR-2: Custom mouse events over DnD library',
+      problem: 'Need drag reorder for JSX elements. DnD libraries (react-dnd, dnd-kit) add 15-30KB and fight with our overlay system.',
+      options: '(A) react-dnd — mature but heavy, requires context providers. (B) dnd-kit — lighter but still a dependency. (C) Custom mousedown/move/up — zero deps, full control.',
+      decision: 'Option C: Custom mouse events following existing overlay interaction pattern (5px threshold, RAF updates).',
+      rationale: 'Our overlays are raw DOM divs positioned over an iframe. DnD libraries expect React components and DOM hierarchy that we don\'t have. Custom events keep consistency with existing interaction hooks.',
+    },
+    {
+      title: 'ADR-3: Shared AST operations in lib/ast/operations.ts',
+      problem: 'VS Code extension and server both need move/swap AST mutations. Duplicating logic in both locations would drift.',
+      options: '(A) VS Code extension calls server API — not possible offline. (B) Duplicate code in both. (C) Shared pure functions in lib/ast/operations.ts.',
+      decision: 'Option C: Pure functions moveElementInAST/swapElementsInAST in shared lib, consumed by both server routes and VS Code AstService.',
+      rationale: 'lib/ast/ is already shared between server and extension (same tsconfig path aliases). Pure functions are easy to test and have no side effects.',
+    },
+  ],
+});
+</script>
+</body>
+</html>
