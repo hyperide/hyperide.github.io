@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-342 — App Shell + Isolated Preview Routing</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <!-- Architecture Diagram -->
+  <section class="fade-in">
+    <h2>Architecture</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;font-family:system-ui,sans-serif">
+        <defs>
+          <linearGradient id="gLib" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.3"/>
+            <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.08"/>
+          </linearGradient>
+          <linearGradient id="gSaaS" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.2"/>
+            <stop offset="100%" style="stop-color:#10b981;stop-opacity:0.08"/>
+          </linearGradient>
+          <linearGradient id="gExt" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.2"/>
+            <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.08"/>
+          </linearGradient>
+          <linearGradient id="gNew" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.25"/>
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.08"/>
+          </linearGradient>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#888" opacity="0.6"/>
+          </marker>
+        </defs>
+
+        <!-- === Shared lib/ layer === -->
+        <rect x="10" y="10" width="880" height="30" rx="6" fill="#4f46e5" fill-opacity="0.06" stroke="#4f46e5" stroke-opacity="0.2"/>
+        <text x="450" y="30" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">lib/preview-generator/ — shared logic (SaaS + Extension)</text>
+
+        <!-- PreviewModeManager -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/preview-generator/preview-mode-manager.ts"
+           data-lines="L85-L279"
+           data-desc="Centralized mode orchestration: App Shell vs Isolated. Manages WatcherFactory DI, calls PreviewFileManager.">
+          <rect x="20" y="50" width="200" height="60" rx="8" fill="url(#gLib)" stroke="#6366f1" stroke-opacity="0.4"/>
+          <text x="120" y="72" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">PreviewModeManager</text>
+          <text x="120" y="87" text-anchor="middle" fill="#9ca3af" font-size="10">preview-mode-manager.ts</text>
+          <text x="120" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">App Shell ↔ Isolated orchestration</text>
+        </g>
+
+        <!-- FrameworkRouting -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/preview-generator/framework-routing.ts"
+           data-lines="L13-L177"
+           data-desc="detectFramework(): Next.js App/Pages, Remix, Vite SPA (file-based + JSX router), Webpack/CRA, Parcel">
+          <rect x="240" y="50" width="200" height="60" rx="8" fill="url(#gLib)" stroke="#6366f1" stroke-opacity="0.4"/>
+          <text x="340" y="72" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">detectFramework()</text>
+          <text x="340" y="87" text-anchor="middle" fill="#9ca3af" font-size="10">framework-routing.ts:L48</text>
+          <text x="340" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">Next.js · Remix · Vite · Webpack · Parcel</text>
+        </g>
+
+        <!-- PreviewFileManager -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/preview-generator/preview-file-manager.ts"
+           data-lines="L257-L889"
+           data-desc="ensurePreviewFiles(): Tier 1 (Vite/Parcel script swap) + Tier 2 (Webpack AST entry patch). Generates __canvas_preview__.tsx">
+          <rect x="460" y="50" width="200" height="60" rx="8" fill="url(#gLib)" stroke="#6366f1" stroke-opacity="0.4"/>
+          <text x="560" y="72" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">PreviewFileManager</text>
+          <text x="560" y="87" text-anchor="middle" fill="#9ca3af" font-size="10">preview-file-manager.ts:L257</text>
+          <text x="560" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">Tier 1 script swap · Tier 2 AST patch</text>
+        </g>
+
+        <!-- buildNeedsPatchPrompt -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/preview-generator/needs-patch-prompt.ts"
+           data-lines="L27-L61"
+           data-desc="Shared AI prompt builder for Isolated mode setup — used by both SaaS and extension">
+          <rect x="680" y="50" width="200" height="60" rx="8" fill="url(#gLib)" stroke="#6366f1" stroke-opacity="0.4"/>
+          <text x="780" y="72" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">buildNeedsPatchPrompt()</text>
+          <text x="780" y="87" text-anchor="middle" fill="#9ca3af" font-size="10">needs-patch-prompt.ts:L27</text>
+          <text x="780" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">Shared AI prompt for both platforms</text>
+        </g>
+
+        <!-- FileIO abstraction -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/ast/file-io.ts"
+           data-lines="L1-L50"
+           data-desc="FileIO interface: NodeFileIO (SaaS), VSCodeFileIO (extension), InMemoryFileIO (tests)">
+          <rect x="340" y="140" width="220" height="50" rx="8" fill="url(#gNew)" stroke="#3b82f6" stroke-opacity="0.4"/>
+          <text x="450" y="161" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="600">FileIO Abstraction</text>
+          <text x="450" y="176" text-anchor="middle" fill="#9ca3af" font-size="10">Node · VSCode · InMemory implementations</text>
+        </g>
+
+        <!-- Arrows lib → FileIO -->
+        <line x1="120" y1="110" x2="120" y2="155" stroke="#888" stroke-opacity="0.4" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <line x1="560" y1="110" x2="500" y2="140" stroke="#888" stroke-opacity="0.4" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- === SaaS layer === -->
+        <rect x="10" y="215" width="430" height="25" rx="5" fill="#10b981" fill-opacity="0.06" stroke="#10b981" stroke-opacity="0.15"/>
+        <text x="225" y="232" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">SaaS (browser)</text>
+
+        <!-- parseComponent route -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/server/routes/parseComponent.ts"
+           data-lines="L1-L250"
+           data-desc="POST /api/component/parse — uses lib detectFramework, PreviewModeManager, returns previewSetup status">
+          <rect x="20" y="248" width="190" height="55" rx="8" fill="url(#gSaaS)" stroke="#10b981" stroke-opacity="0.4"/>
+          <text x="115" y="268" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">parseComponent route</text>
+          <text x="115" y="282" text-anchor="middle" fill="#9ca3af" font-size="10">server/routes/parseComponent.ts</text>
+          <text x="115" y="295" text-anchor="middle" fill="#9ca3af" font-size="10">Replaced local detectFramework</text>
+        </g>
+
+        <!-- PreviewSetupOverlay -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/client/pages/Editor/components/PreviewSetupOverlay.tsx"
+           data-lines="L1-L144"
+           data-desc="SaaS UI: shows framework support table, setup status, Git check, one-click Fix button for needs-patch">
+          <rect x="230" y="248" width="190" height="55" rx="8" fill="url(#gSaaS)" stroke="#10b981" stroke-opacity="0.4"/>
+          <text x="325" y="268" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">PreviewSetupOverlay</text>
+          <text x="325" y="282" text-anchor="middle" fill="#9ca3af" font-size="10">client/.../PreviewSetupOverlay.tsx</text>
+          <text x="325" y="295" text-anchor="middle" fill="#9ca3af" font-size="10">Supported · Planned · Not planned table</text>
+        </g>
+
+        <!-- proxy/response-processor -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/lib/proxy/response-processor.ts"
+           data-lines="L1-L40"
+           data-desc="Shared proxy response pipeline — identical for extension + SaaS, parametrised by prefix">
+          <rect x="20" y="320" width="400" height="40" rx="8" fill="url(#gNew)" stroke="#3b82f6" stroke-opacity="0.3"/>
+          <text x="220" y="337" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">lib/proxy/response-processor.ts — Shared pipeline (ext + SaaS)</text>
+          <text x="220" y="351" text-anchor="middle" fill="#9ca3af" font-size="10">Identical rewrite logic, parametrised by prefix</text>
+        </g>
+
+        <!-- === Extension layer === -->
+        <rect x="460" y="215" width="430" height="25" rx="5" fill="#f59e0b" fill-opacity="0.06" stroke="#f59e0b" stroke-opacity="0.15"/>
+        <text x="675" y="232" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">VS Code Extension</text>
+
+        <!-- extension.ts activation -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/vscode-extension/hypercanvas-preview/src/extension.ts"
+           data-lines="L109-L130"
+           data-desc="On activation: calls detectUnsupportedProject, registers hypercanvas.fixUnsupportedProject command">
+          <rect x="470" y="248" width="190" height="55" rx="8" fill="url(#gExt)" stroke="#f59e0b" stroke-opacity="0.4"/>
+          <text x="565" y="268" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">extension.ts activation</text>
+          <text x="565" y="282" text-anchor="middle" fill="#9ca3af" font-size="10">src/extension.ts:L109</text>
+          <text x="565" y="295" text-anchor="middle" fill="#9ca3af" font-size="10">detectUnsupportedProject() on start</text>
+        </g>
+
+        <!-- ProjectDetector -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/vscode-extension/hypercanvas-preview/src/services/ProjectDetector.ts"
+           data-lines="L154-L186"
+           data-desc="detectUnsupportedProject(): checks for react-native / tamagui / @tamagui/core without react-native-web">
+          <rect x="680" y="248" width="200" height="55" rx="8" fill="url(#gExt)" stroke="#f59e0b" stroke-opacity="0.4"/>
+          <text x="780" y="268" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">detectUnsupportedProject()</text>
+          <text x="780" y="282" text-anchor="middle" fill="#9ca3af" font-size="10">services/ProjectDetector.ts:L154</text>
+          <text x="780" y="295" text-anchor="middle" fill="#9ca3af" font-size="10">RN · Tamagui · @tamagui/cli excluded</text>
+        </g>
+
+        <!-- PreviewPanel -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/vscode-extension/hypercanvas-preview/src/PreviewPanel.ts"
+           data-lines="L743-L760"
+           data-desc="notifyUnsupportedProject(): stores error, posts projectError message to webview, clears on fix">
+          <rect x="470" y="320" width="190" height="50" rx="8" fill="url(#gExt)" stroke="#f59e0b" stroke-opacity="0.35"/>
+          <text x="565" y="340" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">PreviewPanel</text>
+          <text x="565" y="354" text-anchor="middle" fill="#9ca3af" font-size="10">notifyUnsupportedProject() → webview</text>
+          <text x="565" y="366" text-anchor="middle" fill="#9ca3af" font-size="9">null clears error after fix</text>
+        </g>
+
+        <!-- UnsupportedProjectScreen -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/main/vscode-extension/hypercanvas-preview/src/webview-preview-panel/PreviewPanelApp.tsx"
+           data-lines="L151-L185"
+           data-desc="UnsupportedProjectScreen: shows warning icon, type label, message, Fix button → sends command:fixUnsupportedProject">
+          <rect x="680" y="320" width="200" height="50" rx="8" fill="url(#gExt)" stroke="#f59e0b" stroke-opacity="0.35"/>
+          <text x="780" y="340" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">UnsupportedProjectScreen</text>
+          <text x="780" y="354" text-anchor="middle" fill="#9ca3af" font-size="10">webview-preview-panel/PreviewPanelApp.tsx</text>
+          <text x="780" y="366" text-anchor="middle" fill="#9ca3af" font-size="9">Fix → hypercanvas.fixUnsupportedProject</text>
+        </g>
+
+        <!-- Arrows ext layer -->
+        <line x1="660" y1="275" x2="682" y2="275" stroke="#f59e0b" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+        <line x1="565" y1="303" x2="565" y2="320" stroke="#f59e0b" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+        <line x1="780" y1="303" x2="780" y2="320" stroke="#f59e0b" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+        <line x1="660" y1="345" x2="682" y2="345" stroke="#f59e0b" stroke-opacity="0.3" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- Arrows SaaS → lib -->
+        <line x1="115" y1="248" x2="200" y2="110" stroke="#10b981" stroke-opacity="0.4" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+        <line x1="325" y1="248" x2="340" y2="110" stroke="#10b981" stroke-opacity="0.4" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- Arrows ext → lib -->
+        <line x1="565" y1="248" x2="450" y2="110" stroke="#f59e0b" stroke-opacity="0.35" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- === Mode Decision === -->
+        <rect x="10" y="390" width="880" height="150" rx="10" fill="#1e2430" stroke="#30363d"/>
+        <text x="450" y="413" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">Preview Mode Decision Tree</text>
+
+        <!-- App Shell path -->
+        <rect x="30" y="425" width="380" height="100" rx="8" fill="url(#gSaaS)" stroke="#10b981" stroke-opacity="0.3"/>
+        <text x="220" y="445" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">App Shell Mode (default)</text>
+        <text x="220" y="461" text-anchor="middle" fill="#9ca3af" font-size="10">Component rendered at /__hypercanvas_preview__ route</text>
+        <text x="220" y="475" text-anchor="middle" fill="#9ca3af" font-size="10">Blank-segment layout strips chrome, inherits real wrap</text>
+        <text x="220" y="489" text-anchor="middle" fill="#9ca3af" font-size="10">Works with: Next.js App · Vite JSX router · Remix · Webpack</text>
+        <text x="220" y="505" text-anchor="middle" fill="#34d399" font-size="10" font-weight="500">Status: supported ✓ (zero user setup)</text>
+
+        <!-- Isolated path -->
+        <rect x="430" y="425" width="440" height="100" rx="8" fill="url(#gLib)" stroke="#6366f1" stroke-opacity="0.3"/>
+        <text x="650" y="445" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Isolated Mode (opt-in via .hyperide/preview.tsx)</text>
+        <text x="650" y="461" text-anchor="middle" fill="#9ca3af" font-size="10">Tier 1: script swap entry for Vite / Parcel (zero AST cost)</text>
+        <text x="650" y="475" text-anchor="middle" fill="#9ca3af" font-size="10">Tier 2: AST entry patch for Webpack / CRA (bundler-native)</text>
+        <text x="650" y="489" text-anchor="middle" fill="#9ca3af" font-size="10">needs-patch: AI generates preview.tsx with real providers</text>
+        <text x="650" y="505" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="500">Status: needs-patch → Fix button → AI prompt</text>
+      </svg>
+    </div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <div data-section="findings"></div>
+  <div data-section="timeline"></div>
+  <div data-section="codex-review"></div>
+  <div data-section="adr"></div>
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated 2026-03-21 &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a>
+</footer>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '69318cd49352929fda84a37ae19a543c32d761dc',
+
+  title: 'HYP-342: App Shell + Isolated Preview Routing',
+  subtitle: 'Framework-aware preview routing — Next.js, Remix, Vite, Webpack, Parcel',
+  date: '2026-03-21',
+  badge: { label: 'feat', type: 'feat' },
+  branch: 'HYP-342-ext-unsupported-project',
+  links: [
+    { label: 'PR #168 (merged)', href: 'https://github.com/hyperide/hyper-saas/pull/168' },
+    { label: 'PR #169 (ext)', href: 'https://github.com/hyperide/hyper-saas/pull/169' },
+    { label: 'Linear HYP-342', href: 'https://linear.app/glide-vc/issue/HYP-342/fix-preview-routing-app-shell-isolated-mode-framework-aware-route' },
+  ],
+
+  motivation: `<strong>Problem:</strong> The old preview system used a naive <code>/test-preview → /</code> proxy rewrite that broke as soon as the app had real routing (Next.js App Router, Remix, Vite JSX router). Components would render at the wrong route or not at all, and CSS/providers were missing because the fake rewrite bypassed the app's real initialization path.
+<ul>
+  <li><strong>App Shell mode</strong> solves the chrome problem by routing to a dedicated blank-layout segment that strips nav/sidebars while inheriting the real app wrap (QueryClient, ThemeProvider, auth).</li>
+  <li><strong>Isolated mode</strong> solves the drift problem for apps that need custom provider setup — via a user-maintained <code>.hyperide/preview.tsx</code> that the AI can generate.</li>
+  <li><strong>Extension parity:</strong> VS Code extension gets the same detection pipeline, plus unsupported-project detection for React Native / Tamagui projects that can't render in a browser.</li>
+</ul>`,
+
+  stats: { files: 48, insertions: 5856, deletions: 762, commits: 3 },
+
+  productChanges: {
+    new: [
+      {
+        title: 'App Shell + Isolated Preview Modes',
+        desc: 'PreviewModeManager orchestrates two preview modes. App Shell (default) renders the component inside real app routing — inheriting CSS and providers without chrome via blank segment layout. Isolated mode uses a user-maintained .hyperide/preview.tsx with synthetic wrap.',
+        files: [
+          { path: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L85-L279', label: 'preview-mode-manager.ts:85 (PreviewModeManager)' },
+          { path: 'lib/preview-generator/preview-file-manager.ts', lines: 'L257-L889', label: 'preview-file-manager.ts:257 (PreviewFileManager)' },
+        ],
+      },
+      {
+        title: 'Framework-Aware Route Generation',
+        desc: 'detectFramework() identifies Next.js App Router (blank slot layout), Next.js Pages Router (custom _app), Remix (splat route), Vite SPA (file-based + JSX router), Webpack/CRA, and Parcel. Returns framework type + route file paths for the preview segment.',
+        files: [
+          { path: 'lib/preview-generator/framework-routing.ts', lines: 'L13-L177', label: 'framework-routing.ts:48 (detectFramework)' },
+        ],
+      },
+      {
+        title: 'PreviewSetupOverlay (SaaS)',
+        desc: 'New SaaS UI component shown when the preview needs setup. Displays a 3-state framework support table (Supported / Planned / Not planned), Git prerequisite check with "Initialize Git" button, and a one-click Fix button that triggers AI prompt generation for Isolated mode.',
+        files: [
+          { path: 'client/pages/Editor/components/PreviewSetupOverlay.tsx', lines: 'L1-L144', label: 'PreviewSetupOverlay.tsx:74 (component)' },
+        ],
+      },
+      {
+        title: 'Extension: Unsupported Project Detection',
+        desc: 'The VS Code extension now detects React Native / Tamagui projects that cannot render in a browser without react-native-web. Shows UnsupportedProjectScreen with a Fix button that installs react-native-web via the detected package manager.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/ProjectDetector.ts', lines: 'L154-L186', label: 'ProjectDetector.ts:154 (detectUnsupportedProject)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/PreviewPanelApp.tsx', lines: 'L151-L185', label: 'PreviewPanelApp.tsx:151 (UnsupportedProjectScreen)' },
+        ],
+      },
+    ],
+    improvements: [
+      {
+        title: 'Shared proxy response processor',
+        desc: 'lib/proxy/response-processor.ts provides an identical HTML rewrite pipeline for both the VS Code extension and SaaS. Parametrised by prefix — no more duplicated rewrite logic.',
+        files: [
+          { path: 'lib/proxy/response-processor.ts', lines: 'L1-L40', label: 'response-processor.ts (shared pipeline)' },
+        ],
+      },
+      {
+        title: 'buildNeedsPatchPrompt moved to lib/',
+        desc: 'The AI prompt builder for Isolated mode setup now lives in lib/ and is shared across both the SaaS server and VS Code extension. Previously duplicated with minor differences.',
+        files: [
+          { path: 'lib/preview-generator/needs-patch-prompt.ts', lines: 'L27-L61', label: 'needs-patch-prompt.ts:27 (buildNeedsPatchPrompt)' },
+        ],
+      },
+      {
+        title: 'parseComponent.ts uses lib detectFramework',
+        desc: 'Replaced a 164-line local detectFramework implementation in the server route with the shared lib/ version. Single source of truth for framework detection across both execution environments.',
+        files: [
+          { path: 'server/routes/parseComponent.ts', lines: 'L1-L250', label: 'parseComponent.ts (route handler)' },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        title: 'Dead endpoint with auth bypass removed',
+        desc: 'POST /api/docker/component/:id had no callers anywhere in the codebase, used requireEditor instead of requireProjectAccess (auth bypass), and duplicated logic already in handleParseComponent. Deleted.',
+        files: [
+          { path: 'server/routes/docker.ts', lines: 'L1-L50', label: 'docker.ts (endpoint removed)' },
+        ],
+      },
+      {
+        title: 'Parcel now correctly supported',
+        desc: 'Parcel was falling into the default branch of the mode switch → returning needs-patch unnecessarily. Added explicit case sharing the webpack branch (both support direct entry override).',
+        files: [
+          { path: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L85-L180', label: 'preview-mode-manager.ts (case parcel)' },
+        ],
+      },
+    ],
+  },
+
+  files: [
+    { path: 'lib/preview-generator/preview-mode-manager.ts', dir: 'lib/preview-generator', add: 279, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/framework-routing.ts', dir: 'lib/preview-generator', add: 177, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/preview-file-manager.ts', dir: 'lib/preview-generator', add: 482, del: 38, status: 'modified' },
+    { path: 'lib/preview-generator/needs-patch-prompt.ts', dir: 'lib/preview-generator', add: 61, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/preview-mode-manager.test.ts', dir: 'lib/preview-generator/__tests__', add: 163, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/preview-file-manager.test.ts', dir: 'lib/preview-generator/__tests__', add: 496, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/__tests__/framework-routing.test.ts', dir: 'lib/preview-generator/__tests__', add: 190, del: 0, status: 'new' },
+    { path: 'lib/proxy/response-processor.ts', dir: 'lib/proxy', add: 40, del: 0, status: 'new' },
+    { path: 'lib/ast/node-file-io.ts', dir: 'lib/ast', add: 38, del: 0, status: 'modified' },
+    { path: 'client/pages/Editor/components/PreviewSetupOverlay.tsx', dir: 'client/pages/Editor/components', add: 144, del: 0, status: 'new' },
+    { path: 'client/contexts/ComponentMetaContext.tsx', dir: 'client/contexts', add: 21, del: 0, status: 'modified' },
+    { path: 'client/lib/platform/types.ts', dir: 'client/lib/platform', add: 5, del: 1, status: 'modified' },
+    { path: 'server/routes/parseComponent.ts', dir: 'server/routes', add: 224, del: 466, status: 'modified' },
+    { path: 'server/routes/docker.ts', dir: 'server/routes', add: 6, del: 1, status: 'modified' },
+    { path: 'server/routes/generatePreview.ts', dir: 'server/routes', add: 0, del: 76, status: 'deleted' },
+    { path: 'server/proxy/chokidar-watch-factory.ts', dir: 'server/proxy', add: 20, del: 0, status: 'new' },
+    { path: 'server/proxy/project-preview.ts', dir: 'server/proxy', add: 10, del: 2, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/ProjectDetector.ts', dir: 'vscode-extension/...', add: 39, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/__tests__/ProjectDetector.test.ts', dir: 'vscode-extension/...', add: 57, del: 1, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', dir: 'vscode-extension/...', add: 70, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', dir: 'vscode-extension/...', add: 146, del: 7, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/PreviewPanelApp.tsx', dir: 'vscode-extension/...', add: 68, del: 52, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/usePreviewBridge.ts', dir: 'vscode-extension/...', add: 24, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/WrapperGenerator.ts', dir: 'vscode-extension/...', add: 106, del: 0, status: 'modified' },
+    { path: 'docs/plans/2026-03-19-preview-routing.md', dir: 'docs/plans', add: 2708, del: 0, status: 'new' },
+  ],
+
+  findings: [
+    {
+      id: 1, severity: 'P1', status: 'resolved',
+      title: 'Dead endpoint with auth bypass: POST /api/docker/component/:id',
+      file: 'server/routes/docker.ts', lines: 'L1-L50',
+      desc: 'The endpoint had no callers anywhere in the codebase, used requireEditor instead of requireProjectAccess (auth bypass allowing any authenticated user to trigger component selection on any project), and duplicated logic already handled inline by handleParseComponent.',
+      fix: 'Deleted the endpoint entirely. onComponentSelected is now only called inline in handleParseComponent where the project context is already validated.',
+    },
+    {
+      id: 2, severity: 'P2', status: 'resolved',
+      title: 'execFile on Windows: .cmd wrappers not directly executable',
+      file: 'vscode-extension/hypercanvas-preview/src/extension.ts', lines: 'L664-L697',
+      desc: 'npm, yarn, pnpm on Windows are .cmd wrapper scripts. execFile without shell:true fails because .cmd files require the shell to run. Would silently fail on Windows installs.',
+      fix: 'Added shell: true to all execFile calls for package manager commands. Documented with inline comment.',
+    },
+    {
+      id: 3, severity: 'P2', status: 'resolved',
+      title: 'as unknown as PlatformMessage cast in PreviewPanelApp',
+      file: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/PreviewPanelApp.tsx', lines: 'L75-L85',
+      desc: 'CLAUDE.md bans as unknown as casts. The cast was needed because command:fixUnsupportedProject was not in the PlatformMessage union, so TypeScript rejected the sendEvent call.',
+      fix: 'Added { type: "command:fixUnsupportedProject" } to the PlatformMessage discriminated union in client/lib/platform/types.ts. No cast needed.',
+    },
+    {
+      id: 4, severity: 'P2', status: 'resolved',
+      title: 'Parcel falls into default branch → wrong needs-patch status',
+      file: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L85-L180',
+      desc: 'Parcel support was missing from the mode switch. It fell into the default branch which called ensurePreviewFiles() → returned needs-patch unnecessarily. Parcel and Webpack both support direct entry override, so they should share the same branch.',
+      fix: 'Added explicit case "parcel": falling through to the webpack branch.',
+    },
+    {
+      id: 5, severity: 'P2', status: 'resolved',
+      title: 'Install failure silently swallowed in fixUnsupportedProject',
+      file: 'vscode-extension/hypercanvas-preview/src/extension.ts', lines: 'L675-L697',
+      desc: 'withProgress rejection propagated from the async command callback was silently swallowed by VS Code. If the package manager was missing, had no network access, or returned non-zero exit, the progress notification would disappear with no feedback to the user.',
+      fix: 'Wrapped withProgress in try/catch. On failure: vscode.window.showErrorMessage() with the error message.',
+    },
+    {
+      id: 6, severity: 'P3', status: 'resolved',
+      title: 'require("node:fs") instead of static import in preview-mode-manager',
+      file: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L1-L30',
+      desc: 'Dynamic require() inside a function body — project convention is static ESM imports. Also broke the biome lint rule against require-style imports in this codebase.',
+      fix: 'Converted to static import fs from "node:fs/promises" at file top.',
+    },
+    {
+      id: 7, severity: 'P3', status: 'resolved',
+      title: 'Hardcoded colors in PreviewSetupOverlay',
+      file: 'client/pages/Editor/components/PreviewSetupOverlay.tsx', lines: 'L74-L144',
+      desc: 'bg-slate-100 dark:bg-slate-900 bypasses the semantic color token system. CLAUDE.md requires semantic tokens for dark theme support.',
+      fix: 'Replaced with bg-muted and bg-secondary semantic Tailwind tokens.',
+    },
+    {
+      id: 8, severity: 'P3', status: 'resolved',
+      title: 'Local detectFramework in parseComponent.ts duplicated lib/ version',
+      file: 'server/routes/parseComponent.ts', lines: 'L1-L250',
+      desc: '164-line local implementation with subtle differences from the shared lib/ version. Any future framework additions would need to be made in two places.',
+      fix: 'Replaced with import from lib/preview-generator. Single source of truth.',
+    },
+  ],
+
+  commits: [
+    { sha: 'dfaebfdb', message: 'feat: App Shell + Isolated mode preview routing, framework-aware (HYP-342)', date: '2026-03-21' },
+    { sha: '12e52613', message: 'feat(ext): unsupported project detection for React Native / Tamagui (HYP-342)', date: '2026-03-21' },
+    { sha: '69318cd4', message: 'fix(ext): show error message when react-native-web install fails (HYP-342)', date: '2026-03-21' },
+  ],
+
+  codexRounds: [
+    {
+      title: 'Round 1 — Pre-merge review (main PR #168)',
+      desc: 'Review of the full preview routing implementation before merging. Found 1 P1 auth bypass, 3 P2 correctness issues, 3 P3 style issues. All resolved.',
+      badges: [
+        { label: 'P1: 1', cls: 'badge-p1' },
+        { label: 'P2: 3', cls: 'badge-p2' },
+        { label: 'P3: 3', cls: 'badge-p3' },
+        { label: '7 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        {
+          severity: 'P1', status: 'resolved', title: 'Dead endpoint with auth bypass',
+          file: 'server/routes/docker.ts', lines: 'L1-L50',
+          resolution: 'Deleted the entire notifyComponentSelected endpoint. No callers found anywhere.',
+        },
+        {
+          severity: 'P2', status: 'resolved', title: 'execFile Windows .cmd wrapper failure',
+          file: 'vscode-extension/.../extension.ts', lines: 'L664-L697',
+          resolution: 'Added shell: true to execFile calls for npm/yarn/pnpm/bun commands.',
+        },
+        {
+          severity: 'P2', status: 'resolved', title: 'as unknown as PlatformMessage cast',
+          file: 'vscode-extension/.../PreviewPanelApp.tsx', lines: 'L75-L85',
+          resolution: 'Added command:fixUnsupportedProject to PlatformMessage union in types.ts.',
+        },
+        {
+          severity: 'P2', status: 'resolved', title: 'Parcel returns needs-patch incorrectly',
+          file: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L85-L180',
+          resolution: 'Added case "parcel": falling through to webpack branch.',
+        },
+        {
+          severity: 'P3', status: 'resolved', title: 'require() instead of ESM import',
+          file: 'lib/preview-generator/preview-mode-manager.ts', lines: 'L1-L30',
+          resolution: 'Converted to static import.',
+        },
+        {
+          severity: 'P3', status: 'resolved', title: 'Hardcoded colors in PreviewSetupOverlay',
+          file: 'client/.../PreviewSetupOverlay.tsx', lines: 'L74-L144',
+          resolution: 'Replaced with semantic tokens: bg-muted, bg-secondary.',
+        },
+        {
+          severity: 'P3', status: 'resolved', title: 'Local detectFramework duplicate in parseComponent',
+          file: 'server/routes/parseComponent.ts', lines: 'L1-L250',
+          resolution: 'Replaced 164-line local impl with lib/ import.',
+        },
+      ],
+    },
+    {
+      title: 'Round 2 — Extension PR #169 review',
+      desc: 'Manual review of the extension unsupported-project detection PR. Found 1 P2 silent error, 2 P3 style notes. P2 resolved immediately.',
+      badges: [
+        { label: 'P2: 1', cls: 'badge-p2' },
+        { label: 'P3: 2', cls: 'badge-p3' },
+        { label: '1 resolved', cls: 'badge-resolved' },
+        { label: '2 accepted', cls: 'badge-accepted' },
+      ],
+      items: [
+        {
+          severity: 'P2', status: 'resolved', title: 'Install failure silently swallowed',
+          file: 'vscode-extension/.../extension.ts', lines: 'L675-L697',
+          resolution: 'Wrapped withProgress in try/catch. On error: showErrorMessage() with details.',
+        },
+        {
+          severity: 'P3', status: 'accepted', title: 'Type cast on msg.error in usePreviewBridge',
+          file: 'vscode-extension/.../usePreviewBridge.ts', lines: 'L256-L259',
+          resolution: 'Accepted — msg is untyped event.data from VS Code postMessage, cast is the correct pattern.',
+        },
+        {
+          severity: 'P3', status: 'accepted', title: 'UnsupportedProjectScreen label conflation',
+          file: 'vscode-extension/.../PreviewPanelApp.tsx', lines: 'L151-L185',
+          resolution: 'Accepted — the message prop already contains the specific technology name. Heading is intentionally generic.',
+        },
+      ],
+    },
+  ],
+
+  adrs: [
+    {
+      title: 'ADR-1: App Shell as default preview mode',
+      problem: 'Isolated mode requires the user to maintain a .hyperide/preview.tsx file that can drift from the real app over time. App Shell has no such maintenance burden.',
+      options: 'Option A: Isolated-first (user always writes preview.tsx). Option B: App Shell-first (inherit real routing, opt into Isolated when needed).',
+      decision: 'App Shell as default. Isolated is opt-in via .hyperide/preview.tsx.',
+      rationale: 'App Shell inherits the real app wrap automatically — providers, CSS imports, auth context are always correct. The blank-segment layout strips chrome without touching provider setup. Users only need Isolated mode when their app wrap is too heavy or non-standard.',
+    },
+    {
+      title: 'ADR-2: Tier 1 vs Tier 2 for Isolated mode',
+      problem: 'Different bundlers have different mechanisms for overriding the entry point. A single approach does not work across Vite, Webpack, Parcel, and CRA.',
+      options: 'Tier 1: script swap (replace entry at filesystem level, zero AST cost). Tier 2: AST entry patch (insert import into existing entry file, works for bundlers without direct entry override).',
+      decision: 'Tier 1 for Vite and Parcel (both support --entry flag or config override). Tier 2 for Webpack and CRA (no clean entry override path).',
+      rationale: 'Tier 1 is cheaper and cleaner — no AST manipulation, no risk of breaking the original entry. Tier 2 is a fallback that handles bundlers where entry cannot be cleanly swapped.',
+    },
+    {
+      title: 'ADR-3: FileIO abstraction for cross-environment preview generation',
+      problem: 'Preview generation needs to read and write files. In the VS Code extension, files are accessed via the VS Code API. In the SaaS server, files are accessed via Node.js fs. In tests, neither is acceptable.',
+      options: 'Option A: Runtime environment detection (if vscode then ...). Option B: Dependency injection via FileIO interface.',
+      decision: 'FileIO interface with NodeFileIO, VSCodeFileIO, and InMemoryFileIO implementations passed at construction time.',
+      rationale: 'DI avoids branching inside generation logic, enables full unit testing without VS Code or filesystem access, and makes future environments (e.g. WASM sandbox) straightforward to add.',
+    },
+  ],
+});
+</script>
+</body>
+</html>
