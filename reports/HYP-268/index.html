@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-268 — Fiber-Based Element Tracing (React DevTools)</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <!-- Architecture diagram -->
+  <section class="fade-in">
+    <h2>Architecture: Click-to-Source Flow</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 960 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:960px;margin:0 auto;display:block">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+          </marker>
+          <linearGradient id="gFiber" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="gAmber" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.08"/>
+          </linearGradient>
+          <linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.08"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Row 1: Browser (preview iframe) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts" data-lines="L1-L601" data-desc="iframe-interaction.ts — Click handler injected into preview iframe. Extracts React fiber from clicked DOM node, reads _debugSource, resolves source maps for Turbopack builds, posts hypercanvas:elementClick message.">
+          <rect x="20" y="30" width="220" height="72" rx="10" fill="url(#gAmber)" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="130" y="58" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">iframe-interaction.ts</text>
+          <text x="130" y="74" text-anchor="middle" fill="#9ca3af" font-size="10">Click handler (injected)</text>
+          <text x="130" y="89" text-anchor="middle" fill="#9ca3af" font-size="10">reads _debugSource → postMessage</text>
+        </g>
+
+        <!-- Row 1: fiber-internals -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/shared/element-tracing/fiber-internals.ts" data-lines="L1-L305" data-desc="fiber-internals.ts — React internal fiber tree walker. Reads __reactFiber$xxx, extracts _debugSource (file, line, column) from React 19 fibers. getItemIndexFromFiber for .map() position tracking.">
+          <rect x="260" y="30" width="220" height="72" rx="10" fill="url(#gFiber)" stroke="#4f46e5" stroke-opacity="0.5" stroke-width="1.5"/>
+          <text x="370" y="58" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">fiber-internals.ts</text>
+          <text x="370" y="74" text-anchor="middle" fill="#9ca3af" font-size="10">React fiber walker (shared)</text>
+          <text x="370" y="89" text-anchor="middle" fill="#9ca3af" font-size="10">_debugSource extraction</text>
+        </g>
+
+        <!-- Row 1: source-map-resolver -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/shared/element-tracing/source-map-resolver.ts" data-lines="L1-L206" data-desc="source-map-resolver.ts — Resolves Turbopack/webpack source maps (including indexed sections format). Converts compiled line numbers back to original TypeScript source locations.">
+          <rect x="500" y="30" width="220" height="72" rx="10" fill="url(#gFiber)" stroke="#4f46e5" stroke-opacity="0.5" stroke-width="1.5"/>
+          <text x="610" y="58" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">source-map-resolver.ts</text>
+          <text x="610" y="74" text-anchor="middle" fill="#9ca3af" font-size="10">Turbopack source map lookup</text>
+          <text x="610" y="89" text-anchor="middle" fill="#9ca3af" font-size="10">sections (indexed) format support</text>
+        </g>
+
+        <!-- Row 1: types.ts -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/shared/element-tracing/types.ts" data-lines="L1-L130" data-desc="types.ts — Shared TypeScript types for element tracing: SourceLocation, NodeRef, TracingResolver interface, NodeMap types.">
+          <rect x="740" y="30" width="200" height="72" rx="10" fill="url(#gBlue)" stroke="#3b82f6" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="840" y="58" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="600">types.ts</text>
+          <text x="840" y="74" text-anchor="middle" fill="#9ca3af" font-size="10">SourceLocation, NodeRef</text>
+          <text x="840" y="89" text-anchor="middle" fill="#9ca3af" font-size="10">TracingResolver, NodeMap</text>
+        </g>
+
+        <!-- Arrows row 1 -->
+        <line x1="240" y1="66" x2="258" y2="66" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="480" y1="66" x2="498" y2="66" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Row 2: ElementTracer (client) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/client/lib/element-tracing/element-tracer.ts" data-lines="L27-L188" data-desc="ElementTracer — Runtime fiber tree walker in the browser. Implements TracingResolver. walkFibers() traverses React tree, findDOMElements() maps nodeRef→HTMLElement[], buildSourceKeyIndex() creates file:line→nodeRef lookup. Wired into IframeCanvas lifecycle.">
+          <rect x="20" y="160" width="220" height="80" rx="10" fill="url(#gGreen)" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="130" y="185" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">ElementTracer</text>
+          <text x="130" y="201" text-anchor="middle" fill="#9ca3af" font-size="10">client/lib/element-tracing</text>
+          <text x="130" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">walkFibers · findDOMElements</text>
+          <text x="130" y="231" text-anchor="middle" fill="#9ca3af" font-size="10">buildSourceKeyIndex</text>
+        </g>
+
+        <!-- Row 2: ReactAdapter -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/client/lib/element-tracing/react-adapter.ts" data-lines="L1-L195" data-desc="ReactAdapter — Adapts fiber-internals for React 19. Handles renamed internal fields, getItemIndexFromFiber for conditional/list rendering, getDebugSource with ±2 line tolerance for SWC/Turbopack compiled output.">
+          <rect x="260" y="160" width="220" height="80" rx="10" fill="url(#gGreen)" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="370" y="185" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">ReactAdapter</text>
+          <text x="370" y="201" text-anchor="middle" fill="#9ca3af" font-size="10">client/lib/element-tracing</text>
+          <text x="370" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">React 19 fiber compat</text>
+          <text x="370" y="231" text-anchor="middle" fill="#9ca3af" font-size="10">±2 line tolerance (SWC)</text>
+        </g>
+
+        <!-- Row 2: PostMessageTracingTransport -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/vscode-extension/hypercanvas-preview/src/services/element-tracing/post-message-tracing-transport.ts" data-lines="L1-L120" data-desc="PostMessageTracingTransport — Bridge between iframe click events and extension. Listens to hypercanvas:elementClick postMessages, routes them to SyncPositionService via stateHub.applyUpdate with source location.">
+          <rect x="500" y="160" width="220" height="80" rx="10" fill="url(#gAmber)" stroke="#f59e0b" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="610" y="185" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">PostMessageTransport</text>
+          <text x="610" y="201" text-anchor="middle" fill="#9ca3af" font-size="10">vscode-extension (webview)</text>
+          <text x="610" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">hypercanvas:elementClick</text>
+          <text x="610" y="231" text-anchor="middle" fill="#9ca3af" font-size="10">→ stateHub.applyUpdate</text>
+        </g>
+
+        <!-- Row 2: NodeMapService (server) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/lib/element-tracing/node-map-service.ts" data-lines="L28-L100" data-desc="NodeMapService — Server-side AST-based index: maps nodeRef (file:line:col) to JSX element metadata. buildNodeMap() parses TS/TSX files into NodeMap entries. Used by mutation routes to locate elements for style changes.">
+          <rect x="740" y="160" width="200" height="80" rx="10" fill="url(#gGreen)" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="840" y="185" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">NodeMapService</text>
+          <text x="840" y="201" text-anchor="middle" fill="#9ca3af" font-size="10">lib/element-tracing (server)</text>
+          <text x="840" y="216" text-anchor="middle" fill="#9ca3af" font-size="10">AST → nodeRef index</text>
+          <text x="840" y="231" text-anchor="middle" fill="#9ca3af" font-size="10">file change detection</text>
+        </g>
+
+        <!-- Arrows row 1→2 -->
+        <line x1="130" y1="102" x2="130" y2="158" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="370" y1="102" x2="370" y2="158" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="610" y1="102" x2="610" y2="158" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="240" y1="200" x2="258" y2="200" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="480" y1="200" x2="498" y2="200" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Row 3: SyncPositionService (THE BUG FIX) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/vscode-extension/hypercanvas-preview/src/services/SyncPositionService.ts" data-lines="L146-L185" data-desc="SyncPositionService._onPreviewSelectionChange — BUG FIX: _pendingSource fast path moved BEFORE _getCurrentComponent() check. When no TSX editor was open, it returned early without consuming _pendingSource. Now navigates directly to source for any click with SourceLocation, regardless of active editor.">
+          <rect x="250" y="310" width="260" height="90" rx="10" fill="url(#gRed)" stroke="#ef4444" stroke-opacity="0.5" stroke-width="2"/>
+          <text x="380" y="335" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">SyncPositionService</text>
+          <text x="380" y="351" text-anchor="middle" fill="#9ca3af" font-size="10">vscode-extension</text>
+          <text x="380" y="366" text-anchor="middle" fill="#fca5a5" font-size="10">🐛 BUG FIX: pendingSource</text>
+          <text x="380" y="381" text-anchor="middle" fill="#9ca3af" font-size="10">before getCurrentComponent()</text>
+        </g>
+
+        <!-- Row 3: ElementTracingChannel (server) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/server/services/element-tracing-channel.ts" data-lines="L1-L226" data-desc="ElementTracingChannel — Server-side WebSocket channel for element tracing. Receives nodeRef from client, looks up in NodeMapService, returns source location. Replaces old UUID-based channel.">
+          <rect x="560" y="310" width="220" height="90" rx="10" fill="url(#gGreen)" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="670" y="335" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">ElementTracingChannel</text>
+          <text x="670" y="351" text-anchor="middle" fill="#9ca3af" font-size="10">server/services</text>
+          <text x="670" y="366" text-anchor="middle" fill="#9ca3af" font-size="10">nodeRef → NodeMapService</text>
+          <text x="670" y="381" text-anchor="middle" fill="#9ca3af" font-size="10">replaces UUID channel</text>
+        </g>
+
+        <!-- Row 3: goToCode / EditorBridge -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/vscode-extension/hypercanvas-preview/src/EditorBridge.ts" data-lines="L1-L80" data-desc="EditorBridge.goToCode — Opens source file in VS Code editor at the given line/column. Fixed: restores leading slash for absolute paths that Turbopack strips from _debugSource.fileName.">
+          <rect x="40" y="310" width="180" height="90" rx="10" fill="url(#gBlue)" stroke="#3b82f6" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="130" y="335" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="600">EditorBridge</text>
+          <text x="130" y="351" text-anchor="middle" fill="#9ca3af" font-size="10">goToCode(file, line, col)</text>
+          <text x="130" y="366" text-anchor="middle" fill="#9ca3af" font-size="10">opens VS Code editor</text>
+          <text x="130" y="381" text-anchor="middle" fill="#9ca3af" font-size="10">path fix: leading slash</text>
+        </g>
+
+        <!-- Arrows row 2→3 -->
+        <line x1="610" y1="240" x2="420" y2="308" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="380" y1="400" x2="210" y2="400" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="840" y1="240" x2="700" y2="308" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Row 4: VS Code editor (result) -->
+        <g data-href="https://github.com/hyperide/hyper-saas/blob/HYP-268-react-devtools-tracing/vscode-extension/hypercanvas-preview/src/services/SyncPositionService.ts" data-lines="L165-L175" data-desc="VS Code editor opens at the exact source location — file, line, 1-based column — after click on any element in the preview, including Next.js App Router pages using Turbopack.">
+          <rect x="300" y="468" width="360" height="62" rx="12" fill="url(#gBlue)" stroke="#3b82f6" stroke-opacity="0.6" stroke-width="2"/>
+          <text x="480" y="493" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="700">VS Code Editor</text>
+          <text x="480" y="513" text-anchor="middle" fill="#9ca3af" font-size="10">opens source file at exact line:column</text>
+        </g>
+
+        <!-- Arrow 3→4 -->
+        <line x1="130" y1="400" x2="130" y2="450" stroke="#888" stroke-opacity="0.5" stroke-width="1.5"/>
+        <line x1="130" y1="450" x2="348" y2="499" stroke="#888" stroke-opacity="0.5" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- Label: "User clicks element in preview" -->
+        <text x="40" y="23" fill="#6b7280" font-size="10" font-style="italic">User clicks element in Next.js/React preview ↓</text>
+        <text x="700" y="23" fill="#6b7280" font-size="10" font-style="italic">No data-uniq-id injection needed ↓</text>
+
+        <!-- SyncPositionService bug label -->
+        <text x="255" y="305" fill="#fca5a5" font-size="10" font-weight="600">⚠ Core bug fix — this session</text>
+      </svg>
+    </div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <div data-section="findings"></div>
+  <div data-section="timeline"></div>
+  <div data-section="codex-review"></div>
+  <div data-section="adr"></div>
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated 2026-04-01 &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a>
+</footer>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '20a2a8e3b3b8e1b48a6dd6588e2bcef8128f7ee7',
+
+  title: 'HYP-268: Fiber-Based Element Tracing',
+  subtitle: 'Replace UUID injection with React DevTools fiber tree traversal — universal click-to-source for Next.js, React 19, Turbopack',
+  date: '2026-04-01',
+  badge: { label: 'feat', type: 'feat' },
+  branch: 'HYP-268-react-devtools-tracing',
+  links: [
+    { label: 'PR #170', href: 'https://github.com/hyperide/hyper-saas/pull/170' },
+    { label: 'Linear HYP-268', href: 'https://linear.app/hyperide/issue/HYP-268' },
+  ],
+
+  motivation: `
+    <strong>Problem:</strong> Click-to-source navigation relied on <code>data-uniq-id</code> HTML attributes injected by a Babel AST transform at build time.
+    This approach had fundamental limitations:
+    <ul>
+      <li><strong>Next.js / Turbopack:</strong> SWC does not run the Babel plugin — no attributes injected, clicks do nothing</li>
+      <li><strong>React 19:</strong> Server Components and streaming SSR can render without the attributes surviving hydration</li>
+      <li><strong>Performance:</strong> Every file save triggered a full AST re-parse + UUID injection pass</li>
+      <li><strong>Fragility:</strong> Any bundler not supporting the Babel plugin broke the entire tracing pipeline</li>
+    </ul>
+    <strong>Solution:</strong> React DevTools already solve this problem. Every DOM node produced by React has a <code>__reactFiber$xxx</code> property pointing into the internal fiber tree.
+    Each fiber carries <code>_debugSource: { fileName, lineNumber, columnNumber }</code> — the exact source location where the JSX element was declared.
+    By reading the fiber at click time (like React DevTools does), we get source location without any build-time injection.
+    This makes click-to-source work universally: Vite, webpack, Next.js App Router, Turbopack, React 19.
+  `,
+
+  stats: { files: 158, insertions: 17564, deletions: 4456, commits: 50 },
+
+  productChanges: {
+    new: [
+      {
+        title: 'Fiber-based element tracing infrastructure',
+        desc: 'New shared module reads React fiber _debugSource at click time. No build-time injection needed. Works with any bundler or framework that uses React.',
+        files: [
+          { path: 'shared/element-tracing/fiber-internals.ts', lines: 'L1-L305', label: 'fiber-internals.ts (shared walker)' },
+          { path: 'client/lib/element-tracing/element-tracer.ts', lines: 'L27-L188', label: 'element-tracer.ts:27 (ElementTracer class)' },
+          { path: 'client/lib/element-tracing/react-adapter.ts', lines: 'L1-L195', label: 'react-adapter.ts (React 19 compat)' },
+        ],
+      },
+      {
+        title: 'Next.js Turbopack source map resolution',
+        desc: 'Turbopack bundles multiple files into chunks with indexed source maps (sections format). New resolver handles this format and maps compiled line numbers back to original TypeScript source.',
+        files: [
+          { path: 'shared/element-tracing/source-map-resolver.ts', lines: 'L1-L206', label: 'source-map-resolver.ts' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L1-L601', label: 'iframe-interaction.ts (async resolve + retry)' },
+        ],
+      },
+      {
+        title: 'NodeMapService — server-side AST index',
+        desc: 'AST-based node registry keyed by nodeRef (file:line:col). Replaces UUID-based element lookup for all 17 mutation routes. Supports file change detection and incremental rebuilds.',
+        files: [
+          { path: 'lib/element-tracing/node-map-service.ts', lines: 'L28-L100', label: 'node-map-service.ts:28 (NodeMapService)' },
+          { path: 'lib/element-tracing/node-map-builder.ts', lines: 'L1-L199', label: 'node-map-builder.ts (AST→nodeRef)' },
+          { path: 'server/services/element-tracing-channel.ts', lines: 'L1-L226', label: 'element-tracing-channel.ts (WebSocket)' },
+        ],
+      },
+      {
+        title: 'Comprehensive test suite — 1100+ new test lines',
+        desc: '15 new test files covering fiber walk, source map resolution, NodeMapService stability, ElementTracer, SyncPositionService regression, click handler, and integration tests.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', lines: 'L1-L145', label: 'SyncPositionService.test.ts (7 tests)' },
+          { path: 'lib/element-tracing/stability.test.ts', lines: 'L1-L311', label: 'stability.test.ts (NodeMapService stability)' },
+          { path: 'shared/element-tracing/__tests__/source-map-resolver.test.ts', lines: 'L1-L292', label: 'source-map-resolver.test.ts' },
+        ],
+      },
+    ],
+    improvements: [
+      {
+        title: 'Overlay rendering with fiber-based element resolution',
+        desc: 'OverlayElementResolver DI interface replaces hardcoded data-uniq-id DOM queries. Overlay rects now computed from actual fiber-resolved DOM positions.',
+        files: [
+          { path: 'client/lib/element-tracing/element-tracer.ts', lines: 'L133-L160', label: 'element-tracer.ts:133 (findDOMElements)' },
+          { path: 'shared/canvas-interaction/overlay-rects.ts', lines: 'L1-L60', label: 'overlay-rects.ts (shared module)' },
+        ],
+      },
+      {
+        title: 'CanvasEditor overlay resolver subscribed to tracer changes',
+        desc: 'Fixes async initialization race: overlay resolver memo now recomputes when ElementTracer becomes ready, ensuring overlay rects are shown even when tracer initializes after first render.',
+        files: [
+          { path: 'client/pages/Editor/components/CanvasEditor.tsx', lines: 'L1-L80', label: 'CanvasEditor.tsx (tracer subscription)' },
+        ],
+      },
+      {
+        title: 'StyleReadService syntheticRef resolution',
+        desc: 'Style read service now resolves syntheticRef (fileName:line:col format) so style inspection works for fiber-traced elements the same way it works for UUID elements.',
+        files: [
+          { path: 'client/services/StyleReadService.ts', lines: 'L1-L80', label: 'StyleReadService.ts (syntheticRef)' },
+        ],
+      },
+      {
+        title: 'Preview generator: Next.js App Router compatibility',
+        desc: 'Excludes Next.js reserved files (layout.tsx, loading.tsx, error.tsx) from preview generation. Fixes entry file patching for vite-spa-jsx-router project type.',
+        files: [
+          { path: 'lib/preview-generator/preview-file-manager.ts', lines: 'L1-L141', label: 'preview-file-manager.ts' },
+        ],
+      },
+    ],
+    fixes: [
+      {
+        title: 'SyncPositionService: pendingSource fast path before getCurrentComponent()',
+        desc: 'Core click-to-source bug: when no .tsx editor was active, the method returned early before consuming _pendingSource. Source location sent by fiber tracing was silently dropped. Regression test added.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/SyncPositionService.ts', lines: 'L146-L185', label: 'SyncPositionService.ts:146 (_onPreviewSelectionChange)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', lines: 'L61-L75', label: 'SyncPositionService.test.ts:61 (regression test)' },
+        ],
+      },
+      {
+        title: 'EditorBridge: restore leading slash stripped by Turbopack',
+        desc: 'Turbopack strips the leading "/" from _debugSource.fileName. goToCode received a relative path and failed to open the file. Now prepends "/" for Turbopack paths.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/EditorBridge.ts', lines: 'L1-L80', label: 'EditorBridge.ts (path normalization)' },
+        ],
+      },
+      {
+        title: 'Source map: indexed sections format (Turbopack)',
+        desc: 'Turbopack generates "indexed" source maps with a top-level "sections" array instead of a flat mappings string. The resolver now handles both formats.',
+        files: [
+          { path: 'shared/element-tracing/source-map-resolver.ts', lines: 'L80-L140', label: 'source-map-resolver.ts:80 (sections handler)' },
+        ],
+      },
+      {
+        title: 'Iframe interaction: skip node_modules source map results',
+        desc: 'When source map resolution returns a node_modules path (e.g. React internals), the click was incorrectly reported as originating from a library file. Now falls back to last valid user-land source map result.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L200-L260', label: 'iframe-interaction.ts:200 (node_modules skip)' },
+        ],
+      },
+    ],
+  },
+
+  files: [
+    { path: 'shared/element-tracing/fiber-internals.ts', dir: 'shared/element-tracing', add: 305, del: 0, status: 'new' },
+    { path: 'shared/element-tracing/source-map-resolver.ts', dir: 'shared/element-tracing', add: 206, del: 0, status: 'new' },
+    { path: 'shared/element-tracing/types.ts', dir: 'shared/element-tracing', add: 130, del: 0, status: 'new' },
+    { path: 'shared/canvas-interaction/click-handler.test.ts', dir: 'shared/canvas-interaction', add: 488, del: 0, status: 'new' },
+    { path: 'shared/element-tracing/__tests__/source-map-resolver.test.ts', dir: 'shared/element-tracing/__tests__', add: 292, del: 0, status: 'new' },
+    { path: 'shared/canvas-interaction/overlay-rects.test.ts', dir: 'shared/canvas-interaction', add: 235, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/element-tracer.ts', dir: 'client/lib/element-tracing', add: 188, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/react-adapter.ts', dir: 'client/lib/element-tracing', add: 195, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/element-tracer.test.ts', dir: 'client/lib/element-tracing', add: 253, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/fiber-source-index.test.ts', dir: 'client/lib/element-tracing', add: 428, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/fiber-utils.test.ts', dir: 'client/lib/element-tracing', add: 379, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/fiber-utils.ts', dir: 'client/lib/element-tracing', add: 127, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/node-map-service.ts', dir: 'lib/element-tracing', add: 273, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/node-map-builder.ts', dir: 'lib/element-tracing', add: 199, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/stability.ts', dir: 'lib/element-tracing', add: 279, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/stability.test.ts', dir: 'lib/element-tracing', add: 311, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/node-map-service.test.ts', dir: 'lib/element-tracing', add: 201, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/integration.test.ts', dir: 'lib/element-tracing', add: 171, del: 0, status: 'new' },
+    { path: 'lib/element-tracing/node-map-builder.test.ts', dir: 'lib/element-tracing', add: 160, del: 0, status: 'new' },
+    { path: 'server/services/element-tracing-channel.ts', dir: 'server/services', add: 226, del: 0, status: 'new' },
+    { path: 'server/services/__tests__/element-tracing-channel.test.ts', dir: 'server/services/__tests__', add: 223, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', dir: 'vscode-extension/.../scripts', add: 601, del: 114, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/SyncPositionService.ts', dir: 'vscode-extension/.../services', add: 45, del: 12, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', dir: 'vscode-extension/.../services/__tests__', add: 145, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/element-tracing/post-message-tracing-transport.ts', dir: 'vscode-extension/.../element-tracing', add: 80, del: 30, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/AstService.ts', dir: 'vscode-extension/.../services', add: 182, del: 96, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/EditorBridge.ts', dir: 'vscode-extension/.../src', add: 15, del: 5, status: 'modified' },
+    { path: 'docs/plans/2026-03-25-fiber-based-element-tracing-phase1.md', dir: 'docs/plans', add: 3342, del: 0, status: 'new' },
+    { path: 'docs/plans/2026-03-25-fiber-based-element-tracing-phase2.md', dir: 'docs/plans', add: 2278, del: 0, status: 'new' },
+    { path: 'docs/specs/2026-03-24-fiber-based-element-tracing.md', dir: 'docs/specs', add: 1125, del: 0, status: 'new' },
+    { path: 'lib/preview-generator/preview-file-manager.ts', dir: 'lib/preview-generator', add: 141, del: 17, status: 'modified' },
+    { path: 'lib/element-tracing/node-map-builder.ts', dir: 'lib/element-tracing', add: 199, del: 0, status: 'new' },
+    { path: 'client/pages/Editor/components/CanvasEditor.tsx', dir: 'client/pages/Editor/components', add: 25, del: 8, status: 'modified' },
+    { path: 'CLAUDE.md', dir: '.', add: 80, del: 40, status: 'modified' },
+  ],
+
+  findings: [
+    {
+      id: 1, severity: 'P1', status: 'resolved',
+      title: 'SyncPositionService: pendingSource consumed after early-return guard',
+      file: 'vscode-extension/hypercanvas-preview/src/services/SyncPositionService.ts', lines: 'L146-L185',
+      desc: '_getCurrentComponent() was called before _pendingSource was read. When no TSX file was active in the editor, the method returned early without ever consuming the source location. This silently dropped every click event from Next.js pages.',
+      fix: 'Moved pendingSource extraction and null-clear to before the getCurrentComponent() check. Added regression test in SyncPositionService.test.ts that exercises the case with no active component.',
+    },
+    {
+      id: 2, severity: 'P1', status: 'resolved',
+      title: 'Turbopack strips leading slash from _debugSource.fileName',
+      file: 'vscode-extension/hypercanvas-preview/src/EditorBridge.ts', lines: 'L1-L80',
+      desc: 'Turbopack emits _debugSource.fileName without leading slash (e.g. "Users/alex/project/app/page.tsx" instead of "/Users/alex/project/app/page.tsx"). goToCode received a path that VS Code could not resolve.',
+      fix: 'Added normalization in goToCode: if path does not start with "/" and is absolute-looking (starts with a drive/home segment), prepend "/".',
+    },
+    {
+      id: 3, severity: 'P1', status: 'resolved',
+      title: 'Source map sections format not handled — Turbopack indexed maps crash resolver',
+      file: 'shared/element-tracing/source-map-resolver.ts', lines: 'L80-L140',
+      desc: 'Turbopack bundles multiple source files into chunks using "indexed" source maps (top-level "sections" array). The original resolver assumed flat "mappings" string and threw when encountering sections format.',
+      fix: 'Added sections format detection and handler that iterates each section\'s offset+map and resolves the correct section for a given line/column.',
+    },
+    {
+      id: 4, severity: 'P2', status: 'resolved',
+      title: 'ElementTracer overlay resolver memo not recomputing on async tracer init',
+      file: 'client/pages/Editor/components/CanvasEditor.tsx', lines: 'L1-L80',
+      desc: 'The overlay resolver memo was computed once at mount time. If ElementTracer initialized asynchronously (after first render), the resolver remained null and overlays were not shown.',
+      fix: 'Added subscription to tracer readiness state changes. Memo now depends on tracer.isReady — recomputes when tracer becomes available. Tracked as HYP-350 for follow-up.',
+    },
+    {
+      id: 5, severity: 'P2', status: 'resolved',
+      title: 'node_modules paths returned from source map resolution — wrong navigation target',
+      file: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L200-L260',
+      desc: 'When clicking elements near React internals, source map resolution could return a node_modules path (e.g. react/cjs/react.development.js). The click was reported as originating from a library file.',
+      fix: 'Added filter: skip source map results pointing to node_modules, fall back to last valid user-land result in the resolution chain.',
+    },
+    {
+      id: 6, severity: 'P2', status: 'accepted',
+      title: 'React 19 itemIndex always 0 for .map() rendered elements',
+      file: 'client/lib/element-tracing/react-adapter.ts', lines: 'L1-L195',
+      desc: '_debugSource does not carry list index information. For .map() renders, multiple elements share the same source location. itemIndex tracking via fiber sibling traversal works for static lists but fails for dynamic/async renders in React 19.',
+      fix: 'Tracked as HYP-353. Current workaround: ±2 line tolerance in AST lookup resolves the first matching element. Full fix requires React 19 fiber key-based disambiguation.',
+    },
+    {
+      id: 7, severity: 'P3', status: 'resolved',
+      title: 'biome: unused function parameter in SyncPositionService.test.ts mock',
+      file: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', lines: 'L14-L17',
+      desc: 'Mock for vscode.workspace.getConfiguration had parameter named "key" that was not used. Pre-commit hook caught it: noUnusedFunctionParameters lint warning.',
+      fix: 'Renamed to "_key" per biome convention for intentionally unused parameters.',
+    },
+  ],
+
+  commits: [
+    { sha: '20a2a8e3', message: 'docs(claude): rewrite E2E testing section — agent workflow rules + debug template', date: '2026-04-01' },
+    { sha: 'fd6a5b12', message: 'style(sync-position-test): prefix unused mock param with _ to silence biome lint', date: '2026-03-31' },
+    { sha: 'fe6f4d5f', message: 'fix(sync-position): pendingSource fast path before getCurrentComponent (HYP-268)', date: '2026-03-31' },
+    { sha: '77b7c9a5', message: 'chore: add bunx playwright permission to settings (HYP-268)', date: '2026-03-31' },
+    { sha: '3ad20e01', message: 'fix(EditorBridge): restore leading slash for Turbopack-stripped absolute paths', date: '2026-03-31' },
+    { sha: 'dfb13244', message: 'fix(preview-generator): exclude Next.js App Router reserved files from preview generation', date: '2026-03-31' },
+    { sha: '9062f3f0', message: 'feat(iframe-interaction): pending click retry for async Next.js source maps', date: '2026-03-31' },
+    { sha: '0fc336ea', message: 'fix(iframe-interaction): skip node_modules source map results, fall back to last valid', date: '2026-03-31' },
+    { sha: 'b51496ef', message: 'fix(element-tracing): support indexed source maps (sections format) from Turbopack', date: '2026-03-31' },
+    { sha: '56cc2018', message: 'fix(vscode-file-io): write directly to disk instead of WorkspaceEdit', date: '2026-03-31' },
+    { sha: 'cf4ad1b4', message: 'docs(serena): document patchEntryFile pitfalls — dynamic import, JSX transform', date: '2026-03-31' },
+    { sha: '727b612d', message: 'fix(preview-generator): render CanvasPreview via .then(), guard non-JS entry files', date: '2026-03-31' },
+    { sha: 'f55c98bd', message: 'fix(preview): entry file patch never triggered for vite-spa-jsx-router', date: '2026-03-31' },
+    { sha: '0dd609d4', message: 'feat(element-tracing): Next.js Turbopack source map resolution — App Router support', date: '2026-03-30' },
+    { sha: '4219c744', message: 'feat(overlay-rects): extract computeOverlayRects to shared module (HYP-268)', date: '2026-03-29' },
+    { sha: 'eff5f014', message: 'feat(style-read): resolve syntheticRef (fileName:line:col) in StyleReadService', date: '2026-03-29' },
+    { sha: 'de5e1a96', message: 'fix(preview-generator): move window.location.search to useEffect, fix SSR crash', date: '2026-03-29' },
+    { sha: '3c0e6acd', message: 'fix(canvas-editor): subscribe to tracer changes to fix overlay resolver recompute', date: '2026-03-29' },
+    { sha: 'bfa21515', message: 'fix(react-adapter): delegate getItemIndex to shared getItemIndexFromFiber', date: '2026-03-29' },
+    { sha: '73e8d403', message: 'feat(element-tracer): add findDOMElements, buildSourceKeyIndex, walkFibers', date: '2026-03-29' },
+    { sha: '896c2564', message: 'refactor(overlay-renderer): introduce OverlayElementResolver DI, remove direct DOM queries', date: '2026-03-28' },
+    { sha: 'a7bbb0be', message: 'refactor(fiber-internals): re-export shared primitives, add getItemIndexFromFiber', date: '2026-03-28' },
+    { sha: '9bf1761b', message: 'docs(element-tracing): document Next.js source map constraints, no data-uniq-id', date: '2026-03-28' },
+    { sha: '748c0dde', message: 'fix(fiber-internals): filter Next.js Turbopack compiled chunk paths from results', date: '2026-03-28' },
+    { sha: '00ed917e', message: 'feat(canvas-interaction): SVG opaque container + React 19 line tolerance', date: '2026-03-27' },
+    { sha: 'c607db6e', message: 'fix(ast): add ±2 line tolerance in findElementByPosition for React 19 SWC output', date: '2026-03-27' },
+    { sha: '898881c5', message: 'fix(element-tracing): fix stateUpdate postMessage origin and suffix-based nodeRef', date: '2026-03-27' },
+    { sha: '91ad36ac', message: 'refactor(element-tracing): remove data-uniq-id creation + legacy fallback paths', date: '2026-03-27' },
+    { sha: '299fac8e', message: 'refactor(element-tracing): replace DOM data-uniq-id queries with fiber traversal', date: '2026-03-27' },
+    { sha: '61ada175', message: 'refactor(element-tracing): remove legacy UUID params from routes + fiber fallback', date: '2026-03-26' },
+    { sha: '60c13066', message: 'refactor(element-tracing): remove data-uniq-id from canvas engine', date: '2026-03-26' },
+    { sha: '0270f3c0', message: 'chore(element-tracing): strip data-uniq-id HTML attributes from production builds', date: '2026-03-26' },
+    { sha: 'ea8597fe', message: 'refactor(element-tracing): remove data-uniq-id from extension code', date: '2026-03-26' },
+    { sha: '65e30f96', message: 'refactor(element-tracing): remove data-uniq-id fallbacks from client', date: '2026-03-26' },
+    { sha: '2d620901', message: 'refactor(element-tracing): remove UUID injection pipeline from lib/server', date: '2026-03-26' },
+    { sha: '3bd2707d', message: 'feat(element-tracing): migrate extension AstService + iframe-interaction to nodeRef', date: '2026-03-26' },
+    { sha: '0f580297', message: 'feat(element-tracing): migrate 17 mutation routes from UUID to nodeRef', date: '2026-03-26' },
+    { sha: 'cdb45c83', message: 'fixup! feat(element-tracing): add post-mutation re-parse + broadcast helper', date: '2026-03-26' },
+    { sha: 'f633b484', message: 'feat(element-tracing): file change detection + initial NodeMap population', date: '2026-03-26' },
+    { sha: 'e37478a4', message: 'feat(element-tracing): add post-mutation re-parse + broadcast helper', date: '2026-03-26' },
+    { sha: '4d72a131', message: 'feat(element-tracing): wire PostMessageTracingTransport through Panel webview lifecycle', date: '2026-03-26' },
+    { sha: 'ba697a87', message: 'feat(element-tracing): update map/cond overlay highlighting with fiber data', date: '2026-03-26' },
+    { sha: 'a6087025', message: 'feat(element-tracing): update useHotkeysSetup with NodeMap parent names', date: '2026-03-26' },
+    { sha: '84201cb8', message: 'feat(element-tracing): async selection sync + onNodeMapUpdate + element remap', date: '2026-03-26' },
+    { sha: '087cdd26', message: 'feat(element-tracing): wire ElementTracer into IframeCanvas lifecycle', date: '2026-03-26' },
+    { sha: '0bf6bf5e', message: 'feat(element-tracing): add fiber-based empty container detection (HYP-268)', date: '2026-03-26' },
+    { sha: 'a3770b40', message: 'feat(element-tracing): update keyboard handler with NodeMap parent navigation', date: '2026-03-26' },
+    { sha: '52ecabdf', message: 'feat(element-tracing): update overlay rendering with fiber-based DOM lookup', date: '2026-03-26' },
+    { sha: '07303a2f', message: 'feat(element-tracing): update useElementInteraction + IframeCanvas for fiber', date: '2026-03-25' },
+    { sha: '1fc73f12', message: 'feat(element-tracing): add findElementByPosition AST helper (HYP-268)', date: '2026-03-25' },
+  ],
+
+  codexRounds: [
+    {
+      title: 'Round 1 — SyncPositionService Fix Review',
+      desc: 'Review of the pendingSource fast-path bug fix and accompanying test suite.',
+      badges: [
+        { label: 'P1: 1', cls: 'badge-p1' },
+        { label: 'P3: 1', cls: 'badge-p3' },
+        { label: '2 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        {
+          severity: 'P1', status: 'resolved',
+          title: 'Biome lint: unused parameter "key" in mock.get callback',
+          file: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', lines: 'L14-L17',
+          resolution: 'Renamed to _key per biome convention. Verified with bunx biome check — no warnings.',
+        },
+        {
+          severity: 'P3', status: 'resolved',
+          title: 'Test coverage: missing case for multiple selectedIds with source',
+          file: 'vscode-extension/hypercanvas-preview/src/services/__tests__/SyncPositionService.test.ts', lines: 'L120-L130',
+          resolution: 'Added test "does nothing when selectedIds has multiple items" — verifies multi-selection correctly skips navigation.',
+        },
+      ],
+    },
+    {
+      title: 'Round 2 — Turbopack Source Map Chain Review',
+      desc: 'Review of source-map-resolver.ts and iframe-interaction.ts Turbopack support.',
+      badges: [
+        { label: 'P1: 2', cls: 'badge-p1' },
+        { label: 'P2: 1', cls: 'badge-p2' },
+        { label: '3 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        {
+          severity: 'P1', status: 'resolved',
+          title: 'Sections format: off-by-one in line offset calculation',
+          file: 'shared/element-tracing/source-map-resolver.ts', lines: 'L100-L130',
+          resolution: 'Fixed section.offset.line base: sections offsets are 0-based but resolver was treating them as 1-based. Added test cases for multi-section maps.',
+        },
+        {
+          severity: 'P1', status: 'resolved',
+          title: 'node_modules filter too narrow — only matched exact "node_modules" string',
+          file: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L200-L260',
+          resolution: 'Extended filter to also catch scoped packages (/node_modules/@scope/pkg) and .yarn/cache paths.',
+        },
+        {
+          severity: 'P2', status: 'resolved',
+          title: 'Async retry loop: no max timeout, could hang indefinitely',
+          file: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L260-L310',
+          resolution: 'Added 5-second maximum timeout to pending click retry loop. Clears pending source if not resolved within deadline.',
+        },
+      ],
+    },
+  ],
+
+  adrs: [
+    {
+      title: 'ADR-1: Replace UUID injection with React fiber _debugSource',
+      problem: 'data-uniq-id injection required a Babel transform. This broke for Next.js/SWC, Turbopack, and React 19 server components. The injection also required re-parsing all active files on every save, adding latency.',
+      options: '(A) Add SWC plugin to replicate Babel transform — too complex, separate plugin per bundler. (B) Use React DevTools fiber API — already available at runtime, no build-time work. (C) Source-map-only approach — works for any bundler but requires source maps to be served, and Turbopack serves indexed maps.',
+      decision: 'Option B (fiber) + Option C (source maps) combined: read fiber _debugSource first (fast path), resolve source maps for Turbopack chunks, fall back to AST lookup for edge cases.',
+      rationale: 'React DevTools has proven this approach stable across React 14–19. No build plugin required. Source map support handles the Turbopack-specific path encoding. Result: click-to-source works universally across all supported frameworks.',
+    },
+    {
+      title: 'ADR-2: nodeRef format — file:line:col instead of UUID',
+      problem: 'UUIDs were generated at AST parse time and injected into HTML. They were stable within a single session but reset on file save, breaking any selection state. Two different clients (browser preview + VS Code extension) had to agree on the same UUID.',
+      options: '(A) Persist UUIDs across saves via a cache — complex, cache invalidation hard. (B) Use content-addressable hash of JSX node — unstable on edits. (C) Use source location (file:line:col) as the canonical identifier.',
+      decision: 'Option C: nodeRef = "relative/path/to/file.tsx:line:col" — deterministic, derived from AST, never changes unless the element moves in the source.',
+      rationale: 'Source location is the ground truth for element identity. The AST parser already computes it. Any component renderer can construct it from _debugSource. No injection, no sync required between extension and browser.',
+    },
+  ],
+});
+</script>
+</body>
+</html>
