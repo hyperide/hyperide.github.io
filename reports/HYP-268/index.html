@@ -235,6 +235,182 @@
     </div>
   </section>
 
+  <!-- Architecture Deep Dive -->
+  <section class="fade-in">
+    <h2>Architecture Deep Dive</h2>
+    <p style="color:#8b949e;margin-bottom:20px;font-size:.95rem">
+      Per-module breakdown — what each piece does, why it exists, and non-obvious connections between them.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px">
+
+      <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#34d399;font-weight:700;font-size:.95rem;margin-bottom:4px">fiber-internals.ts <span style="color:#6b7280;font-weight:400;font-size:.8rem">shared/element-tracing/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Low-level React fiber accessor. Reads <code>__reactFiber$xxx</code> from DOM nodes (the property React writes at mount time; same approach as React DevTools). Extracts <code>_debugSource: { fileName, lineNumber, columnNumber }</code> from the fiber.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> the property suffix <code>$xxx</code> is a random string generated per React instance — can't do a direct property lookup. Must scan <code>Object.keys(domNode)</code> for the key that starts with <code>__reactFiber$</code>. Also: <code>_debugSource</code> is only present in dev mode builds and is populated by SWC/Babel's JSX source transform — absent in production.</p>
+      </div>
+
+      <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#34d399;font-weight:700;font-size:.95rem;margin-bottom:4px">ElementTracer <span style="color:#6b7280;font-weight:400;font-size:.8rem">client/lib/element-tracing/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Runtime fiber tree walker. Builds a two-way index: <code>nodeRef → HTMLElement[]</code> (for overlay rendering) and <code>sourceKey → nodeRef</code> (for reverse lookup). Walks the full React fiber tree on demand via <code>walkFibers()</code>.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> both directions are needed. Forward (nodeRef→DOM) is used by overlay rendering to position highlight rectangles over elements. Reverse (source→nodeRef) is used when the cursor moves in VS Code to highlight the corresponding element in the preview. The index must be rebuilt after every React re-render since fibers are mutable.</p>
+      </div>
+
+      <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#34d399;font-weight:700;font-size:.95rem;margin-bottom:4px">ReactAdapter <span style="color:#6b7280;font-weight:400;font-size:.8rem">client/lib/element-tracing/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Adapts fiber-internals for React 19 and SWC. React 19 renamed some internal fiber fields. SWC emits <code>_debugSource.columnNumber</code> with a ±1-2 line offset vs Babel due to different AST transformation order.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> the ±2 line tolerance in <code>getDebugSource()</code> is not a hack — SWC genuinely shifts line numbers by 1-2 for certain JSX patterns (self-closing vs children). Tighter tolerance causes misses; looser causes false positives when multiple elements are on adjacent lines.</p>
+      </div>
+
+      <div style="background:rgba(79,70,229,0.05);border:1px solid rgba(79,70,229,0.25);border-radius:10px;padding:18px 20px">
+        <div style="color:#a78bfa;font-weight:700;font-size:.95rem;margin-bottom:4px">source-map-resolver.ts <span style="color:#6b7280;font-weight:400;font-size:.8rem">shared/element-tracing/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Resolves compiled fiber positions back to original TypeScript source. Needed for Turbopack: <code>_debugSource</code> points to the compiled bundle chunk position, not the original <code>.tsx</code> file. Fetches the source map URL from the bundle's last line comment, decodes VLQ mappings, resolves the original file and position.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> Turbopack uses "indexed" source maps — a top-level <code>"sections"</code> array where each entry covers a line range and has its own sub-map. Standard source-map libraries don't handle this format. Each section has an <code>offset: { line, column }</code> that must be subtracted from the query position before looking up in that section's mappings.</p>
+      </div>
+
+      <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#fbbf24;font-weight:700;font-size:.95rem;margin-bottom:4px">iframe-interaction.ts <span style="color:#6b7280;font-weight:400;font-size:.8rem">vscode-extension/.../scripts/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Script injected into the preview iframe at load time. Intercepts all click events, reads the React fiber from the clicked DOM node, optionally resolves Turbopack source maps, then sends a <code>hypercanvas:elementClick</code> postMessage to the parent frame with the resolved <code>SourceLocation</code>.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> the whole pipeline is async because source map fetches are lazy. The script buffers the pending click and retries resolution for up to 5 seconds. Without this, the first click on a freshly loaded Next.js page always fails — Turbopack hasn't served the source map yet.</p>
+      </div>
+
+      <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#fbbf24;font-weight:700;font-size:.95rem;margin-bottom:4px">PostMessageTracingTransport <span style="color:#6b7280;font-weight:400;font-size:.8rem">vscode-extension/.../element-tracing/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Bridge between iframe's <code>window.postMessage</code> and the extension's state management. Listens for <code>hypercanvas:elementClick</code> messages and calls <code>stateHub.applyUpdate({ selectedIds, source })</code> — the same update path used by all other selection mechanisms.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> <code>source</code> is piggybacked on the existing <code>applyUpdate</code> call as an extra field. <code>SyncPositionService</code> reads it out of the patch via <code>_pendingSource</code> before the generic selection handler runs. This avoids adding a separate IPC channel for source locations.</p>
+      </div>
+
+      <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#fca5a5;font-weight:700;font-size:.95rem;margin-bottom:4px">SyncPositionService <span style="color:#6b7280;font-weight:400;font-size:.8rem">vscode-extension/.../services/</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Subscribes to <code>stateHub</code> selection changes and navigates VS Code's editor cursor. Two paths: (1) fast path — <code>_pendingSource</code> set by PostMessageTransport, navigate directly; (2) legacy fallback — no source available, look up element by UUID via AstService. Handles cursor-sync suppression to avoid feedback loops.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Column convention:</strong> <code>SourceLocation.column</code> is 0-based throughout the system. But <code>goToCode()</code> expects 1-based. The +1 conversion happens here: <code>goToCode(fileName, line, column + 1)</code>. This is the only place the conversion occurs — both sides of the system must not try to compensate.</p>
+      </div>
+
+      <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:18px 20px">
+        <div style="color:#34d399;font-weight:700;font-size:.95rem;margin-bottom:4px">NodeMapService <span style="color:#6b7280;font-weight:400;font-size:.8rem">lib/element-tracing/ (server)</span></div>
+        <p style="color:#9ca3af;font-size:.87rem;margin-bottom:8px">Server-side AST index: parses TSX/JSX files into a <code>NodeMap</code> keyed by <code>nodeRef</code> (<code>relPath:line:col</code>). Used by all 17 mutation routes to locate elements for style changes, renames, and deletions. File change detection triggers incremental rebuilds.</p>
+        <p style="color:#6b7280;font-size:.82rem"><strong style="color:#9ca3af">Non-obvious:</strong> <code>nodeRef</code> format is <code>"relative/path.tsx:line:col"</code> with a <em>relative</em> path (relative to workspace root). The client fiber sends an <em>absolute</em> path from <code>_debugSource.fileName</code>. The transport layer strips the workspace prefix before storing in <code>nodeRef</code>. This is the only place the conversion happens — callers must not strip/add paths themselves.</p>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;padding:16px 20px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:10px">
+      <div style="color:#93c5fd;font-weight:700;margin-bottom:8px">Column convention table</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem;color:#9ca3af">
+        <tr style="border-bottom:1px solid #21262d">
+          <th style="text-align:left;padding:6px 10px;color:#c9d1d9">Location</th>
+          <th style="text-align:left;padding:6px 10px;color:#c9d1d9">Convention</th>
+          <th style="text-align:left;padding:6px 10px;color:#c9d1d9">Notes</th>
+        </tr>
+        <tr style="border-bottom:1px solid #21262d">
+          <td style="padding:6px 10px"><code>_debugSource.columnNumber</code></td>
+          <td style="padding:6px 10px">1-based</td>
+          <td style="padding:6px 10px">React internal; empirically verified for Vite+Babel</td>
+        </tr>
+        <tr style="border-bottom:1px solid #21262d">
+          <td style="padding:6px 10px"><code>SourceLocation.column</code></td>
+          <td style="padding:6px 10px">0-based</td>
+          <td style="padding:6px 10px">System-wide standard; matches Babel AST <code>node.loc.start.column</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid #21262d">
+          <td style="padding:6px 10px"><code>goToCode(file, line, col)</code></td>
+          <td style="padding:6px 10px">1-based col</td>
+          <td style="padding:6px 10px">VS Code <code>Position</code> expects 0-based — <code>goToCode</code> subtracts 1 internally</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 10px">Babel AST <code>node.loc</code></td>
+          <td style="padding:6px 10px">0-based col, 1-based line</td>
+          <td style="padding:6px 10px">Source of NodeMapService positions</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- Technical Deep Dives -->
+  <section class="fade-in">
+    <h2>Technical Deep Dives</h2>
+    <p style="color:#8b949e;margin-bottom:20px;font-size:.95rem">The three hardest problems encountered — root cause, investigation path, and fix.</p>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <details style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:0" open>
+        <summary style="padding:16px 20px;cursor:pointer;color:#e6edf3;font-weight:600;font-size:.95rem;list-style:none;display:flex;align-items:center;gap:10px">
+          <span style="background:rgba(239,68,68,0.2);color:#fca5a5;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0">P1</span>
+          SyncPositionService: the silent click drop
+        </summary>
+        <div style="padding:0 20px 18px;border-top:1px solid rgba(239,68,68,0.15)">
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:14px"><strong style="color:#c9d1d9">Symptom:</strong> clicking any element in the Next.js preview did nothing. No error, no navigation, no log. The click registered visually (element highlighted) but VS Code editor never moved.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Investigation:</strong> Added console logging to the debug script (<code>debug-nextjs-click-v2.ts</code>) filtering for <code>pendingSource</code>, <code>goToCode</code>, <code>navigate</code>. Ran it via <code>launchVSCode()</code>. Log showed <code>_pendingSource</code> was being set correctly after each click. But <code>goToCode</code> was never called.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Root cause:</strong> <code>_onPreviewSelectionChange()</code> in <code>SyncPositionService</code> had this logical order:</p>
+          <pre style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px;font-size:.82rem;color:#e6edf3;margin:10px 0;overflow-x:auto">// BEFORE (buggy)
+const component = this._getCurrentComponent();  // ← returns undefined (no tsx open)
+if (!component) return;                          // ← early return
+const pendingSource = this._pendingSource;       // ← never reached
+this._pendingSource = null;</pre>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px">In Next.js the user opens the preview first, then clicks. No <code>.tsx</code> file is open in the editor yet — so <code>_getCurrentComponent()</code> returns <code>undefined</code>, the method returns early, and <code>_pendingSource</code> is never consumed. The source location is silently dropped.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Fix:</strong> moved <code>_pendingSource</code> extraction to before any guards. The fast path runs before <code>_getCurrentComponent()</code> is ever checked:</p>
+          <pre style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px;font-size:.82rem;color:#e6edf3;margin:10px 0;overflow-x:auto">// AFTER (fixed)
+const pendingSource = this._pendingSource;  // ← extract first
+this._pendingSource = null;
+if (pendingSource) {
+  await goToCode(pendingSource.fileName, pendingSource.line, pendingSource.column + 1);
+  return;  // ← early return AFTER navigation, not before
+}
+const component = this._getCurrentComponent();  // ← legacy fallback only
+if (!component) return;</pre>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Lesson:</strong> "check state before guards" is a common logical ordering bug. The regression test now explicitly exercises this case: create service with <code>getCurrentComponent: () => undefined</code>, fire a click with source — verify <code>goToCode</code> was called.</p>
+        </div>
+      </details>
+
+      <details style="background:rgba(79,70,229,0.05);border:1px solid rgba(79,70,229,0.2);border-radius:10px;padding:0">
+        <summary style="padding:16px 20px;cursor:pointer;color:#e6edf3;font-weight:600;font-size:.95rem;list-style:none;display:flex;align-items:center;gap:10px">
+          <span style="background:rgba(79,70,229,0.2);color:#a78bfa;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0">P1</span>
+          Turbopack indexed source maps: the format nobody documents
+        </summary>
+        <div style="padding:0 20px 18px;border-top:1px solid rgba(79,70,229,0.15)">
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:14px"><strong style="color:#c9d1d9">Symptom:</strong> source map resolver threw <code>TypeError: cannot read mappings of undefined</code> on Next.js projects. Standard source maps worked fine.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Investigation:</strong> fetched the source map URL from a Turbopack chunk directly in Chrome DevTools. The JSON had this structure:</p>
+          <pre style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px;font-size:.82rem;color:#e6edf3;margin:10px 0;overflow-x:auto">{
+  "version": 3,
+  "sections": [
+    { "offset": { "line": 0, "column": 0 }, "map": { "sources": [...], "mappings": "..." } },
+    { "offset": { "line": 47, "column": 0 }, "map": { "sources": [...], "mappings": "..." } }
+  ]
+  // no top-level "mappings" key — resolver crashed here
+}</pre>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px">This is the "indexed source map" format (Source Map spec §6.3) — Turbopack uses it to concatenate multiple file source maps into one chunk map without remapping all the line numbers. Each section covers a contiguous line range starting at <code>offset.line</code>.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Fix:</strong> detect sections format by checking for <code>map.sections</code> array. Find the right section for the query line (last section where <code>section.offset.line &lt;= queryLine</code>), subtract the section's line offset from the query, then run standard VLQ lookup on that section's sub-map.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Extra bug:</strong> initial fix had an off-by-one — section offsets are 0-based but the resolver was treating them as 1-based. Caught by a test case with a two-section map where the second section started exactly at line 10.</p>
+        </div>
+      </details>
+
+      <details style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:0">
+        <summary style="padding:16px 20px;cursor:pointer;color:#e6edf3;font-weight:600;font-size:.95rem;list-style:none;display:flex;align-items:center;gap:10px">
+          <span style="background:rgba(245,158,11,0.2);color:#fbbf24;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0">P2</span>
+          First click always fails: async source map lazy loading
+        </summary>
+        <div style="padding:0 20px 18px;border-top:1px solid rgba(245,158,11,0.15)">
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:14px"><strong style="color:#c9d1d9">Symptom:</strong> on a freshly loaded Next.js preview, the first click on any element produced no navigation. Second click on the same element worked fine. Deterministic.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Investigation:</strong> Added timing logs to <code>iframe-interaction.ts</code>. First click log showed <code>sourceMapResult: null</code> — the source map fetch returned nothing. 300ms later: <code>sourcemap loaded</code>. The second click succeeded because the map was now cached.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Root cause:</strong> Next.js / Turbopack serves source maps lazily — the <code>.map</code> file is only generated and served when first requested. The request triggered by the click handler resolved after the handler had already returned <code>null</code> and dropped the click.</p>
+          <p style="color:#9ca3af;font-size:.88rem;margin-top:10px"><strong style="color:#c9d1d9">Fix:</strong> store the click as <code>pendingClick</code> when source map returns null. Poll every 200ms for up to 5 seconds. When the source map becomes available (or is already fetched on retry), resume resolution and fire the postMessage. Cleanup on success or timeout:</p>
+          <pre style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px;font-size:.82rem;color:#e6edf3;margin:10px 0;overflow-x:auto">if (!sourceMap) {
+  pendingClick = { target, timestamp: Date.now() };
+  return; // will retry via interval
+}
+// ... in retry interval:
+if (Date.now() - pendingClick.timestamp > 5000) {
+  pendingClick = null; // timeout
+  return;
+}
+const map = await tryFetchSourceMap(url);
+if (map) { resolvePendingClick(map); }</pre>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
   <div data-section="file-impact"></div>
   <div data-section="findings"></div>
   <div data-section="timeline"></div>
