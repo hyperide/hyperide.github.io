@@ -272,10 +272,23 @@ window.Report = (function () {
 
   // ── Specs & Plans viewer ──
 
+  var _markedReady = null;
+
+  function loadMarked() {
+    if (_markedReady) return _markedReady;
+    if (window.marked) { _markedReady = Promise.resolve(); return _markedReady; }
+    _markedReady = new Promise(function (resolve) {
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+      s.onload = resolve;
+      document.head.appendChild(s);
+    });
+    return _markedReady;
+  }
+
   function renderMarkdown(text) {
-    if (window.marked) return window.marked.parse(text);
-    // marked not yet loaded — plain text fallback
-    return '<pre style="white-space:pre-wrap">' + text.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre>';
+    return window.marked ? window.marked.parse(text)
+      : '<pre style="white-space:pre-wrap">' + text.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre>';
   }
 
   function renderSpecs(el) {
@@ -396,12 +409,14 @@ window.Report = (function () {
       overlay.querySelector('#rpt-spec-next').disabled = idx === specs.length - 1;
       overlay.querySelector('#rpt-spec-counter').textContent = (idx + 1) + ' / ' + specs.length;
       var body = overlay.querySelector('#rpt-spec-body');
-      if (spec._content) { body.innerHTML = renderMarkdown(spec._content); return; }
+      if (spec._content) { loadMarked().then(function () { body.innerHTML = renderMarkdown(spec._content); }); return; }
       body.innerHTML = '<p class="loading">Loading…</p>';
       var rawUrl = spec.rawUrl || ('https://raw.githubusercontent.com/' + data.repo.replace('https://github.com/', '') + '/' + data.headSha + '/' + spec.file);
-      fetch(rawUrl)
-        .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
-        .then(function (text) { spec._content = text; body.innerHTML = renderMarkdown(text); })
+      Promise.all([
+        fetch(rawUrl).then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); }),
+        loadMarked()
+      ])
+        .then(function (res) { spec._content = res[0]; body.innerHTML = renderMarkdown(spec._content); })
         .catch(function () { body.innerHTML = '<p style="color:var(--red)">Failed to load. <a href="' + ghUrl + '" target="_blank">View on GitHub &#8599;</a></p>'; });
     }
 
@@ -556,12 +571,8 @@ window.Report = (function () {
       data = reportData;
       this.data = data;
 
-      // Load marked for specs modal if needed
-      if (data.specs && data.specs.length && !window.marked) {
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
-        document.head.appendChild(s);
-      }
+      // Pre-load marked if specs are present (avoids delay on first modal open)
+      if (data.specs && data.specs.length) loadMarked();
 
       // Render all data-section elements
       document.querySelectorAll('[data-section]').forEach(function (el) {
