@@ -447,7 +447,7 @@ window.Report = (function () {
       var body = overlay.querySelector('#rpt-spec-body');
       if (spec._content) { body.innerHTML = renderMarkdown(spec._content); return; }
       body.innerHTML = '<p class="loading">Loading…</p>';
-      var rawUrl = 'https://raw.githubusercontent.com/' + data.repo.replace('https://github.com/', '') + '/' + data.headSha + '/' + spec.file;
+      var rawUrl = spec.rawUrl || ('https://raw.githubusercontent.com/' + data.repo.replace('https://github.com/', '') + '/' + data.headSha + '/' + spec.file);
       fetch(rawUrl)
         .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
         .then(function (text) { spec._content = text; body.innerHTML = renderMarkdown(text); })
