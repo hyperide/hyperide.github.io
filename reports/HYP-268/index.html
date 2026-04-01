@@ -413,6 +413,7 @@ if (map) { resolvePendingClick(map); }</pre>
 
   <div data-section="file-impact"></div>
   <div data-section="findings"></div>
+  <div data-section="specs"></div>
   <div data-section="timeline"></div>
   <div data-section="codex-review"></div>
   <div data-section="adr"></div>
@@ -753,6 +754,33 @@ Report.init({
           resolution: 'Added 5-second maximum timeout to pending click retry loop. Clears pending source if not resolved within deadline.',
         },
       ],
+    },
+  ],
+
+  specs: [
+    {
+      id: 'spec',
+      title: 'Fiber-Based Element Tracing',
+      file: 'docs/specs/2026-03-24-fiber-based-element-tracing.md',
+      lines: 150,
+      date: '2026-03-24',
+      type: 'spec',
+    },
+    {
+      id: 'plan-phase1',
+      title: 'Phase 1: Infrastructure Plan',
+      file: 'docs/plans/2026-03-25-fiber-based-element-tracing-phase1.md',
+      lines: 3342,
+      date: '2026-03-25',
+      type: 'plan',
+    },
+    {
+      id: 'plan-phase2',
+      title: 'Phase 2: UUID Removal & Rollout',
+      file: 'docs/plans/2026-03-25-fiber-based-element-tracing-phase2.md',
+      lines: 2278,
+      date: '2026-03-25',
+      type: 'plan',
     },
   ],
 
