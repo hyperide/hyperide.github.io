@@ -176,6 +176,65 @@
     </div>
   </section>
 
+  <!-- Migration obstacles -->
+  <section class="fade-in">
+    <h2>Migration Obstacles</h2>
+    <p style="color:#8b949e;margin-bottom:20px;font-size:.95rem">
+      Issues that appeared specifically during the transition to fiber-based tracing — not reasons for the migration, but problems that had to be solved to make it work end-to-end.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(239,68,68,0.2);color:#fca5a5;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P1</span>
+          <strong style="color:#e6edf3">Turbopack strips leading slash from <code style="font-size:.9em">_debugSource.fileName</code></strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">Turbopack emits <code>/Users/alex/project/app/page.tsx</code> as <code>Users/alex/project/app/page.tsx</code> — no leading <code>/</code>. <code>goToCode()</code> received a path VS Code couldn't resolve. Fixed in <code>EditorBridge.ts</code>: prepend <code>/</code> when path looks absolute but lacks the slash.</p>
+      </div>
+
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(239,68,68,0.2);color:#fca5a5;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P1</span>
+          <strong style="color:#e6edf3">Turbopack uses indexed source maps (sections format)</strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">Turbopack bundles multiple source files into a single chunk and uses a top-level <code>"sections"</code> array instead of a flat <code>"mappings"</code> string. The resolver threw on this format. Fixed: detect sections format, iterate each section's offset to find the right one for the clicked line/column.</p>
+      </div>
+
+      <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(239,68,68,0.2);color:#fca5a5;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P1</span>
+          <strong style="color:#e6edf3"><code>SyncPositionService</code>: <code>_pendingSource</code> consumed after early-return guard</strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">The fiber click path sends a <code>SourceLocation</code> with the click event. But the service checked <code>_getCurrentComponent()</code> first — when no <code>.tsx</code> file was open, it returned early and dropped the source location silently. Click-to-source never worked in Next.js because of this. Fixed: consume <code>_pendingSource</code> before the active-component check. Regression test added.</p>
+      </div>
+
+      <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(245,158,11,0.2);color:#fbbf24;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P2</span>
+          <strong style="color:#e6edf3">Source map resolver returned <code>node_modules</code> paths for React internals</strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">When clicking elements close to React internal boundaries (e.g. Suspense boundaries), source map resolution sometimes returned a <code>node_modules/react/</code> path. Navigation opened a library file instead of user code. Fixed: skip results pointing to <code>node_modules</code> or <code>.yarn/cache</code>, fall back to last valid user-land result.</p>
+      </div>
+
+      <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(245,158,11,0.2);color:#fbbf24;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P2</span>
+          <strong style="color:#e6edf3">Async source map resolution: click lost if maps not yet fetched</strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">Next.js Turbopack loads source maps lazily. On first click after page load, the source map request was in-flight when the click handler ran, returning <code>null</code>. Click was silently dropped. Fixed: retry loop in <code>iframe-interaction.ts</code> with 5-second timeout. Click is buffered until the map arrives.</p>
+      </div>
+
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:16px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="background:rgba(59,130,246,0.2);color:#93c5fd;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px">P3</span>
+          <strong style="color:#e6edf3">Next.js App Router reserved files broke preview entry point detection</strong>
+        </div>
+        <p style="color:#9ca3af;font-size:.88rem">Preview generator picked up <code>layout.tsx</code>, <code>loading.tsx</code>, <code>error.tsx</code> as candidate entry points — these are App Router convention files, not renderable standalone components. Fixed: exclude known App Router reserved filenames from entry point heuristic.</p>
+      </div>
+
+    </div>
+  </section>
+
   <div data-section="file-impact"></div>
   <div data-section="findings"></div>
   <div data-section="timeline"></div>
@@ -204,18 +263,20 @@ Report.init({
   ],
 
   motivation: `
-    <strong>Problem:</strong> Click-to-source navigation relied on <code>data-uniq-id</code> HTML attributes injected by a Babel AST transform at build time.
-    This approach had fundamental limitations:
+    <strong>Problem:</strong> Click-to-source relied on <code>data-uniq-id</code> attributes written into JSX files on disk by the extension's AST transform.
+    This approach worked — but had structural limitations that grew harder to ignore:
     <ul>
-      <li><strong>Next.js / Turbopack:</strong> SWC does not run the Babel plugin — no attributes injected, clicks do nothing</li>
-      <li><strong>React 19:</strong> Server Components and streaming SSR can render without the attributes surviving hydration</li>
-      <li><strong>Performance:</strong> Every file save triggered a full AST re-parse + UUID injection pass</li>
-      <li><strong>Fragility:</strong> Any bundler not supporting the Babel plugin broke the entire tracing pipeline</li>
+      <li><strong>Pollutes user source code</strong> — every JSX element got <code>data-uniq-id="uuid"</code> written to disk, visible in git diffs, confusing devs and AI tools</li>
+      <li><strong>Library components are invisible</strong> — <code>&lt;Button&gt;</code> from shadcn/node_modules renders <code>&lt;button&gt;</code> without the attribute; can't inject into deps</li>
+      <li><strong>Prop pass-through required</strong> — components that don't spread <code>{...props}</code> lose the attribute silently; element becomes unclickable</li>
+      <li><strong>Cross-file blind spot</strong> — IDs were only injected into the currently active editor file; <code>&lt;Card&gt;</code> from <code>Card.tsx</code> used in <code>Page.tsx</code> was a dead zone</li>
+      <li><strong>Dedup overhead</strong> — copy-paste, AI generation, manual edits created duplicate IDs (HYP-184), requiring constant dedup passes on save</li>
+      <li><strong>Injection lifecycle complexity</strong> — <code>injectUniqueIdsIntoAST()</code> → file write-back → re-parse → <code>addDataUniqIds()</code> runtime heuristic matching — six fragile sync points</li>
     </ul>
-    <strong>Solution:</strong> React DevTools already solve this problem. Every DOM node produced by React has a <code>__reactFiber$xxx</code> property pointing into the internal fiber tree.
-    Each fiber carries <code>_debugSource: { fileName, lineNumber, columnNumber }</code> — the exact source location where the JSX element was declared.
-    By reading the fiber at click time (like React DevTools does), we get source location without any build-time injection.
-    This makes click-to-source work universally: Vite, webpack, Next.js App Router, Turbopack, React 19.
+    <strong>Solution:</strong> React already maintains a fiber tree at runtime. Every DOM node has a <code>__reactFiber$xxx</code> property; each fiber carries
+    <code>_debugSource: { fileName, lineNumber, columnNumber }</code> — the exact source location of the JSX element.
+    Reading the fiber at click time (the same way React DevTools does) gives direct DOM→source mapping with zero build-time injection.
+    No file writes, no UUIDs, no prop drilling — and it works for library components and cross-file components too.
   `,
 
   stats: { files: 158, insertions: 17564, deletions: 4456, commits: 50 },
