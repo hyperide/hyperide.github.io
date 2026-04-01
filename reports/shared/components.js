@@ -273,58 +273,9 @@ window.Report = (function () {
   // ── Specs & Plans viewer ──
 
   function renderMarkdown(text) {
-    // 1. Protect code blocks
-    var blocks = [];
-    text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, function (_, lang, code) {
-      var idx = blocks.length;
-      blocks.push('<pre><code>' + code.trimEnd().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code></pre>');
-      return '\u0000' + idx + '\u0000';
-    });
-    // 2. Inline code
-    text = text.replace(/`([^`\n]+)`/g, function (_, c) {
-      return '<code>' + c.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code>';
-    });
-    // 3. Headers
-    text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
-    text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    // 4. Bold / italic
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
-    // 5. Links
-    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-    // 6. HR
-    text = text.replace(/^---+$/gm, '<hr>');
-    // 7. Blockquotes
-    text = text.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-    // 8. Unordered lists
-    text = text.replace(/((?:^[-*] .+\n?)+)/gm, function (block) {
-      return '<ul>' + block.replace(/^[-*] (.+)$/gm, '<li>$1</li>') + '</ul>';
-    });
-    // 9. Tables
-    text = text.replace(/((?:\|.*\|\n?)+)/g, function (table) {
-      var rows = table.trim().split('\n');
-      var html = '<table>';
-      var pastSep = false;
-      rows.forEach(function (row) {
-        if (/^\|[-:| ]+\|$/.test(row)) { pastSep = true; return; }
-        var cells = row.replace(/^\||\|$/g, '').split('|');
-        var tag = !pastSep ? 'th' : 'td';
-        html += '<tr>' + cells.map(function (c) { return '<' + tag + '>' + c.trim() + '</' + tag + '>'; }).join('') + '</tr>';
-      });
-      return html + '</table>';
-    });
-    // 10. Paragraphs
-    text = text.split(/\n\n+/).map(function (block) {
-      block = block.trim();
-      if (!block) return '';
-      if (/^(<h\d|<ul|<ol|<pre|<table|<blockquote|<hr|\u0000)/.test(block)) return block;
-      return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
-    }).join('\n');
-    // 11. Restore code blocks
-    blocks.forEach(function (html, i) { text = text.split('\u0000' + i + '\u0000').join(html); });
-    return text;
+    if (window.marked) return window.marked.parse(text);
+    // marked not yet loaded — plain text fallback
+    return '<pre style="white-space:pre-wrap">' + text.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre>';
   }
 
   function renderSpecs(el) {
@@ -604,6 +555,13 @@ window.Report = (function () {
     init: function (reportData) {
       data = reportData;
       this.data = data;
+
+      // Load marked for specs modal if needed
+      if (data.specs && data.specs.length && !window.marked) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        document.head.appendChild(s);
+      }
 
       // Render all data-section elements
       document.querySelectorAll('[data-section]').forEach(function (el) {
