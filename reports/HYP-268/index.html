@@ -411,6 +411,54 @@ if (map) { resolvePendingClick(map); }</pre>
     </div>
   </section>
 
+  <!-- Phase 3: React 19.1 RSC Deep Dives -->
+  <section class="fade-in">
+    <h2>Phase 3: React 19.1 RSC Fixes (2026-04-02/03)</h2>
+    <p style="color:#9ca3af;margin-bottom:24px">Four root causes prevented element clicking in Next.js 16.2.1 + React 19.1.0 projects. Each required a different fix layer.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px">
+      <div style="background:#1a1a2e;border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="background:rgba(239,68,68,0.2);color:#f87171;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">P1</span>
+          <span style="color:#e5e7eb;font-weight:600">about://React/Server/ stack format</span>
+        </div>
+        <p style="color:#9ca3af;font-size:13px;line-height:1.6"><strong style="color:#d1d5db">Symptom:</strong> <code>extractServerChunkFrames</code> returned 0 frames for all RSC elements.<br>
+        <strong style="color:#d1d5db">Root cause:</strong> React 19.1 changed <code>_debugStack</code> format from <code>Server/file:///...</code> to <code>about://React/Server/file:///...</code>. The regex <code>/(?:^Server\/|^)(file:\/\/\/)/</code> didn't match the new prefix.<br>
+        <strong style="color:#d1d5db">Fix:</strong> <code>raw.indexOf('file:///')</code> — find file:/// anywhere in the URL, not at start.</p>
+      </div>
+
+      <div style="background:#1a1a2e;border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="background:rgba(239,68,68,0.2);color:#f87171;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">P1</span>
+          <span style="color:#e5e7eb;font-weight:600">Source map warming before hydration</span>
+        </div>
+        <p style="color:#9ca3af;font-size:13px;line-height:1.6"><strong style="color:#d1d5db">Symptom:</strong> First click on any element returned null. Only worked after retry.<br>
+        <strong style="color:#d1d5db">Root cause:</strong> IIFE runs in &lt;head&gt; before React. Without DevTools hook, warming used <code>load</code> event which fires before hydration — no fibers on DOM yet, cache empty.<br>
+        <strong style="color:#d1d5db">Fix:</strong> Install <code>__REACT_DEVTOOLS_GLOBAL_HOOK__</code> with proper <code>inject()</code> returning renderer IDs. React calls <code>onCommitFiberRoot</code> during hydration → warming fires with fibers.</p>
+      </div>
+
+      <div style="background:#1a1a2e;border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">P2</span>
+          <span style="color:#e5e7eb;font-weight:600">Client source maps collapse children</span>
+        </div>
+        <p style="color:#9ca3af;font-size:13px;line-height:1.6"><strong style="color:#d1d5db">Symptom:</strong> All elements selected as outer div. Source cache had 1 entry with 5 elements.<br>
+        <strong style="color:#d1d5db">Root cause:</strong> <code>resolveViaClientSourceMap</code> walks up fiber return chain. For RSC, all children found the same ancestor's cached entry (layout.tsx body).<br>
+        <strong style="color:#d1d5db">Fix:</strong> Resolution order: own-server → client → chain-server. <code>resolveOwnServerSourceMap</code> checks only the fiber's own <code>_debugStack</code> for per-element precision.</p>
+      </div>
+
+      <div style="background:#1a1a2e;border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">P2</span>
+          <span style="color:#e5e7eb;font-weight:600">file:// URI loses leading slash</span>
+        </div>
+        <p style="color:#9ca3af;font-size:13px;line-height:1.6"><strong style="color:#d1d5db">Symptom:</strong> StyleReadService ENOENT for <code>/Users/.../app/page.tsx</code>.<br>
+        <strong style="color:#d1d5db">Root cause:</strong> <code>source-map-resolver.ts</code> stripped leading <code>/</code> from all URLs. For <code>file:///abs/path</code> this turned absolute paths into <code>Users/abs/path</code> → doubled when prepended with workspace root.<br>
+        <strong style="color:#d1d5db">Fix:</strong> Check <code>u.protocol === 'file:'</code> → keep <code>u.pathname</code> as-is (absolute). HTTP URLs → strip leading <code>/</code> (workspace-relative).</p>
+      </div>
+    </div>
+  </section>
+
   <div data-section="file-impact"></div>
   <div data-section="findings"></div>
   <div data-section="specs"></div>
@@ -700,6 +748,8 @@ Report.init({
     { sha: '52ecabdf', message: 'feat(element-tracing): update overlay rendering with fiber-based DOM lookup', date: '2026-03-26' },
     { sha: '07303a2f', message: 'feat(element-tracing): update useElementInteraction + IframeCanvas for fiber', date: '2026-03-25' },
     { sha: '1fc73f12', message: 'feat(element-tracing): add findElementByPosition AST helper (HYP-268)', date: '2026-03-25' },
+    { sha: 'dc6a6f9c', message: 'fix(ext): support React 19.1 about://React/Server/ RSC stack format (HYP-268)', date: '2026-04-02' },
+    { sha: '8e72b81f', message: 'fix(ext): Next.js RSC element clicking — source map warming + resolution order (HYP-268)', date: '2026-04-03' },
   ],
 
   codexRounds: [
@@ -755,6 +805,29 @@ Report.init({
         },
       ],
     },
+    {
+      title: 'Round 3 — React 19.1 RSC Fix Review (8/10)',
+      desc: 'Review of pending click retry logic for server source maps and DevTools hook installation.',
+      badges: [
+        { label: 'P1: 1', cls: 'badge-p1' },
+        { label: 'P2: 1', cls: 'badge-p2' },
+        { label: '2 resolved', cls: 'badge-resolved' },
+      ],
+      items: [
+        {
+          severity: 'P1', status: 'resolved',
+          title: 'Server source maps not requested when client frame already pending',
+          file: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L108-L108',
+          resolution: 'Moved warmServerChunkFrames() call before pendingClickElement guard. Server warming now fires unconditionally.',
+        },
+        {
+          severity: 'P2', status: 'resolved',
+          title: 'Cached null server frames falsely treated as pending — click stuck until TTL',
+          file: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L551-L565',
+          resolution: 'Added hasUnresolvedServerFrames() that checks serverSourceMapCache. Only registers pending click when entries are truly missing from cache.',
+        },
+      ],
+    },
   ],
 
   specs: [
@@ -787,7 +860,21 @@ Report.init({
     },
   ],
 
+  // ── Phase 3 commits (React 19.1 RSC, 2026-04-02/03) ──
+  // Appended to timeline
+  phase3Commits: [
+    { sha: 'dc6a6f9c', message: 'fix(ext): support React 19.1 about://React/Server/ RSC stack format (HYP-268)', date: '2026-04-02' },
+    { sha: '8e72b81f', message: 'fix(ext): Next.js RSC element clicking — source map warming + resolution order (HYP-268)', date: '2026-04-03' },
+  ],
+
   adrs: [
+    {
+      title: 'ADR-3: Install __REACT_DEVTOOLS_GLOBAL_HOOK__ for hydration timing',
+      problem: 'The IIFE runs in <head> before React loads. Without DevTools hook, warming falls back to load event which fires before React hydration — no fibers on DOM, cache stays empty.',
+      options: '(A) Retry warming with setTimeout/requestIdleCallback — fragile timing. (B) Install __REACT_DEVTOOLS_GLOBAL_HOOK__ stub before React loads so React calls onCommitFiberRoot during hydration.',
+      decision: 'Option B: create a minimal DevTools hook with inject() returning renderer IDs. Verified: Next.js 16.2.1 renders correctly, 13-14 commits fire, fibers present on all elements.',
+      rationale: 'React checks for the hook at init time. If present, it calls onCommitFiberRoot on every commit including hydration. This is the exact mechanism React DevTools uses. Tested: hook absent → 0 commits, page broken 0/5 elements resolved. Hook present → 14 commits, 5/5 elements resolved.',
+    },
     {
       title: 'ADR-1: Replace UUID injection with React fiber _debugSource',
       problem: 'data-uniq-id injection required a Babel transform. This broke for Next.js/SWC, Turbopack, and React 19 server components. The injection also required re-parsing all active files on every save, adding latency.',
