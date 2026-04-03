@@ -504,7 +504,7 @@ Report.init({
     No file writes, no UUIDs, no prop drilling — and it works for library components and cross-file components too.
   `,
 
-  stats: { files: 158, insertions: 17564, deletions: 4456, commits: 50 },
+  stats: { files: 164, insertions: 17787, deletions: 4548, commits: 56 },
 
   productChanges: {
     new: [
@@ -603,6 +603,23 @@ Report.init({
         desc: 'When source map resolution returns a node_modules path (e.g. React internals), the click was incorrectly reported as originating from a library file. Now falls back to last valid user-land source map result.',
         files: [
           { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L200-L260', label: 'iframe-interaction.ts:200 (node_modules skip)' },
+        ],
+      },
+      {
+        title: 'React 19.1 RSC: about://React/Server/ stack format + warming timing',
+        desc: 'React 19.1.0 changed _debugStack format. Source map warming ran before hydration (no fibers). Client source maps collapsed all elements to ancestor. file:// URIs lost leading slash.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L224-L260', label: 'iframe-interaction.ts:224 (DevTools hook install)' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L449-L475', label: 'iframe-interaction.ts:449 (extractServerChunkFrames)' },
+          { path: 'shared/element-tracing/source-map-resolver.ts', lines: 'L144-L155', label: 'source-map-resolver.ts:144 (file:// path fix)' },
+        ],
+      },
+      {
+        title: 'Context menu + hover + itemIndex for RSC/Turbopack elements',
+        desc: 'Context menu, hover overlay, and .map() itemIndex all used direct fiber resolution which returns null for RSC. Now use full source map chain (own-server → client → chain-server).',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L57-L70', label: 'iframe-interaction.ts:57 (getSourceLocation chain)' },
+          { path: 'shared/element-tracing/fiber-internals.ts', lines: 'L209-L255', label: 'fiber-internals.ts:209 (resolveLocation callback)' },
         ],
       },
     ],
