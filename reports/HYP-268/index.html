@@ -328,8 +328,8 @@
 
   <!-- Technical Deep Dives -->
   <section class="fade-in">
-    <h2>Technical Deep Dives</h2>
-    <p style="color:#8b949e;margin-bottom:20px;font-size:.95rem">The three hardest problems encountered — root cause, investigation path, and fix.</p>
+    <h2>Technical Deep Dives (Phase 1–3)</h2>
+    <p style="color:#8b949e;margin-bottom:20px;font-size:.95rem">The three hardest problems encountered in phases 1–3 — root cause, investigation path, and fix.</p>
 
     <div style="display:flex;flex-direction:column;gap:20px">
 
@@ -682,10 +682,74 @@ Report.init({
           { path: 'shared/element-tracing/fiber-internals.ts', lines: 'L209-L255', label: 'fiber-internals.ts:209 (resolveLocation callback)' },
         ],
       },
+      // ── Phase 4 fixes (canvas selection + React 19, 2026-04-03 to 2026-04-05) ──
+      {
+        title: 'Canvas element selection — cross-realm iframe instanceof fix',
+        desc: 'instanceof HTMLElement fails cross-realm (iframe elements from different execution context). Tracer never initialized in SaaS. Fixed with nodeType === 1 check + stale contentDocument fix.',
+        files: [
+          { path: 'client/hooks/useElementTracer.ts', lines: 'L40-L70', label: 'useElementTracer.ts:40 (detectReactInIframe)' },
+          { path: 'client/lib/element-tracing/react-adapter.ts', lines: 'L125-L147', label: 'react-adapter.ts:125 (findReactRoot nodeType)' },
+        ],
+      },
+      {
+        title: 'Host↔container Docker path normalization',
+        desc: 'Server node maps used host paths (/Users/...), fiber source used container paths (/app/...). resolveClickLocal always missed. Fixed at populateNodeMaps to convert to container paths.',
+        files: [
+          { path: 'server/services/element-tracing-channel.ts', lines: 'L208-L220', label: 'element-tracing-channel.ts:208 (containerPath conversion)' },
+        ],
+      },
+      {
+        title: 'Call-site resolution for reusable components',
+        desc: 'Clicking <button> inside Button.tsx selected wrong instance. resolveCallSiteSource walks fiber to find component USAGE site. Extracted to shared module for SaaS + extension parity.',
+        files: [
+          { path: 'shared/canvas-interaction/resolve-source.ts', lines: 'L1-L55', label: 'resolve-source.ts (shared resolveCallSiteSource)' },
+          { path: 'client/lib/element-tracing/element-tracer.ts', lines: 'L62-L90', label: 'element-tracer.ts:62 (resolveClickLocal)' },
+        ],
+      },
+      {
+        title: 'React 19 Vite source map resolution',
+        desc: 'React 19 _debugStack has COMPILED positions. Extended warmClientChunk to fetch Vite inline source maps (base64 data: URI) and resolve compiled→source positions. Fixed source map sources path (prepend directory).',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', lines: 'L310-L380', label: 'iframe-interaction.ts:310 (warmClientChunk + inline source maps)' },
+        ],
+      },
+      {
+        title: 'Extension tree↔canvas selection sync',
+        desc: 'Extension tree used UUID, canvas used nodeRef. Added nodeRef→UUID mapping via tree node locations + syntheticRef conversion for tree→canvas direction.',
+        files: [
+          { path: 'client/components/LeftSidebar/hooks/useElementSelection.ts', lines: 'L30-L100', label: 'useElementSelection.ts:30 (nodeRefToUuid mapping)' },
+          { path: 'lib/types.ts', lines: 'L115-L130', label: 'types.ts:115 (TreeNode.loc added)' },
+        ],
+      },
+      {
+        title: 'nodeRef↔UUID bridge + itemIndex for .map() elements',
+        desc: 'SaaS engine stored nodeRef (canvas click) or UUID (tree click) but consumers expected one format. id-bridge resolves between systems. DOM lookup now passes itemIndex for correct .map() item.',
+        files: [
+          { path: 'client/lib/element-tracing/id-bridge.ts', lines: 'L1-L105', label: 'id-bridge.ts (resolveNodeRefToUuid, resolveUuidToNodeRef)' },
+          { path: 'client/lib/dom-utils.ts', lines: 'L54-L65', label: 'dom-utils.ts:54 (getElementFromIframe with itemIndex)' },
+        ],
+      },
     ],
   },
 
   files: [
+    // Phase 4 files
+    { path: 'shared/canvas-interaction/resolve-source.ts', dir: 'shared/canvas-interaction', add: 55, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/id-bridge.ts', dir: 'client/lib/element-tracing', add: 105, del: 0, status: 'new' },
+    { path: 'client/lib/element-tracing/__tests__/id-bridge.test.ts', dir: 'client/lib/element-tracing/__tests__', add: 130, del: 0, status: 'new' },
+    { path: 'client/hooks/useElementTracer.ts', dir: 'client/hooks', add: 85, del: 30, status: 'modified' },
+    { path: 'client/lib/element-tracing/element-tracer.ts', dir: 'client/lib/element-tracing', add: 45, del: 15, status: 'modified' },
+    { path: 'client/lib/element-tracing/react-adapter.ts', dir: 'client/lib/element-tracing', add: 16, del: 8, status: 'modified' },
+    { path: 'client/components/LeftSidebar/hooks/useElementSelection.ts', dir: 'client/components/LeftSidebar/hooks', add: 81, del: 7, status: 'modified' },
+    { path: 'client/components/LeftSidebar/LeftSidebar.tsx', dir: 'client/components/LeftSidebar', add: 11, del: 2, status: 'modified' },
+    { path: 'client/pages/Editor/CanvasEditor.tsx', dir: 'client/pages/Editor', add: 14, del: 2, status: 'modified' },
+    { path: 'client/lib/platform/hooks/useElementStyleData.ts', dir: 'client/lib/platform/hooks', add: 25, del: 0, status: 'modified' },
+    { path: 'client/lib/dom-utils.ts', dir: 'client/lib', add: 20, del: 25, status: 'modified' },
+    { path: 'server/services/element-tracing-channel.ts', dir: 'server/services', add: 8, del: 2, status: 'modified' },
+    { path: 'lib/types.ts', dir: 'lib', add: 4, del: 0, status: 'modified' },
+    { path: 'lib/services/tree-adapter.ts', dir: 'lib/services', add: 2, del: 0, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-interaction.ts', dir: 'vscode-extension/.../scripts', add: 166, del: 80, status: 'modified' },
+    // Phase 1-3 files
     { path: 'shared/element-tracing/fiber-internals.ts', dir: 'shared/element-tracing', add: 305, del: 0, status: 'new' },
     { path: 'shared/element-tracing/source-map-resolver.ts', dir: 'shared/element-tracing', add: 206, del: 0, status: 'new' },
     { path: 'shared/element-tracing/types.ts', dir: 'shared/element-tracing', add: 130, del: 0, status: 'new' },
