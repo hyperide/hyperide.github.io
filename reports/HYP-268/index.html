@@ -504,7 +504,7 @@ Report.init({
     No file writes, no UUIDs, no prop drilling — and it works for library components and cross-file components too.
   `,
 
-  stats: { files: 164, insertions: 17787, deletions: 4548, commits: 56 },
+  stats: { files: 192, insertions: 21435, deletions: 5290, commits: 74 },
 
   productChanges: {
     new: [
@@ -884,6 +884,27 @@ Report.init({
     { sha: '8e72b81f', message: 'fix(ext): Next.js RSC element clicking — source map warming + resolution order (HYP-268)', date: '2026-04-03' },
   ],
 
+  // ── Phase 4 commits (canvas selection + React 19 source maps, 2026-04-03/05) ──
+  // Appended to timeline
+  phase4Commits: [
+    { sha: 'c0883271', message: 'fix(canvas): bridge nodeRef↔UUID for canvas element selection (HYP-268)', date: '2026-04-03' },
+    { sha: 'a479c99a', message: 'fix(inspector): pass itemIndex to DOM lookup for .map() elements (HYP-268)', date: '2026-04-03' },
+    { sha: 'e5a7a816', message: 'fix(tracer): detect React 18+ createRoot — check firstElementChild for fiber (HYP-268)', date: '2026-04-03' },
+    { sha: 'f6d716a9', message: 'fix(tracer): cross-realm iframe detection — bypass instanceof HTMLElement (HYP-268)', date: '2026-04-04' },
+    { sha: 'fd357b87', message: 'fix(tracer): host↔container path normalization + cross-realm FiberSourceIndex (HYP-268)', date: '2026-04-04' },
+    { sha: '823b43b1', message: 'fix(tracer): resolve host↔container path mismatch in node map lookup (HYP-268)', date: '2026-04-04' },
+    { sha: '55cd86ac', message: 'fix(tracer): resolve to component call site, not internal definition (HYP-268)', date: '2026-04-04' },
+    { sha: '62948288', message: 'fix(ext): tree↔canvas selection sync via nodeRef↔UUID bridge (HYP-268)', date: '2026-04-04' },
+    { sha: 'ecb36dd2', message: 'fix(ext): call site resolution for click/hover in reusable components (HYP-268)', date: '2026-04-04' },
+    { sha: '584da2b8', message: 'fix(tracer): use explicit renderedFile instead of max-entries heuristic (HYP-268)', date: '2026-04-04' },
+    { sha: 'c8968b87', message: 'refactor(tracer): unify call-site resolution in shared module (HYP-268)', date: '2026-04-04' },
+    { sha: '6af283c5', message: 'fix(ext): use renderedComponentPath for direct vs walk-up resolution (HYP-268)', date: '2026-04-04' },
+    { sha: 'a455ab7b', message: 'fix(tracer): fuzzy column match + remove debug logs (HYP-268)', date: '2026-04-04' },
+    { sha: 'dcf56b00', message: 'fix(ext): React 19 source map resolution for Vite compiled positions (HYP-268)', date: '2026-04-05' },
+    { sha: '7bd9832e', message: 'fix(ext): prepend directory to source map fileName for Vite (HYP-268)', date: '2026-04-05' },
+    { sha: '85341713', message: 'fix(ext): source cache uses source-mapped positions for overlay matching (HYP-268)', date: '2026-04-05' },
+  ],
+
   adrs: [
     {
       title: 'ADR-3: Install __REACT_DEVTOOLS_GLOBAL_HOOK__ for hydration timing',
@@ -905,6 +926,20 @@ Report.init({
       options: '(A) Persist UUIDs across saves via a cache — complex, cache invalidation hard. (B) Use content-addressable hash of JSX node — unstable on edits. (C) Use source location (file:line:col) as the canonical identifier.',
       decision: 'Option C: nodeRef = "relative/path/to/file.tsx:line:col" — deterministic, derived from AST, never changes unless the element moves in the source.',
       rationale: 'Source location is the ground truth for element identity. The AST parser already computes it. Any component renderer can construct it from _debugSource. No injection, no sync required between extension and browser.',
+    },
+    {
+      title: 'ADR-4: React 19 source map resolution for Vite',
+      problem: 'React 19 removed _debugSource. _debugStack Error.stack gives COMPILED line numbers from Vite JSX transform, not source positions. Extension selected wrong elements because compiled L43 ≠ source L32.',
+      options: '(A) Parse __source metadata from compiled jsxDEV() call arguments — fragile, depends on Babel output format. (B) Fetch Vite inline source maps and resolve compiled→source positions — standard approach, works with any bundler.',
+      decision: 'Option B: extend warmClientChunk to fetch Vite module content, decode inline base64 source map, resolve via resolveInSourceMap. Source cache rebuilt with source-mapped positions.',
+      rationale: 'Inline source maps are standard Vite output. Same source map infrastructure already used for Next.js chunks. Verified: 34 positions resolved correctly, compiled L43:31 → source L32:10 for toolbar div.',
+    },
+    {
+      title: 'ADR-5: Shared resolveCallSiteSource for SaaS + Extension',
+      problem: 'Call-site resolution (clicking <button> inside Button.tsx → find <Button> usage in DatePicker.tsx) was implemented separately in SaaS ElementTracer and Extension iframe-interaction.ts. Extension had wrong behavior because the fix was only applied to SaaS.',
+      options: '(A) Copy-paste fix to both files — violates DRY, guaranteed divergence. (B) Extract shared function consumed by both.',
+      decision: 'Option B: shared/canvas-interaction/resolve-source.ts exports resolveCallSiteSource(). Both SaaS and Extension import it.',
+      rationale: 'CLAUDE.md rule: canvas interaction fixes MUST go into shared/ and be consumed by both platforms. Added hard rule to CLAUDE.md to prevent future divergence.',
     },
   ],
 });
