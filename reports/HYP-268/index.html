@@ -459,6 +459,66 @@ if (map) { resolvePendingClick(map); }</pre>
     </div>
   </section>
 
+  <!-- Phase 4: Technical Deep Dives -->
+  <section class="fade-in">
+    <h2>Technical Deep Dives (Phase 4)</h2>
+
+    <details open style="margin-bottom:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.2);border-radius:10px;padding:16px">
+      <summary style="cursor:pointer;font-weight:600;color:#a78bfa;font-size:15px">React DevTools Source Analysis — Key to React 19 Support</summary>
+      <div style="margin-top:12px;font-size:13px;color:#c9d1d9;line-height:1.7">
+        <p><strong style="color:#f87171">Symptom:</strong> Extension selected wrong elements in React 19 projects. Clicking toolbar div showed SVG in inspector.</p>
+        <p><strong style="color:#fbbf24">Investigation:</strong> Launched research agent to study React DevTools source (<code>facebook/react</code>). Analyzed <code>packages/react/src/jsx/ReactJSXElement.js</code> and DevTools backend.</p>
+        <p><strong style="color:#ef4444">Root cause:</strong> React 19 <code>jsxDEV</code> creates <code>Error("react-stack-top-frame")</code> INTERNALLY — ignores <code>__source/__self</code> from <code>@vitejs/plugin-react</code>. <code>exports.jsxDEV</code> accepts only 4 args, not 6. Stack trace line:column are COMPILED positions from Vite JSX transform.</p>
+        <p><strong style="color:#34d399">Key insights from DevTools source:</strong></p>
+        <ul style="margin:8px 0;padding-left:20px">
+          <li>Each element gets <strong>unique Error</strong> with per-element stack trace — not shared per component as initially assumed</li>
+          <li>DevTools uses <code>Error.prepareStackTrace</code> for V8 structured <code>CallSite</code> objects + <code>symbolicateSource()</code> for source map resolution — same approach we now use</li>
+          <li><code>ownerStackLimit</code> (10,000) throttles Error creation — after limit, shared placeholder used</li>
+          <li>DevTools distinguishes <code>getLineNumber()</code> (call site) vs <code>getEnclosingLineNumber()</code> (function definition) — we correctly use call site</li>
+        </ul>
+        <p><strong style="color:#34d399">Fix:</strong> Extended <code>warmClientChunk</code> to fetch Vite inline source maps (base64 data: URI), decode, and resolve compiled→source positions. Verified: 34 positions resolved, compiled L43:31 → source L32:10.</p>
+        <p style="color:#9ca3af;font-style:italic">Without this research, would have gone down the wrong path of parsing __source from compiled output instead of proper source map resolution.</p>
+      </div>
+    </details>
+
+    <details style="margin-bottom:16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px">
+      <summary style="cursor:pointer;font-weight:600;color:#fca5a5;font-size:15px">Cross-realm instanceof HTMLElement — Silent Failure in Iframes</summary>
+      <div style="margin-top:12px;font-size:13px;color:#c9d1d9;line-height:1.7">
+        <p><strong style="color:#f87171">Symptom:</strong> <code>ReactAdapter.detect()</code> returned false for all 16 retries. Tracer never initialized. Canvas selection completely dead.</p>
+        <p><strong style="color:#ef4444">Root cause:</strong> iframe elements use iframe window's <code>HTMLElement</code> class, not parent window's. Cross-realm <code>instanceof</code> ALWAYS returns false.</p>
+        <p><strong style="color:#34d399">Fix:</strong> Replaced <code>instanceof HTMLElement</code> with <code>nodeType === 1</code>. Also moved detection to <code>useElementTracer.ts</code> because Bun HTML import cache refused to serve updated <code>react-adapter.ts</code>.</p>
+        <pre style="background:#161b22;padding:8px;border-radius:6px;overflow-x:auto;font-size:12px;margin:8px 0"><code style="color:#c9d1d9">// Before (BROKEN cross-realm):
+if (el instanceof HTMLElement) return el;
+
+// After (works everywhere):
+if (el &amp;&amp; el.nodeType === 1) return el;</code></pre>
+      </div>
+    </details>
+
+    <details style="margin-bottom:16px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px">
+      <summary style="cursor:pointer;font-weight:600;color:#fcd34d;font-size:15px">Call-site Resolution — Three Iterations to Get Right</summary>
+      <div style="margin-top:12px;font-size:13px;color:#c9d1d9;line-height:1.7">
+        <p><strong style="color:#f87171">Problem:</strong> Clicking &lt;button&gt; inside <code>Button.tsx</code> selected first Button instance ("Dark" instead of "←"). All 6 instances shared <code>Button.tsx:31:7</code>.</p>
+        <p><strong style="color:#fbbf24">Three iterations:</strong></p>
+        <ol style="margin:8px 0;padding-left:20px">
+          <li><strong>Walk-up first</strong> — broke inline elements (day buttons walked up to Card.tsx)</li>
+          <li><strong>Direct first</strong> — broke reusable components (Button.tsx definition instead of usage)</li>
+          <li><strong>Max-entries heuristic</strong> — failed because ThemeSwitcher.tsx (75 entries) &gt; DatePicker.tsx (25)</li>
+        </ol>
+        <p><strong style="color:#34d399">Final:</strong> Explicit <code>renderedFile</code> from <code>componentPath</code>. Direct for rendered file, walk-up for imported. Shared in <code>resolve-source.ts</code>.</p>
+      </div>
+    </details>
+
+    <details style="margin-bottom:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px">
+      <summary style="cursor:pointer;font-weight:600;color:#6ee7b7;font-size:15px">Host↔Container Docker Path Mismatch</summary>
+      <div style="margin-top:12px;font-size:13px;color:#c9d1d9;line-height:1.7">
+        <p><strong style="color:#f87171">Symptom:</strong> <code>resolveClickLocal</code> returned null. 27 node maps, but lookup always missed.</p>
+        <p><strong style="color:#ef4444">Root cause:</strong> Server: <code>/Users/.../test-repo/src/App.tsx</code>. Docker: <code>/app/src/App.tsx</code>. Map.get() never matched.</p>
+        <p><strong style="color:#34d399">Fix:</strong> Convert to container paths at <code>populateNodeMaps</code>. Also fixed Vite source map <code>sources: ["TweetComposer.tsx"]</code> (no path) — prepend directory from URL.</p>
+      </div>
+    </details>
+  </section>
+
   <div data-section="file-impact"></div>
   <div data-section="findings"></div>
   <div data-section="specs"></div>
