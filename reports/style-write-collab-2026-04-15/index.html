@@ -326,11 +326,11 @@ Codex может опросить ledger в любой момент, Claude — 
   <text x="120" y="44" fill="#e6edf3" text-anchor="middle" font-weight="700">Inspector control</text>
   <text x="120" y="64" fill="#8b949e" text-anchor="middle" font-size="11">user edits one property</text>
 
-  <!-- Codec -->
+  <!-- Codec (validation/normalization only — NOT target conversion) -->
   <rect x="270" y="20" width="200" height="60" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d" stroke-width="1"/>
-  <text x="370" y="42" fill="#e6edf3" text-anchor="middle" font-weight="700">InspectorValueCodec</text>
-  <text x="370" y="60" fill="#8b949e" text-anchor="middle" font-size="11">opacity 50 → 0.5,</text>
-  <text x="370" y="74" fill="#8b949e" text-anchor="middle" font-size="11">number/string per target</text>
+  <text x="370" y="40" fill="#e6edf3" text-anchor="middle" font-weight="700">InspectorValueCodec</text>
+  <text x="370" y="58" fill="#8b949e" text-anchor="middle" font-size="11">validate + normalize</text>
+  <text x="370" y="72" fill="#8b949e" text-anchor="middle" font-size="11">to inspector form only</text>
 
   <!-- Context -->
   <rect x="520" y="20" width="220" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d" stroke-width="1"/>
@@ -383,26 +383,32 @@ Codex может опросить ledger в любой момент, Claude — 
 
   <!-- Executor -->
   <rect x="260" y="490" width="400" height="40" rx="8" fill="rgba(63,185,80,0.1)" stroke="#3fb950"/>
-  <text x="460" y="514" fill="#e6edf3" text-anchor="middle" font-weight="700">Executor → file mutation + FastPatch tag</text>
+  <text x="460" y="514" fill="#e6edf3" text-anchor="middle" font-weight="700">Adapter writer (per-target value conv.) → file mutation + FastPatch tag</text>
 
   <!-- Arrows -->
   <line x1="220" y1="50" x2="270" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
   <line x1="470" y1="50" x2="520" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
-  <line x1="370" y1="80" x2="430" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
-  <line x1="630" y1="100" x2="490" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="630" y1="100" x2="460" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
   <line x1="380" y1="220" x2="100" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
   <line x1="420" y1="220" x2="280" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
   <line x1="460" y1="220" x2="460" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
   <line x1="500" y1="220" x2="640" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
   <line x1="540" y1="220" x2="820" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <line x1="460" y1="370" x2="460" y2="393" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrPurple)"/>
+  <!-- Manager → ArbitraryPropPlan (curved, bypasses the plan row) -->
+  <path d="M 580 200 C 770 220, 770 410, 540 425" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrPurple)"/>
+  <text x="780" y="320" fill="#bc8cff" font-size="11" font-style="italic">arbitraryElementProp</text>
   <line x1="100" y1="370" x2="370" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
   <line x1="280" y1="370" x2="400" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
   <line x1="460" y1="460" x2="460" y2="488" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
   <line x1="640" y1="370" x2="520" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
   <line x1="820" y1="370" x2="550" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
 </svg>
-<div class="diagram-cap">StyleWriteManager диспатчит на 6 типов плана через discriminated union (sourceForm + cssSystem). ArbitraryPropPlan — особый случай без CSS-семантики.</div>
+<div class="diagram-cap">Manager диспатчит на <strong>один из 6 планов</strong> через развилку по <code>sourceForm</code>: <code>elementClass → TailwindPlan</code>, <code>cssStyleRule → CssFilePlan</code>, <code>scriptReactStyleRule → ScriptObjectStylePlan</code>, <code>scriptNativeStyleRule → ScriptTemplateStylePlan</code>, <code>adapterKnownElementProp → AdapterPropPlan</code>, <code>arbitraryElementProp → ArbitraryPropPlan</code>. Per-target value conversion (opacity 50→0.5 и т.п.) живёт в адаптерных writer'ах, не в шеренном codec'е.</div>
+</div>
+
+<div class="callout yellow">
+<div class="callout-title">Spec correction (F-010)</div>
+В первой версии спеки <code>InspectorValueCodec</code> отвечал за target-conversion: <code>opacity 50 → 0.5</code> (CSS), <code>50 → '50'</code> (Tailwind), <code>50 → 0.5</code> (Tamagui). <strong>Это неверно.</strong> Codec должен только валидировать и нормализовывать значение к inspector-form'е (например: <code>'50%' / '50' / 50 → '50'</code>). Конверсия в target value — забота адаптера, потому что только адаптер знает value space своего target'а (CSS-opacity 0..1, Tailwind utility scale 0..100, Tamagui prop number 0..1, ...). Один центральный target-converter — это leak адаптерных знаний в шеренный layer. См. F-010 в open items.
 </div>
 
 <h3>3.2 Source Tab routing — кто решает куда писать</h3>
@@ -496,7 +502,7 @@ Codex может опросить ledger в любой момент, Claude — 
 <tr><td><code>StyleCondition extensible</code></td><td>state, viewport, container, media/supports, theme, selector, raw. Last preserves adapter-specific reads.</td></tr>
 <tr><td><code>CascadeContext separate</code></td><td><code>@layer</code>, <code>@scope</code>, at-rule placement — это source/cascade context, не condition row.</td></tr>
 <tr><td><code>One control = one plan</code></td><td>Один inspector control = одно property = один <code>StyleWritePlan</code>. Без AI-batching через адаптеры.</td></tr>
-<tr><td><code>InspectorValueCodec central</code></td><td>opacity 50→0.5 и подобные конверсии живут в шеренном codec'е, не во framework adapter writers.</td></tr>
+<tr><td><code>InspectorValueCodec scope</code></td><td><strong>Поправлено (F-010):</strong> codec только валидирует и нормализует к inspector-form'е (<code>'50%' → '50'</code>). Per-target conversion (<code>'50' → 0.5</code> для CSS) живёт в адаптерах — у каждого target'а своё value space.</td></tr>
 </tbody>
 </table>
 
@@ -750,6 +756,7 @@ done
 <tr><td class="mono">F-007</td><td><span class="tag yellow">P2</span></td><td>Plan-7 / ArbitraryPropPlan: нет inline-комментария про empty requestedStyles, нет validation rule</td><td>claude</td></tr>
 <tr><td class="mono">F-008</td><td><span class="tag yellow">P2</span></td><td>Plan validation rule про confidence mapping (deterministic / ai-assisted / fallback) не записана в plan.md</td><td>claude</td></tr>
 <tr><td class="mono">F-009</td><td><span class="tag blue">P3</span></td><td>Никаких failing тестов под спеку не написано — Phase 0 чеклист пустой</td><td>codex/claude</td></tr>
+<tr><td class="mono">F-010</td><td><span class="tag red">P1</span></td><td><code>InspectorValueCodec</code> переопределить: только валидация + нормализация к inspector-form'е, без target-conversion. Per-target value mapping вынести в адаптеры (каждый адаптер знает value space своего target'а). Обновить Read/Write flow в plan.md и удалить примеры типа «opacity 50 → tailwind 50» из секции codec'а.</td><td>claude</td></tr>
 </tbody>
 </table>
 
