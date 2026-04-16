@@ -345,63 +345,67 @@ Codex может опросить ledger в любой момент, Claude — 
   <text x="460" y="198" fill="#8b949e" text-anchor="middle" font-size="11">routes through framework adapters,</text>
   <text x="460" y="212" fill="#8b949e" text-anchor="middle" font-size="11">mappers, source resolver, AI router</text>
 
-  <!-- Plan union (5 boxes) -->
-  <rect x="20" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
-  <text x="100" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">TailwindPlan</text>
-  <text x="100" y="334" fill="#8b949e" text-anchor="middle" font-size="10">elementClass</text>
-  <text x="100" y="348" fill="#8b949e" text-anchor="middle" font-size="10">tailwind-v3 / v4</text>
-  <text x="100" y="362" fill="#8b949e" text-anchor="middle" font-size="10">static / dynamic</text>
+  <!-- Plan union: 6 plans in one row, dispatched by sourceForm -->
+  <rect x="10" y="290" width="140" height="100" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="80" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">TailwindPlan</text>
+  <text x="80" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">elementClass</text>
+  <text x="80" y="352" fill="#8b949e" text-anchor="middle" font-size="10">tailwind-v3 / v4</text>
+  <text x="80" y="368" fill="#8b949e" text-anchor="middle" font-size="10">static / dynamic</text>
 
-  <rect x="200" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
-  <text x="280" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">CssFilePlan</text>
-  <text x="280" y="334" fill="#8b949e" text-anchor="middle" font-size="10">cssStyleRule</text>
-  <text x="280" y="348" fill="#8b949e" text-anchor="middle" font-size="10">CssModulesFilePlan</text>
-  <text x="280" y="362" fill="#8b949e" text-anchor="middle" font-size="10">| PlainCssFilePlan</text>
+  <rect x="160" y="290" width="140" height="100" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="230" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">CssFilePlan</text>
+  <text x="230" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">cssStyleRule</text>
+  <text x="230" y="352" fill="#8b949e" text-anchor="middle" font-size="10">CssModulesFilePlan</text>
+  <text x="230" y="368" fill="#8b949e" text-anchor="middle" font-size="10">| PlainCssFilePlan</text>
 
-  <rect x="380" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
-  <text x="460" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ScriptObjectStylePlan</text>
-  <text x="460" y="334" fill="#8b949e" text-anchor="middle" font-size="10">scriptReactStyleRule</text>
-  <text x="460" y="348" fill="#8b949e" text-anchor="middle" font-size="10">inline / emotion / sx /</text>
-  <text x="460" y="362" fill="#8b949e" text-anchor="middle" font-size="10">v-extract / mantine</text>
+  <rect x="310" y="290" width="140" height="100" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="380" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="11">ScriptObjectStylePlan</text>
+  <text x="380" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">scriptReactStyleRule</text>
+  <text x="380" y="352" fill="#8b949e" text-anchor="middle" font-size="10">inline / emotion / sx /</text>
+  <text x="380" y="368" fill="#8b949e" text-anchor="middle" font-size="10">v-extract / mantine</text>
 
-  <rect x="560" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
-  <text x="640" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ScriptTemplateStylePlan</text>
-  <text x="640" y="334" fill="#8b949e" text-anchor="middle" font-size="10">scriptNativeStyleRule</text>
-  <text x="640" y="348" fill="#8b949e" text-anchor="middle" font-size="10">styled.div``</text>
-  <text x="640" y="362" fill="#8b949e" text-anchor="middle" font-size="10">css`...`</text>
+  <rect x="460" y="290" width="140" height="100" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="530" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="11">ScriptTemplateStylePlan</text>
+  <text x="530" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">scriptNativeStyleRule</text>
+  <text x="530" y="352" fill="#8b949e" text-anchor="middle" font-size="10">styled.div``</text>
+  <text x="530" y="368" fill="#8b949e" text-anchor="middle" font-size="10">css`...`</text>
 
-  <rect x="740" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
-  <text x="820" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">AdapterPropPlan</text>
-  <text x="820" y="334" fill="#8b949e" text-anchor="middle" font-size="10">adapterKnownElementProp</text>
-  <text x="820" y="348" fill="#8b949e" text-anchor="middle" font-size="10">tamagui / chakra /</text>
-  <text x="820" y="362" fill="#8b949e" text-anchor="middle" font-size="10">mui-sx / mantine</text>
+  <rect x="610" y="290" width="140" height="100" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="680" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">AdapterPropPlan</text>
+  <text x="680" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">adapterKnownProp</text>
+  <text x="680" y="352" fill="#8b949e" text-anchor="middle" font-size="10">tamagui / chakra /</text>
+  <text x="680" y="368" fill="#8b949e" text-anchor="middle" font-size="10">mui-sx / mantine</text>
 
-  <rect x="380" y="395" width="160" height="65" rx="8" fill="rgba(248,81,73,0.08)" stroke="#f85149" stroke-dasharray="3,3"/>
-  <text x="460" y="421" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ArbitraryPropPlan</text>
-  <text x="460" y="438" fill="#8b949e" text-anchor="middle" font-size="10">arbitraryElementProp</text>
-  <text x="460" y="452" fill="#f85149" text-anchor="middle" font-size="10">requestedStyles: {} (by design)</text>
+  <rect x="760" y="290" width="140" height="100" rx="8" fill="rgba(248,81,73,0.06)" stroke="#f85149" stroke-dasharray="4,3"/>
+  <text x="830" y="312" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ArbitraryPropPlan</text>
+  <text x="830" y="332" fill="#bc8cff" text-anchor="middle" font-size="10" font-style="italic">arbitraryElementProp</text>
+  <text x="830" y="352" fill="#f85149" text-anchor="middle" font-size="10">no CSS semantics</text>
+  <text x="830" y="368" fill="#f85149" text-anchor="middle" font-size="10">requestedStyles: {}</text>
 
   <!-- Executor -->
   <rect x="260" y="490" width="400" height="40" rx="8" fill="rgba(63,185,80,0.1)" stroke="#3fb950"/>
   <text x="460" y="514" fill="#e6edf3" text-anchor="middle" font-weight="700">Adapter writer (per-target value conv.) → file mutation + FastPatch tag</text>
 
-  <!-- Arrows -->
+  <!-- Top-row arrows: Inspector → Codec → Context → Manager -->
   <line x1="220" y1="50" x2="270" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
   <line x1="470" y1="50" x2="520" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
   <line x1="630" y1="100" x2="460" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
-  <line x1="380" y1="220" x2="100" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <line x1="420" y1="220" x2="280" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <line x1="460" y1="220" x2="460" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <line x1="500" y1="220" x2="640" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <line x1="540" y1="220" x2="820" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
-  <!-- Manager → ArbitraryPropPlan (curved, bypasses the plan row) -->
-  <path d="M 580 200 C 770 220, 770 410, 540 425" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrPurple)"/>
-  <text x="780" y="320" fill="#bc8cff" font-size="11" font-style="italic">arbitraryElementProp</text>
-  <line x1="100" y1="370" x2="370" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
-  <line x1="280" y1="370" x2="400" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
-  <line x1="460" y1="460" x2="460" y2="488" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
-  <line x1="640" y1="370" x2="520" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
-  <line x1="820" y1="370" x2="550" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
+
+  <!-- Manager → 6 plans: dispatch by sourceForm (fan-out) -->
+  <line x1="320" y1="220" x2="80" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="380" y1="220" x2="230" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="430" y1="220" x2="380" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="490" y1="220" x2="530" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="540" y1="220" x2="680" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="600" y1="220" x2="830" y2="288" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrPurple)"/>
+
+  <!-- Plans → Executor -->
+  <line x1="80" y1="390" x2="320" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" marker-end="url(#arr)"/>
+  <line x1="230" y1="390" x2="380" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" marker-end="url(#arr)"/>
+  <line x1="380" y1="390" x2="430" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" marker-end="url(#arr)"/>
+  <line x1="530" y1="390" x2="490" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" marker-end="url(#arr)"/>
+  <line x1="680" y1="390" x2="540" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" marker-end="url(#arr)"/>
+  <line x1="830" y1="390" x2="600" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.55" stroke-dasharray="4,3" marker-end="url(#arr)"/>
 </svg>
 <div class="diagram-cap">Manager диспатчит на <strong>один из 6 планов</strong> через развилку по <code>sourceForm</code>: <code>elementClass → TailwindPlan</code>, <code>cssStyleRule → CssFilePlan</code>, <code>scriptReactStyleRule → ScriptObjectStylePlan</code>, <code>scriptNativeStyleRule → ScriptTemplateStylePlan</code>, <code>adapterKnownElementProp → AdapterPropPlan</code>, <code>arbitraryElementProp → ArbitraryPropPlan</code>. Per-target value conversion (opacity 50→0.5 и т.п.) живёт в адаптерных writer'ах, не в шеренном codec'е.</div>
 </div>
