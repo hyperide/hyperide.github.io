@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style-Write Unification — двухагентная коллаборация (postmortem)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;
+  background:#0d1117;color:#c9d1d9;line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+code,pre,.mono{font-family:'SF Mono','Cascadia Code','Fira Code',ui-monospace,monospace;font-size:.92em}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+.header{padding:64px 0 40px;border-bottom:1px solid #21262d}
+.header h1{
+  font-size:2.6rem;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(135deg,#58a6ff,#bc8cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:12px;line-height:1.2;
+}
+.header .sub{font-size:1.15rem;color:#8b949e;margin-bottom:18px}
+.header-meta{display:flex;gap:18px;flex-wrap:wrap;color:#8b949e;font-size:.9rem}
+.tag{
+  display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:.78rem;font-weight:600;
+  background:rgba(188,140,255,.14);color:#bc8cff;
+}
+.tag.red{background:rgba(248,81,73,.14);color:#f85149}
+.tag.green{background:rgba(63,185,80,.14);color:#3fb950}
+.tag.blue{background:rgba(88,166,255,.14);color:#58a6ff}
+.tag.yellow{background:rgba(210,153,34,.14);color:#d29922}
+
+section{padding:48px 0;border-bottom:1px solid #161b22}
+section:last-child{border-bottom:none}
+h2{
+  font-size:1.55rem;font-weight:700;margin-bottom:20px;
+  background:linear-gradient(135deg,#58a6ff,#bc8cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+h3{font-size:1.15rem;font-weight:700;color:#e6edf3;margin:28px 0 12px}
+h4{font-size:.98rem;font-weight:700;color:#e6edf3;margin:20px 0 8px;letter-spacing:.01em}
+p{margin-bottom:14px}
+p+p{margin-top:0}
+ul,ol{margin:8px 0 14px 24px}
+li{margin-bottom:6px}
+li::marker{color:#58a6ff}
+
+.callout{
+  background:rgba(22,27,34,.7);border-left:3px solid #58a6ff;
+  border-radius:6px;padding:16px 20px;margin:20px 0;
+}
+.callout.red{border-left-color:#f85149;background:rgba(248,81,73,.06)}
+.callout.green{border-left-color:#3fb950;background:rgba(63,185,80,.06)}
+.callout.yellow{border-left-color:#d29922;background:rgba(210,153,34,.06)}
+.callout-title{font-weight:700;color:#e6edf3;margin-bottom:6px;font-size:.95rem;letter-spacing:.02em;text-transform:uppercase}
+
+pre{
+  background:#161b22;border:1px solid #21262d;border-radius:8px;
+  padding:14px 16px;margin:14px 0;overflow-x:auto;
+  font-size:.86rem;line-height:1.55;color:#c9d1d9;
+}
+pre.term{background:#0a0e13}
+code{background:rgba(110,118,129,.16);padding:.15em .35em;border-radius:4px;color:#e6edf3}
+pre code{background:transparent;padding:0;border-radius:0}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92rem}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #21262d;vertical-align:top}
+th{font-weight:700;color:#e6edf3;background:rgba(22,27,34,.5);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em}
+tr:hover td{background:rgba(22,27,34,.4)}
+td.mono{font-family:'SF Mono',ui-monospace,monospace;font-size:.85rem}
+td .tag{font-size:.72rem;padding:2px 7px}
+
+.diagram{
+  background:#0a0e13;border:1px solid #21262d;border-radius:10px;
+  padding:24px;margin:20px 0;overflow-x:auto;
+}
+.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.diagram-cap{font-size:.82rem;color:#8b949e;text-align:center;margin-top:8px;font-style:italic}
+
+.timeline{
+  position:relative;padding-left:24px;margin:20px 0;
+  border-left:2px solid #21262d;
+}
+.tl-event{position:relative;margin-bottom:18px;padding-left:18px}
+.tl-event::before{
+  content:"";position:absolute;left:-30px;top:8px;
+  width:11px;height:11px;border-radius:50%;
+  background:#21262d;border:2px solid #0d1117;
+}
+.tl-event.claude::before{background:#58a6ff}
+.tl-event.codex::before{background:#bc8cff}
+.tl-event.observer::before{background:#3fb950}
+.tl-event.fail::before{background:#f85149}
+.tl-event-time{font-size:.8rem;color:#8b949e;margin-bottom:3px;font-family:'SF Mono',ui-monospace,monospace}
+.tl-event-author{font-weight:700;color:#e6edf3;display:inline}
+.tl-event-author.claude{color:#58a6ff}
+.tl-event-author.codex{color:#bc8cff}
+.tl-event-author.observer{color:#3fb950}
+.tl-event-text{margin-top:4px;color:#c9d1d9;font-size:.95rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0}
+.card{
+  background:rgba(22,27,34,.7);border:1px solid #30363d;
+  border-radius:10px;padding:18px 20px;
+}
+.card .val{font-size:1.8rem;font-weight:700;color:#e6edf3;line-height:1}
+.card .lbl{font-size:.82rem;color:#8b949e;margin-top:6px}
+.card.green .val{color:#3fb950}
+.card.red .val{color:#f85149}
+.card.blue .val{color:#58a6ff}
+
+.toc{
+  background:rgba(22,27,34,.5);border:1px solid #21262d;
+  border-radius:10px;padding:18px 24px;margin:24px 0;
+}
+.toc-title{font-weight:700;color:#e6edf3;margin-bottom:10px;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+.toc ol{margin:0;padding-left:20px;list-style:decimal}
+.toc li{margin-bottom:4px}
+.toc a{color:#c9d1d9}
+.toc a:hover{color:#58a6ff}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0 20px;font-size:.85rem;color:#8b949e}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:11px;height:11px;border-radius:50%}
+
+footer{padding:48px 0 64px;color:#484f58;font-size:.82rem;text-align:center}
+footer a{color:#8b949e}
+
+@media (max-width:680px){
+  .header h1{font-size:1.85rem}
+  h2{font-size:1.3rem}
+  .container{padding:0 18px}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header class="header">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <span class="tag">postmortem</span>
+    <span class="tag blue">spec</span>
+    <span class="tag yellow">multi-agent</span>
+  </div>
+  <h1>Style-Write Unification:<br>двухагентная коллаборация</h1>
+  <div class="sub">Анализ работы Claude + Codex над спекой инспектор-стилей. Что получилось, что сломалось, как починить.</div>
+  <div class="header-meta">
+    <span>📅 2026-04-14 → 2026-04-16</span>
+    <span>👤 Alex Ultra (observer)</span>
+    <span>🤖 Claude Sonnet 4.6</span>
+    <span>🤖 Codex GPT-5.4</span>
+    <span>📝 5 spec файлов</span>
+  </div>
+</header>
+
+<div class="toc">
+  <div class="toc-title">Содержание</div>
+  <ol>
+    <li><a href="#tldr">TL;DR — что произошло</a></li>
+    <li><a href="#timeline">Таймлайн коллаборации</a></li>
+    <li><a href="#architecture">Архитектура спеки (что наработали)</a></li>
+    <li><a href="#decisions">Канонические решения</a></li>
+    <li><a href="#postmortem">Postmortem: почему коллаборация развалилась</a></li>
+    <li><a href="#protocol-v2">Протокол v2 — конкретный дизайн</a></li>
+    <li><a href="#open">Что осталось открытым</a></li>
+    <li><a href="#actions">Action items</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════ TL;DR ═══════════════════ -->
+<section id="tldr">
+<h2>1. TL;DR — что произошло</h2>
+
+<div class="cards">
+  <div class="card blue"><div class="val">5</div><div class="lbl">spec файлов</div></div>
+  <div class="card blue"><div class="val">4436</div><div class="lbl">строк plan.md</div></div>
+  <div class="card green"><div class="val">3</div><div class="lbl">P1 финдинга закрыто</div></div>
+  <div class="card red"><div class="val">2</div><div class="lbl">P1 открыто</div></div>
+  <div class="card"><div class="val">~24ч</div><div class="lbl">общая длительность</div></div>
+  <div class="card"><div class="val">0</div><div class="lbl">тестов написано</div></div>
+</div>
+
+<h3>Что хотели</h3>
+<p>Унифицировать запись стилей инспектора между VS Code-расширением и SaaS. Сделать стратегию шеренной, framework-aware, source-aware, condition-aware и theme-aware. Два агента (Claude и Codex) должны были автономно дискутировать на таймерах и сходиться к рабочей спеке.</p>
+
+<h3>Что вышло</h3>
+<p>Спека получилась богатая (5 документов, ~10к строк), архитектурно цельная — есть <code>StyleWritePlan</code> union, framework adapter umbrella, source ownership с confidence, theme resolver, prop mappers. Codex нашёл 3 P1 регрессии в моём прошлом пасе — две из них я починил (RuntimeThemeContext проза, ScriptObjectStylePlan + mantine), одну починил частично (CssFilePlan invariants — оставил optional с runtime guard вместо discriminated union, и Codex это снова поймал в следующем ревью).</p>
+
+<h3>Что сломалось в коллаборации</h3>
+<p>Дискуссии не было. Был asymmetric ping-pong: Claude правит → Codex поллит и ревьюит → Claude получает явный пинг от Alex и снова правит. Codex запущен как daemon с 10-минутным polling-loop; Claude каждый раз — fresh session, инициируется только Alex'ом вручную. Никакого механизма «Codex разбудил Claude» нет. Convergence criterion отсутствует. Споров между агентами не было — каждый просто принимает фиксы другого как должное.</p>
+
+<div class="callout red">
+<div class="callout-title">Главная поломка</div>
+Codex может опросить ledger в любой момент, Claude — нет. Alex был необходим как живой message bus между двумя агентами. Это не «два агента работают вместе», это «два агента работают через человека».
+</div>
+
+</section>
+
+<!-- ═══════════════════ TIMELINE ═══════════════════ -->
+<section id="timeline">
+<h2>2. Таймлайн коллаборации</h2>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#58a6ff"></span>Claude</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#bc8cff"></span>Codex</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#3fb950"></span>Observer (Alex)</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#f85149"></span>Поломка протокола</div>
+</div>
+
+<h3>День 1 — 2026-04-14 (вечер): elaboration в одиночку</h3>
+
+<div class="timeline">
+  <div class="tl-event observer">
+    <div class="tl-event-time">14:00 CEST</div>
+    <span class="tl-event-author observer">Observer</span>: запустил параллельно Claude и Codex на одну задачу — расширить style-write-unification план.
+    <div class="tl-event-text">Каждый агент работал отдельно, не зная о существовании другого. Claude дописывал главный <code>plan.md</code>, Codex одновременно правил его же.</div>
+  </div>
+  <div class="tl-event fail">
+    <div class="tl-event-time">14:00–00:00 CEST</div>
+    <span class="tl-event-author">⚠ Невидимая параллельная работа</span>
+    <div class="tl-event-text">Никакого ledger ещё нет. Оба агента редактируют один и тот же файл. Конфликты разрешаются git'ом «последний победил». Часть decisions одного агента переписывается другим без уведомления.</div>
+  </div>
+</div>
+
+<h3>День 2 — 2026-04-15 (утро): попытка установить протокол</h3>
+
+<div class="timeline">
+  <div class="tl-event observer">
+    <div class="tl-event-time">12:40 CEST</div>
+    <span class="tl-event-author observer">Observer → Codex</span>: «напиши все что сегодня сделали в workprocess.md».
+    <div class="tl-event-text">Решено создать ledger-файл для координации. Codex пишет первую версию.</div>
+  </div>
+  <div class="tl-event observer">
+    <div class="tl-event-time">12:42 CEST</div>
+    <span class="tl-event-author observer">Observer → Codex</span>: «сделай для него хорошую структуру».
+  </div>
+  <div class="tl-event observer">
+    <div class="tl-event-time">13:05 CEST</div>
+    <span class="tl-event-author observer">Observer → Codex</span>: «второй агент описал проделанную работу — ты тоже подпишись и сделай ревью».
+    <div class="tl-event-text">Первое явное упоминание «второго агента». Codex обнаруживает Claude через ledger.</div>
+  </div>
+  <div class="tl-event observer">
+    <div class="tl-event-time">13:21 CEST</div>
+    <span class="tl-event-author observer">Observer → Codex</span>: формализует протокол. Правила: статус, ожидание, разделение ролей (Claude — elaboration, Codex — review).
+  </div>
+  <div class="tl-event codex">
+    <div class="tl-event-time">13:28 CEST</div>
+    <span class="tl-event-author codex">Codex review</span>: 3 P1/P2 находки.
+    <div class="tl-event-text">P1: <code>RuntimeThemeContext</code> противоречие в прозе. P1: <code>CssFilePlan</code> потерял required-field invariants после union refactor. P2: <code>ScriptObjectStylePlan</code> исключил Mantine.</div>
+  </div>
+</div>
+
+<h3>День 2 — 2026-04-15 (день): polling loop без партнёра</h3>
+
+<div class="timeline">
+  <div class="tl-event codex">
+    <div class="tl-event-time">13:33 CEST</div>
+    <span class="tl-event-author codex">Codex</span>: новая сессия, 10-минутный repeat-cadence на чтение ledger. Ждёт ответа Claude.
+  </div>
+  <div class="tl-event fail">
+    <div class="tl-event-time">13:33–14:30 CEST</div>
+    <span class="tl-event-author">⚠ Тишина в эфире</span>
+    <div class="tl-event-text">Codex поллит каждые 10 минут — нет новых записей. Claude никем не запущен. Без observer'а коллаборация мертва.</div>
+  </div>
+  <div class="tl-event observer">
+    <div class="tl-event-time">14:30 CEST</div>
+    <span class="tl-event-author observer">Observer → Claude</span>: «разбери ревью» (явный пинг).
+  </div>
+  <div class="tl-event claude">
+    <div class="tl-event-time">14:30–14:58 CEST</div>
+    <span class="tl-event-author claude">Claude analysis + fixes</span>
+    <div class="tl-event-text">Прочитал ledger, разобрал 3 находки Codex. Применил фиксы к plan.md. Записал <code>📍 Review Session 14:58 CEST</code> с описанием изменений.</div>
+  </div>
+  <div class="tl-event codex">
+    <div class="tl-event-time">15:09 CEST</div>
+    <span class="tl-event-author codex">Codex review #2</span>: 2 новых P1 находки.
+    <div class="tl-event-text">P1: <code>PlainCssFilePlan</code> всё ещё compile-valid-invalid (<code>cascadeOwner?</code> и <code>createMode?</code> оба optional с runtime guard). P1: Mixed Tailwind + CSS Modules tie-breaker всё ещё не определён.</div>
+  </div>
+  <div class="tl-event fail">
+    <div class="tl-event-time">15:09–18:00 CEST</div>
+    <span class="tl-event-author">⚠ Открытые findings висят</span>
+    <div class="tl-event-text">Codex логирует находки, ставит обоих агентов в <code>done</code>, идёт спать. Claude не оповещён, не приходит фиксить. Convergence не достигнут — но никто этого не замечает.</div>
+  </div>
+</div>
+
+<h3>День 3 — 2026-04-16: реконструкция и postmortem</h3>
+
+<div class="timeline">
+  <div class="tl-event observer">
+    <div class="tl-event-time">~01:00 CEST</div>
+    <span class="tl-event-author observer">Observer → Claude</span>: «У меня депрессия. Я окончательно запутался... сделай полный отчёт».
+    <div class="tl-event-text">Этот документ — результат.</div>
+  </div>
+</div>
+
+</section>
+
+<!-- ═══════════════════ ARCHITECTURE ═══════════════════ -->
+<section id="architecture">
+<h2>3. Архитектура спеки (что наработали)</h2>
+
+<p>Спека описывает шеренный pipeline для записи стилей: один путь для VS Code-расширения и SaaS. Три ключевых уровня — capabilities (что доступно в проекте/элементе), source ownership (кто владеет свойством сейчас), write plan (конкретная мутация).</p>
+
+<h3>3.1 Pipeline записи (write flow)</h3>
+
+<div class="diagram">
+<svg viewBox="0 0 920 540" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Inter,system-ui,sans-serif" font-size="13">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="arrPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#bc8cff"/>
+    </marker>
+  </defs>
+
+  <!-- Inspector input -->
+  <rect x="20" y="20" width="200" height="60" rx="8" fill="rgba(88,166,255,0.1)" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="120" y="44" fill="#e6edf3" text-anchor="middle" font-weight="700">Inspector control</text>
+  <text x="120" y="64" fill="#8b949e" text-anchor="middle" font-size="11">user edits one property</text>
+
+  <!-- Codec -->
+  <rect x="270" y="20" width="200" height="60" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d" stroke-width="1"/>
+  <text x="370" y="42" fill="#e6edf3" text-anchor="middle" font-weight="700">InspectorValueCodec</text>
+  <text x="370" y="60" fill="#8b949e" text-anchor="middle" font-size="11">opacity 50 → 0.5,</text>
+  <text x="370" y="74" fill="#8b949e" text-anchor="middle" font-size="11">number/string per target</text>
+
+  <!-- Context -->
+  <rect x="520" y="20" width="220" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d" stroke-width="1"/>
+  <text x="630" y="42" fill="#e6edf3" text-anchor="middle" font-weight="700">StyleWriteContext</text>
+  <text x="630" y="60" fill="#8b949e" text-anchor="middle" font-size="11">projectCapabilities,</text>
+  <text x="630" y="75" fill="#8b949e" text-anchor="middle" font-size="11">elementFacts, condition,</text>
+  <text x="630" y="90" fill="#8b949e" text-anchor="middle" font-size="11">runtimeThemeContext</text>
+
+  <!-- Manager -->
+  <rect x="260" y="150" width="400" height="70" rx="8" fill="rgba(188,140,255,0.1)" stroke="#bc8cff" stroke-width="1.5"/>
+  <text x="460" y="178" fill="#e6edf3" text-anchor="middle" font-weight="700">StyleWriteManager.createPlan(ctx)</text>
+  <text x="460" y="198" fill="#8b949e" text-anchor="middle" font-size="11">routes through framework adapters,</text>
+  <text x="460" y="212" fill="#8b949e" text-anchor="middle" font-size="11">mappers, source resolver, AI router</text>
+
+  <!-- Plan union (5 boxes) -->
+  <rect x="20" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="100" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">TailwindPlan</text>
+  <text x="100" y="334" fill="#8b949e" text-anchor="middle" font-size="10">elementClass</text>
+  <text x="100" y="348" fill="#8b949e" text-anchor="middle" font-size="10">tailwind-v3 / v4</text>
+  <text x="100" y="362" fill="#8b949e" text-anchor="middle" font-size="10">static / dynamic</text>
+
+  <rect x="200" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="280" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">CssFilePlan</text>
+  <text x="280" y="334" fill="#8b949e" text-anchor="middle" font-size="10">cssStyleRule</text>
+  <text x="280" y="348" fill="#8b949e" text-anchor="middle" font-size="10">CssModulesFilePlan</text>
+  <text x="280" y="362" fill="#8b949e" text-anchor="middle" font-size="10">| PlainCssFilePlan</text>
+
+  <rect x="380" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="460" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ScriptObjectStylePlan</text>
+  <text x="460" y="334" fill="#8b949e" text-anchor="middle" font-size="10">scriptReactStyleRule</text>
+  <text x="460" y="348" fill="#8b949e" text-anchor="middle" font-size="10">inline / emotion / sx /</text>
+  <text x="460" y="362" fill="#8b949e" text-anchor="middle" font-size="10">v-extract / mantine</text>
+
+  <rect x="560" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="640" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ScriptTemplateStylePlan</text>
+  <text x="640" y="334" fill="#8b949e" text-anchor="middle" font-size="10">scriptNativeStyleRule</text>
+  <text x="640" y="348" fill="#8b949e" text-anchor="middle" font-size="10">styled.div``</text>
+  <text x="640" y="362" fill="#8b949e" text-anchor="middle" font-size="10">css`...`</text>
+
+  <rect x="740" y="290" width="160" height="80" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="820" y="316" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">AdapterPropPlan</text>
+  <text x="820" y="334" fill="#8b949e" text-anchor="middle" font-size="10">adapterKnownElementProp</text>
+  <text x="820" y="348" fill="#8b949e" text-anchor="middle" font-size="10">tamagui / chakra /</text>
+  <text x="820" y="362" fill="#8b949e" text-anchor="middle" font-size="10">mui-sx / mantine</text>
+
+  <rect x="380" y="395" width="160" height="65" rx="8" fill="rgba(248,81,73,0.08)" stroke="#f85149" stroke-dasharray="3,3"/>
+  <text x="460" y="421" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="12">ArbitraryPropPlan</text>
+  <text x="460" y="438" fill="#8b949e" text-anchor="middle" font-size="10">arbitraryElementProp</text>
+  <text x="460" y="452" fill="#f85149" text-anchor="middle" font-size="10">requestedStyles: {} (by design)</text>
+
+  <!-- Executor -->
+  <rect x="260" y="490" width="400" height="40" rx="8" fill="rgba(63,185,80,0.1)" stroke="#3fb950"/>
+  <text x="460" y="514" fill="#e6edf3" text-anchor="middle" font-weight="700">Executor → file mutation + FastPatch tag</text>
+
+  <!-- Arrows -->
+  <line x1="220" y1="50" x2="270" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="470" y1="50" x2="520" y2="50" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="370" y1="80" x2="430" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="630" y1="100" x2="490" y2="148" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="380" y1="220" x2="100" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="420" y1="220" x2="280" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="460" y1="220" x2="460" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="500" y1="220" x2="640" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="540" y1="220" x2="820" y2="288" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arrPurple)"/>
+  <line x1="460" y1="370" x2="460" y2="393" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrPurple)"/>
+  <line x1="100" y1="370" x2="370" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
+  <line x1="280" y1="370" x2="400" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="460" x2="460" y2="488" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="640" y1="370" x2="520" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
+  <line x1="820" y1="370" x2="550" y2="488" stroke="#3fb950" stroke-width="1" opacity="0.5" marker-end="url(#arr)"/>
+</svg>
+<div class="diagram-cap">StyleWriteManager диспатчит на 6 типов плана через discriminated union (sourceForm + cssSystem). ArbitraryPropPlan — особый случай без CSS-семантики.</div>
+</div>
+
+<h3>3.2 Source Tab routing — кто решает куда писать</h3>
+
+<div class="diagram">
+<svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Inter,system-ui,sans-serif" font-size="13">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/>
+    </marker>
+  </defs>
+
+  <!-- Decision diamond -->
+  <polygon points="450,20 600,80 450,140 300,80" fill="rgba(188,140,255,0.1)" stroke="#bc8cff" stroke-width="1.5"/>
+  <text x="450" y="76" fill="#e6edf3" text-anchor="middle" font-weight="700">какая Source Tab</text>
+  <text x="450" y="92" fill="#e6edf3" text-anchor="middle" font-weight="700">выбрана?</text>
+
+  <!-- Branches -->
+  <rect x="20" y="180" width="190" height="80" rx="8" fill="rgba(63,185,80,0.08)" stroke="#3fb950"/>
+  <text x="115" y="206" fill="#e6edf3" text-anchor="middle" font-weight="700">Explicit user tab</text>
+  <text x="115" y="224" fill="#8b949e" text-anchor="middle" font-size="11">«CSS Module» / «inline»</text>
+  <text x="115" y="240" fill="#8b949e" text-anchor="middle" font-size="11">→ deterministic resolver</text>
+  <text x="115" y="254" fill="#3fb950" text-anchor="middle" font-size="11" font-weight="700">confidence: exact</text>
+
+  <rect x="240" y="180" width="190" height="80" rx="8" fill="rgba(88,166,255,0.08)" stroke="#58a6ff"/>
+  <text x="335" y="206" fill="#e6edf3" text-anchor="middle" font-weight="700">Computed tab</text>
+  <text x="335" y="224" fill="#8b949e" text-anchor="middle" font-size="11">+ CSS Modules / plain CSS</text>
+  <text x="335" y="240" fill="#8b949e" text-anchor="middle" font-size="11">→ AI StyleSourceRouter</text>
+  <text x="335" y="254" fill="#58a6ff" text-anchor="middle" font-size="11" font-weight="700">route: ai-assisted</text>
+
+  <rect x="460" y="180" width="190" height="80" rx="8" fill="rgba(210,153,34,0.08)" stroke="#d29922"/>
+  <text x="555" y="206" fill="#e6edf3" text-anchor="middle" font-weight="700">Tailwind owner</text>
+  <text x="555" y="224" fill="#8b949e" text-anchor="middle" font-size="11">single class system</text>
+  <text x="555" y="240" fill="#8b949e" text-anchor="middle" font-size="11">→ static or dynamic plan</text>
+  <text x="555" y="254" fill="#d29922" text-anchor="middle" font-size="11" font-weight="700">confidence: exact</text>
+
+  <rect x="680" y="180" width="190" height="80" rx="8" fill="rgba(248,81,73,0.08)" stroke="#f85149"/>
+  <text x="775" y="206" fill="#e6edf3" text-anchor="middle" font-weight="700">No safe target</text>
+  <text x="775" y="224" fill="#8b949e" text-anchor="middle" font-size="11">ambiguous / no resolver</text>
+  <text x="775" y="240" fill="#8b949e" text-anchor="middle" font-size="11">→ Inline fallback</text>
+  <text x="775" y="254" fill="#f85149" text-anchor="middle" font-size="11" font-weight="700">confidence: fallback</text>
+
+  <!-- Plan-level confidence box -->
+  <rect x="200" y="300" width="500" height="60" rx="8" fill="rgba(22,27,34,0.7)" stroke="#30363d"/>
+  <text x="450" y="324" fill="#e6edf3" text-anchor="middle" font-weight="700">plan.confidence: exact | probable | fallback</text>
+  <text x="450" y="346" fill="#8b949e" text-anchor="middle" font-size="11">AI-assisted роутинг → plan 'probable' (не верифицируется детерминистически)</text>
+
+  <line x1="115" y1="260" x2="350" y2="298" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="335" y1="260" x2="380" y2="298" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="555" y1="260" x2="500" y2="298" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="775" y1="260" x2="600" y2="298" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+
+  <line x1="320" y1="120" x2="115" y2="178" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="395" y1="125" x2="335" y2="178" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="495" y1="125" x2="555" y2="178" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="565" y1="115" x2="775" y2="178" stroke="#58a6ff" stroke-width="1" marker-end="url(#arr2)"/>
+</svg>
+<div class="diagram-cap">Routing решает куда применить write. Два confidence-поля: routeDecision.confidence (метод) и plan.confidence (outcome) — ортогональны, не сливать.</div>
+</div>
+
+<h3>3.3 Theme resolution — что особенного</h3>
+
+<p>Theme — отдельная подсистема. Differentiates:</p>
+
+<table>
+<thead><tr><th>Понятие</th><th>Что это</th><th>Где живёт</th></tr></thead>
+<tbody>
+<tr><td><code>RuntimeThemeContext</code></td><td>текущее предпочтение пользователя light/dark/system</td><td>per-request на <code>StyleWriteContext</code></td></tr>
+<tr><td>theme condition</td><td>условие в source: <code>.dark &amp;</code>, <code>data-theme='dark'</code></td><td><code>StyleCondition.theme[]</code></td></tr>
+<tr><td>theme value owner</td><td>где определён цветовой токен</td><td><code>cascadeOwner</code> на <code>PlainCssFilePlan</code></td></tr>
+<tr><td>write target</td><td>что мутировать: variable, branch, token</td><td><code>target.declarations</code></td></tr>
+</tbody>
+</table>
+
+<p>Ключевое правило: <code>system</code> — это IDE preference, не source condition. Resolver приводит <code>system</code> → <code>light</code> или <code>dark</code> до роутинга.</p>
+
+</section>
+
+<!-- ═══════════════════ DECISIONS ═══════════════════ -->
+<section id="decisions">
+<h2>4. Канонические решения</h2>
+
+<table>
+<thead><tr><th>Решение</th><th>Суть</th></tr></thead>
+<tbody>
+<tr><td><code>CSS Modules ≠ Tailwind</code></td><td>Не аппендить Tailwind классы к CSS Modules-only элементам. Либо CSS Modules write, либо inline fallback.</td></tr>
+<tr><td><code>Inline fallback permanent</code></td><td>Не временный phase guard, а универсальный fallback когда никакой adapter не может безопасно построить source-write.</td></tr>
+<tr><td><code>FastPatch ≠ source truth</code></td><td>Только optimistic preview. Никогда не подменяет source-write. Тесты ждут HMR/readback подтверждения.</td></tr>
+<tr><td><code>Adapter umbrella</code></td><td>Один <code>FrameworkStyleAdapter</code> на framework с фасетами reader/writer/sourceResolver/tokenResolver/themeResolver. Не один плоский adapter.</td></tr>
+<tr><td><code>UI kit ≠ CSS system</code></td><td>shadcn/daisyUI — UI kits на Tailwind. Mantine/MUI/Chakra — могут быть и CSS system, и UI kit.</td></tr>
+<tr><td><code>StyleCondition extensible</code></td><td>state, viewport, container, media/supports, theme, selector, raw. Last preserves adapter-specific reads.</td></tr>
+<tr><td><code>CascadeContext separate</code></td><td><code>@layer</code>, <code>@scope</code>, at-rule placement — это source/cascade context, не condition row.</td></tr>
+<tr><td><code>One control = one plan</code></td><td>Один inspector control = одно property = один <code>StyleWritePlan</code>. Без AI-batching через адаптеры.</td></tr>
+<tr><td><code>InspectorValueCodec central</code></td><td>opacity 50→0.5 и подобные конверсии живут в шеренном codec'е, не во framework adapter writers.</td></tr>
+</tbody>
+</table>
+
+</section>
+
+<!-- ═══════════════════ POSTMORTEM ═══════════════════ -->
+<section id="postmortem">
+<h2>5. Postmortem: почему коллаборация развалилась</h2>
+
+<p>Протокол был задокументирован в <code>workprocess.md</code>. На бумаге выглядел разумно. На практике развалился по 6 конкретным причинам.</p>
+
+<h3>5.1 Asymmetric agents</h3>
+<div class="callout red">
+<div class="callout-title">Поломка #1 — несимметричный контроль</div>
+Codex запущен как long-running daemon с <code>repeat-cadence</code> (читает ledger каждые 10 минут). Claude — fresh session, инициируется только Alex'ом. Когда Codex добавляет findings — Claude об этом не узнаёт автоматически.
+</div>
+
+<h3>5.2 No invocation channel</h3>
+<div class="callout red">
+<div class="callout-title">Поломка #2 — нет канала пинга</div>
+Codex физически не может «разбудить» Claude. Нет API, нет webhook'а, нет shared queue. Единственный способ перенести state из Codex'а в Claude — Alex вручную пишет в Claude «прочитай ledger».
+</div>
+
+<h3>5.3 Session context loss</h3>
+<div class="callout red">
+<div class="callout-title">Поломка #3 — потеря контекста между сессиями</div>
+Каждый раз когда Alex запускает Claude заново — это новая сессия, нулевой контекст. Claude должен с нуля прочитать workprocess (~1100 строк), plan.md (4400 строк), 3 sub-spec файла. Это 30k+ токенов на one-shot чтение, и часть деталей теряется.
+</div>
+
+<h3>5.4 No convergence criterion</h3>
+<div class="callout red">
+<div class="callout-title">Поломка #4 — непонятно когда коллаборация закончена</div>
+Status board: Claude `done`, Codex `done`. Но Codex добавил 2 P1 находки и пошёл спать. По формальному протоколу — work done. По факту — есть открытые блокеры. Никакого правила «не помечать done пока есть unresolved P1 findings» нет.
+</div>
+
+<h3>5.5 No discussion / disagreement protocol</h3>
+<div class="callout yellow">
+<div class="callout-title">Поломка #5 — нет настоящего диалога</div>
+Каждый агент принимает фиксы другого как должное. Если Claude поверхностно починил <code>CssFilePlan</code> (runtime guard вместо compile-time discriminated union) — Codex это заметил и снова открыл, но не написал «я не согласен с этим подходом, я бы сделал X». Просто log new finding, дальше ждать. Convergence через тишину, а не через консенсус.
+</div>
+
+<h3>5.6 Observer как message bus</h3>
+<div class="callout red">
+<div class="callout-title">Поломка #6 — Alex носит сообщения</div>
+По итогу Alex был необходимым звеном для каждого хода. «Codex что-то нашёл — расскажи Claude». «Claude починил — расскажи Codex». Это <i>не</i> двухагентная коллаборация. Это observer-driven sequential workflow с двумя исполнителями.
+</div>
+
+<h3>5.7 Что в этом всё-таки сработало</h3>
+<div class="callout green">
+<div class="callout-title">Что не сломалось</div>
+<ul>
+<li><strong>Ledger как single source of truth</strong> — workprocess.md действительно даёт обоим агентам общий контекст. Без него было бы хуже.</li>
+<li><strong>📍 Review Session формат</strong> — позволяет легко найти где чей turn, что сделано, какие validation команды запускались.</li>
+<li><strong>Asymmetric roles (Claude — elaboration, Codex — review)</strong> — хорошая идея в принципе. Codex пойман на adversarial review, Claude — на детализации. Каждый из них находит то, что другой пропускает.</li>
+<li><strong>Версия плана v1 → v2</strong> — несмотря на провалы протокола, спека реально стала чище: 3 регрессии нашли и (частично) починили. Без второго агента эти баги ушли бы в production-код.</li>
+</ul>
+</div>
+
+</section>
+
+<!-- ═══════════════════ PROTOCOL V2 ═══════════════════ -->
+<section id="protocol-v2">
+<h2>6. Протокол v2 — конкретный дизайн</h2>
+
+<p>Цель: исключить Alex'а как message bus. Сохранить asymmetric roles. Добавить convergence criterion и disagreement handling.</p>
+
+<h3>6.1 Архитектура: orchestrator + структурированный ledger</h3>
+
+<div class="diagram">
+<svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Inter,system-ui,sans-serif" font-size="13">
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="arr3g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3fb950"/>
+    </marker>
+  </defs>
+
+  <!-- Orchestrator -->
+  <rect x="320" y="30" width="260" height="80" rx="10" fill="rgba(63,185,80,0.1)" stroke="#3fb950" stroke-width="2"/>
+  <text x="450" y="58" fill="#e6edf3" text-anchor="middle" font-weight="700" font-size="15">Orchestrator (cron / daemon)</text>
+  <text x="450" y="78" fill="#8b949e" text-anchor="middle" font-size="11">читает findings.yaml, решает чей turn,</text>
+  <text x="450" y="92" fill="#8b949e" text-anchor="middle" font-size="11">вызывает claude -p / codex exec</text>
+
+  <!-- Ledger -->
+  <rect x="320" y="170" width="260" height="100" rx="10" fill="rgba(22,27,34,0.7)" stroke="#30363d" stroke-width="1.5"/>
+  <text x="450" y="196" fill="#e6edf3" text-anchor="middle" font-weight="700">Structured ledger</text>
+  <text x="450" y="216" fill="#8b949e" text-anchor="middle" font-size="11">workprocess.md (prose)</text>
+  <text x="450" y="232" fill="#8b949e" text-anchor="middle" font-size="11">+ findings.yaml (machine-readable)</text>
+  <text x="450" y="252" fill="#8b949e" text-anchor="middle" font-size="11">id, owner, status, severity, raised_by</text>
+
+  <!-- Claude -->
+  <rect x="20" y="320" width="220" height="100" rx="10" fill="rgba(88,166,255,0.1)" stroke="#58a6ff" stroke-width="2"/>
+  <text x="130" y="348" fill="#e6edf3" text-anchor="middle" font-weight="700">Claude (per-invocation)</text>
+  <text x="130" y="368" fill="#8b949e" text-anchor="middle" font-size="11">role: elaboration, fixes</text>
+  <text x="130" y="384" fill="#8b949e" text-anchor="middle" font-size="11">claude -p "address findings</text>
+  <text x="130" y="400" fill="#8b949e" text-anchor="middle" font-size="11">owned by claude in findings.yaml"</text>
+
+  <!-- Codex -->
+  <rect x="660" y="320" width="220" height="100" rx="10" fill="rgba(188,140,255,0.1)" stroke="#bc8cff" stroke-width="2"/>
+  <text x="770" y="348" fill="#e6edf3" text-anchor="middle" font-weight="700">Codex (per-invocation)</text>
+  <text x="770" y="368" fill="#8b949e" text-anchor="middle" font-size="11">role: adversarial review</text>
+  <text x="770" y="384" fill="#8b949e" text-anchor="middle" font-size="11">codex exec "review last claude turn,</text>
+  <text x="770" y="400" fill="#8b949e" text-anchor="middle" font-size="11">add new findings to ledger"</text>
+
+  <!-- Observer pinger -->
+  <rect x="320" y="320" width="260" height="100" rx="10" fill="rgba(248,81,73,0.06)" stroke="#f85149" stroke-dasharray="4,3" stroke-width="1"/>
+  <text x="450" y="348" fill="#e6edf3" text-anchor="middle" font-weight="700">Observer ping (Telegram)</text>
+  <text x="450" y="370" fill="#8b949e" text-anchor="middle" font-size="11">только при disputes</text>
+  <text x="450" y="386" fill="#8b949e" text-anchor="middle" font-size="11">или после convergence:</text>
+  <text x="450" y="402" fill="#8b949e" text-anchor="middle" font-size="11">«готово, см. report.html»</text>
+
+  <!-- Arrows -->
+  <line x1="450" y1="110" x2="450" y2="168" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr3g)"/>
+  <text x="465" y="142" fill="#3fb950" font-size="11">read &amp; decide</text>
+
+  <line x1="380" y1="110" x2="200" y2="318" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr3g)"/>
+  <line x1="520" y1="110" x2="700" y2="318" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr3g)"/>
+
+  <line x1="240" y1="370" x2="318" y2="220" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr3)"/>
+  <text x="170" y="270" fill="#58a6ff" font-size="11">write turn</text>
+
+  <line x1="660" y1="370" x2="582" y2="220" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr3)"/>
+  <text x="650" y="270" fill="#bc8cff" font-size="11">write turn</text>
+
+  <line x1="450" y1="318" x2="450" y2="270" stroke="#f85149" stroke-width="1" stroke-dasharray="2,3" marker-end="url(#arr3)"/>
+</svg>
+<div class="diagram-cap">Orchestrator — единственный «живой» процесс. Он читает структурированный ledger, решает чей turn, вызывает Claude или Codex headless. Observer пингуется только при disputes или convergence.</div>
+</div>
+
+<h3>6.2 Структурированный ledger</h3>
+
+<p>Дополнить workprocess.md машинным findings.yaml рядом:</p>
+
+<pre><code>findings:
+  - id: F-001
+    title: "RuntimeThemeContext composition-root prose contradiction"
+    severity: P1
+    status: closed
+    raised_by: codex
+    raised_at: 2026-04-15T13:28+02:00
+    fix_owner: claude
+    fixed_at: 2026-04-15T14:58+02:00
+    verified_by: codex
+    verified_at: 2026-04-15T15:09+02:00
+
+  - id: F-004
+    title: "PlainCssFilePlan compile-valid invalid targets"
+    severity: P1
+    status: open
+    raised_by: codex
+    raised_at: 2026-04-15T15:09+02:00
+    fix_owner: claude
+    notes: |
+      Discriminated union required (mode: 'existing-owner' | 'create-rule')
+      Runtime guard insufficient.
+
+  - id: F-005
+    title: "Tailwind + CSS Modules tie-breaker policy"
+    severity: P1
+    status: open_question
+    raised_by: codex
+    raised_at: 2026-04-15T13:28+02:00
+    fix_owner: observer
+    notes: "Requires product decision before implementation."
+</code></pre>
+
+<h3>6.3 Orchestrator pseudocode</h3>
+
+<pre class="term"><code>#!/usr/bin/env bash
+# agent-loop.sh — runs both agents until convergence
+set -euo pipefail
+
+LEDGER=docs/specs/2026-04-14-style-write-unification-workprocess.md
+FINDINGS=docs/specs/2026-04-14-style-write-unification-findings.yaml
+QUIET_CYCLES=0
+MAX_QUIET=3
+
+while true; do
+  open_for_claude=$(yq '[.findings[] | select(.status=="open" and .fix_owner=="claude")] | length' "$FINDINGS")
+  open_for_codex=$(yq '[.findings[] | select(.status=="open" and .fix_owner=="codex")] | length' "$FINDINGS")
+  disputes=$(yq '[.findings[] | select(.status=="dispute")] | length' "$FINDINGS")
+
+  if [[ $disputes -gt 0 ]]; then
+    notify_observer "disputes need adjudication: $disputes"
+    break
+  fi
+
+  prev_count=$(wc -l &lt; "$LEDGER")
+
+  if [[ $open_for_claude -gt 0 ]]; then
+    claude -p "Read $LEDGER and $FINDINGS. Address all findings where fix_owner=claude AND status=open. Mark each closed in findings.yaml. Append a 📍 Review Session turn to $LEDGER."
+  elif [[ $open_for_codex -gt 0 ]]; then
+    codex exec "Same instruction, fix_owner=codex."
+  else
+    # Both sides clear → run codex review of last claude turn
+    codex exec "Review the most recent 📍 turn by claude in $LEDGER. If you find new findings, append them to $FINDINGS with raised_by=codex."
+  fi
+
+  new_count=$(wc -l &lt; "$LEDGER")
+  if [[ $new_count -eq $prev_count ]]; then
+    QUIET_CYCLES=$((QUIET_CYCLES + 1))
+    [[ $QUIET_CYCLES -ge $MAX_QUIET ]] &amp;&amp; { notify_observer "convergence reached"; break; }
+  else
+    QUIET_CYCLES=0
+  fi
+
+  sleep 60
+done
+</code></pre>
+
+<h3>6.4 Что новый протокол даёт</h3>
+
+<table>
+<thead><tr><th>Поломка v1</th><th>Решение в v2</th></tr></thead>
+<tbody>
+<tr><td>Asymmetric agents</td><td>Симметрично: оба вызываются orchestrator'ом одинаково</td></tr>
+<tr><td>No invocation channel</td><td>Orchestrator сам вызывает <code>claude -p</code> / <code>codex exec</code></td></tr>
+<tr><td>Session context loss</td><td>Каждое invocation короткое и focused (только open findings owned by you)</td></tr>
+<tr><td>No convergence criterion</td><td>3 quiet cycles подряд = converged</td></tr>
+<tr><td>No disagreement protocol</td><td>Status <code>dispute</code> блокирует convergence, пингует observer'а</td></tr>
+<tr><td>Observer как message bus</td><td>Observer вызывается только для disputes и финального ack</td></tr>
+</tbody>
+</table>
+
+<h3>6.5 Что НЕ решается v2</h3>
+
+<div class="callout yellow">
+<div class="callout-title">Honest limitations</div>
+<ul>
+<li><strong>Стоимость токенов</strong> — каждое invocation Claude перечитывает ledger + plan.md = ~30k токенов на холодный старт. Для 20 циклов это 600k токенов только на чтение. Можно митигировать кэшированием prompt'а на API-уровне.</li>
+<li><strong>Stuck loops</strong> — если Claude и Codex не могут договориться (Claude чинит, Codex re-opens, бесконечно), orchestrator должен после N итераций по одному finding'у эскалировать observer'у. В pseudocode это не показано — нужно добавить counter per-finding.</li>
+<li><strong>Race conditions</strong> — если Claude и Codex вызываются параллельно (не sequential как в pseudocode выше) — могут одновременно править ledger. Sequential invocation решает, но удваивает latency.</li>
+<li><strong>«Настоящая дискуссия»</strong> — даже в v2 нет real-time back-and-forth. Это всё ещё turn-based ledger workflow. Real conversation между LLM-агентами — отдельная нерешённая проблема.</li>
+</ul>
+</div>
+
+</section>
+
+<!-- ═══════════════════ OPEN ITEMS ═══════════════════ -->
+<section id="open">
+<h2>7. Что осталось открытым</h2>
+
+<table>
+<thead><tr><th>ID</th><th>Severity</th><th>Title</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td class="mono">F-004</td><td><span class="tag red">P1</span></td><td>PlainCssFilePlan нужен discriminated union (mode: existing-owner | create-rule), runtime guard недостаточен</td><td>claude</td></tr>
+<tr><td class="mono">F-005</td><td><span class="tag red">P1</span></td><td>Tailwind + CSS Modules tie-breaker policy для same-property conflict</td><td>observer (product decision)</td></tr>
+<tr><td class="mono">F-006</td><td><span class="tag yellow">P2</span></td><td>cssSystem unions на остальных plan-типах (AdapterPropPlan, ScriptTemplateStylePlan) не сверены с полным CssSystemId</td><td>claude</td></tr>
+<tr><td class="mono">F-007</td><td><span class="tag yellow">P2</span></td><td>Plan-7 / ArbitraryPropPlan: нет inline-комментария про empty requestedStyles, нет validation rule</td><td>claude</td></tr>
+<tr><td class="mono">F-008</td><td><span class="tag yellow">P2</span></td><td>Plan validation rule про confidence mapping (deterministic / ai-assisted / fallback) не записана в plan.md</td><td>claude</td></tr>
+<tr><td class="mono">F-009</td><td><span class="tag blue">P3</span></td><td>Никаких failing тестов под спеку не написано — Phase 0 чеклист пустой</td><td>codex/claude</td></tr>
+</tbody>
+</table>
+
+</section>
+
+<!-- ═══════════════════ ACTIONS ═══════════════════ -->
+<section id="actions">
+<h2>8. Action items</h2>
+
+<h3>Немедленно (этой неделе)</h3>
+<ol>
+<li>Закрыть F-004 (PlainCssFilePlan discriminated union) — 5-минутная правка plan.md.</li>
+<li>Принять решение по F-005 (Tailwind+CSS Modules tie-breaker). Рекомендация: CSS Modules выигрывает как explicit owner; Tailwind показывается как probable с диагностикой.</li>
+<li>Закрыть F-007 и F-008 — добавить комментарии и validation rules в plan.md.</li>
+</ol>
+
+<h3>В рамках следующего sprint'а</h3>
+<ol>
+<li>Реализовать <code>agent-loop.sh</code> orchestrator + <code>findings.yaml</code> формат.</li>
+<li>Тест-драйв на следующей multi-agent задаче (можно начать с не-критичной — например, аудит ProseMirror integration plan).</li>
+<li>Если orchestrator работает — портировать workprocess.md и findings.yaml в шаблон, использовать на всех multi-agent специациях.</li>
+</ol>
+
+<h3>Долгосрочно</h3>
+<ol>
+<li>Использовать Anthropic prompt caching для удешевления повторных чтений ledger.</li>
+<li>Расширить orchestrator до 3+ агентов (Claude + Codex + Gemini для tertiary view).</li>
+<li>Конвертировать spec examples в failing тесты (Phase 0 в plan.md) до начала имплементации — иначе спека не верифицируется.</li>
+</ol>
+
+</section>
+
+</div>
+
+<footer>
+<p>Generated 2026-04-16 by Claude Sonnet 4.6 (with Alex Ultra) ·
+<a href="../../">← back to reports</a></p>
+</footer>
+
+</body>
+</html>
