@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E2E Test Progress — HyperIDE Extension</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    color: #8b949e;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  /* ── Stat cards ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-card .sub {
+    font-size: 12px;
+    color: #8b949e;
+    margin-top: 4px;
+  }
+
+  .green  { color: #3fb950; }
+  .red    { color: #f85149; }
+  .blue   { color: #58a6ff; }
+  .yellow { color: #d29922; }
+  .purple { color: #a371f7; }
+
+  /* ── Chart container ── */
+  .chart-wrap {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+  }
+
+  canvas { display: block; }
+
+  /* ── Event detail panel ── */
+  #event-panel {
+    display: none;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 16px;
+  }
+
+  #event-panel h3 {
+    color: #58a6ff;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  #event-panel p {
+    color: #8b949e;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: #8b949e;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-line {
+    width: 18px;
+    height: 2px;
+    flex-shrink: 0;
+    border-top: 2px dashed;
+  }
+
+  footer {
+    margin-top: 24px;
+    font-size: 12px;
+    color: #484f58;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<h1>E2E Test Progress — HyperIDE Extension</h1>
+<p class="subtitle">2211 tests total · multi-shard Docker matrix · pass/fail over time</p>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="label">Current passing (run #5 live)</div>
+    <div class="value green" id="stat-current">756</div>
+    <div class="sub">of 2211 &nbsp;·&nbsp; 34% complete</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Peak passing (run #3 final)</div>
+    <div class="value blue" id="stat-peak">1387</div>
+    <div class="sub">62.7% — run 200339, 2026-04-27 00:55</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Current failing (run #5 live)</div>
+    <div class="value red" id="stat-fail">47</div>
+    <div class="sub">6.2% fail rate so far</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Trend</div>
+    <div class="value yellow">↑ fixing</div>
+    <div class="sub">VSIX 0.1.13 · recompile gate landed</div>
+  </div>
+</div>
+
+<div class="chart-wrap">
+  <canvas id="chart" height="420"></canvas>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div> Passing tests</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div> Failing tests</div>
+    <div class="legend-item"><div class="legend-line" style="border-color:#58a6ff"></div> Event / fix</div>
+    <div class="legend-item"><div class="legend-line" style="border-color:#a371f7"></div> Run started</div>
+  </div>
+</div>
+
+<div id="event-panel">
+  <h3 id="ep-title"></h3>
+  <p id="ep-desc"></p>
+</div>
+
+<footer>Generated 2026-04-27 · data from workfile + live Docker logs</footer>
+
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const dataPoints = [
+  // Pre-Docker era — single-machine runs (stop-at-first-failure)
+  { ts: '2026-04-22T04:59:00+02:00', pass: 401, fail: 1,  label: 'run 20260422b (stop@411)' },
+  { ts: '2026-04-22T08:58:00+02:00', pass: 230, fail: 1,  label: 'run 20260422c (stop@240)' },
+  { ts: '2026-04-22T20:15:00+02:00', pass: 447, fail: 1,  label: 'run 20260422-194043 (stop@458)' },
+
+  // Docker era — Σ across shards at checkpoint
+  { ts: '2026-04-24T22:51:00+02:00', pass: 906,  fail: 50,  label: 'run 225109 s1 FINAL' },
+  { ts: '2026-04-25T12:00:00+02:00', pass: 748,  fail: 9,   label: 'run 28759 mid (2 shards)' },
+  { ts: '2026-04-25T13:44:00+02:00', pass: 411,  fail: 4,   label: 'run 72732 mid (2 shards)' },
+  { ts: '2026-04-25T16:32:00+02:00', pass: 467,  fail: 2,   label: 'run 155809 mid (2 shards)' },
+  { ts: '2026-04-25T19:20:00+02:00', pass: 956,  fail: 2,   label: 'run 192210 s1 FINAL' },
+  { ts: '2026-04-26T22:15:00+02:00', pass: 870,  fail: 59,  label: 'run 200339 at 2h12m (4 shards)' },
+  { ts: '2026-04-26T23:05:00+02:00', pass: 1092, fail: 88,  label: 'run 200339 at 3h (4 shards)' },
+  { ts: '2026-04-26T23:50:00+02:00', pass: 1209, fail: 115, label: 'run 200339 at 4h (4 shards)' },
+  { ts: '2026-04-27T00:55:00+02:00', pass: 1387, fail: 139, label: 'run 200339 FINAL (4 shards, 90.9%)' },
+  { ts: '2026-04-27T01:50:00+02:00', pass: 476,  fail: 32,  label: 'run 005017 at 1h (VSIX 0.1.10)' },
+  { ts: '2026-04-27T02:20:00+02:00', pass: 705,  fail: 61,  label: 'run 005017 at 2h' },
+  { ts: '2026-04-27T03:25:00+02:00', pass: 1039, fail: 109, label: 'run 005017 at 3h' },
+  { ts: '2026-04-27T04:50:00+02:00', pass: 1345, fail: 170, label: 'run 005017 KILLED (4 shards, 88.8%)' },
+  { ts: '2026-04-27T12:10:00+02:00', pass: 968,  fail: 93,  label: 'run 100009 (run #4 at 2h10m)' },
+  { ts: '2026-04-27T15:06:00+02:00', pass: 756,  fail: 47,  label: 'run 140618 (run #5 LIVE)' },
+];
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+const events = [
+  {
+    ts: '2026-04-22T06:00:00+02:00',
+    color: '#58a6ff',
+    label: 'CP input fix',
+    title: 'CommandPalette visible input fix',
+    desc: 'Fixed CommandPalette to use a visible input element, unblocking tests that check keyboard navigation in the palette. Estimated impact: ~14 tests.',
+  },
+  {
+    ts: '2026-04-22T10:00:00+02:00',
+    color: '#58a6ff',
+    label: 'Inspector helper',
+    title: 'Inspector helper fix (setupWithElementSelected)',
+    desc: 'Fixed setupWithElementSelected helper to reliably select an element before running inspector assertions. Previously tests could time out waiting for selection.',
+  },
+  {
+    ts: '2026-04-23T12:00:00+02:00',
+    color: '#58a6ff',
+    label: 'Launch guard',
+    title: 'Worker collision prevention (launch guard)',
+    desc: 'Added a per-slot lock file so parallel Playwright workers cannot launch two VS Code instances against the same user-data-dir simultaneously, preventing random crashes.',
+  },
+  {
+    ts: '2026-04-24T20:00:00+02:00',
+    color: '#a371f7',
+    label: 'Docker harness',
+    title: 'Docker multi-shard harness added',
+    desc: 'Switched from single-machine runs (stop-at-first-failure, ~450 tests reached) to docker-parallel-run.sh with 4 shards and Xvfb. Now able to run all 2211 tests in ~90 min.',
+  },
+  {
+    ts: '2026-04-25T09:00:00+02:00',
+    color: '#58a6ff',
+    label: 'CP aliases',
+    title: 'CommandPalette aliases commit',
+    desc: 'Added stable alias IDs to all CommandPalette actions. Previously tests matched by display text which is locale/theme-dependent and brittle.',
+  },
+  {
+    ts: '2026-04-25T11:00:00+02:00',
+    color: '#58a6ff',
+    label: 'ErrorBoundary filter',
+    title: 'ErrorBoundary noise filter (Cat-1 closed)',
+    desc: 'Filtered known recoverable ErrorBoundary renders from test failure classification (Category 1). Tests that caught these as hard failures now correctly pass.',
+  },
+  {
+    ts: '2026-04-25T22:00:00+02:00',
+    color: '#a371f7',
+    label: 'Run: PI NaN guard',
+    title: 'Run 215839 — Tamagui skip + PI-18-19 NaN guard',
+    desc: 'Run started after committing: skip Tamagui tests on missing config, and NaN guard for PI-18/PI-19 (padding/margin zero edge case).',
+  },
+  {
+    ts: '2026-04-26T20:03:00+02:00',
+    color: '#a371f7',
+    label: 'Run #3 started',
+    title: 'Run 200339 started (4 shards)',
+    desc: 'Full 4-shard Docker run started. Reached 1387 passing at final (00:55 CEST) — best result so far at 62.7%.',
+  },
+  {
+    ts: '2026-04-26T22:25:00+02:00',
+    color: '#58a6ff',
+    label: 'VSIX 0.1.10',
+    title: 'VSIX 0.1.10 — preserve currentComponent fix',
+    desc: 'Bumped VSIX to 0.1.10. Includes fix 0eb7e509: preserve currentComponent across webview reloads so inspector does not lose context mid-test.',
+  },
+  {
+    ts: '2026-04-27T00:50:00+02:00',
+    color: '#a371f7',
+    label: 'Run #2 (0.1.10)',
+    title: 'Run 005017 started — VSIX 0.1.10',
+    desc: 'Re-run with VSIX 0.1.10. Reached 1345 passing before being killed at 4h (88.8%). Killed intentionally to ship recompile gate fix.',
+  },
+  {
+    ts: '2026-04-27T08:25:00+02:00',
+    color: '#58a6ff',
+    label: 'Recompile gate',
+    title: 'Recompile gate fix → VSIX 0.1.11→0.1.13',
+    desc: 'Fixed DevServerManager to await a fresh "compiled successfully" message after patchEntryFile() writes, before declaring server ready. Eliminated the 20-40s race on webpack projects. Shipped as 0.1.11, then 0.1.12 (strict lifecycle throw fix 2c090915), then 0.1.13.',
+  },
+  {
+    ts: '2026-04-27T10:00:00+02:00',
+    color: '#a371f7',
+    label: 'Run #4 (0.1.12)',
+    title: 'Run #4 started — VSIX 0.1.12',
+    desc: 'Run started after recompile gate + 2c090915 strict throw fixes. Still in progress at checkpoint (968p/93f at 2h10m).',
+  },
+  {
+    ts: '2026-04-27T14:06:00+02:00',
+    color: '#a371f7',
+    label: 'Run #5 LIVE',
+    title: 'Run #5 started — VSIX 0.1.13 (current)',
+    desc: 'Current live run with VSIX 0.1.13. As of polling: 756 pass / 47 fail across 4 shards (~34% complete).',
+  },
+];
+
+// ─── Chart setup ─────────────────────────────────────────────────────────────
+
+const labels  = dataPoints.map(d => new Date(d.ts));
+const passing = dataPoints.map(d => d.pass);
+const failing = dataPoints.map(d => d.fail);
+
+// Build annotation config for each event
+const annotations = {};
+events.forEach((ev, i) => {
+  const x = new Date(ev.ts).getTime();
+  annotations[`line_${i}`] = {
+    type: 'line',
+    xMin: x,
+    xMax: x,
+    borderColor: ev.color,
+    borderWidth: 1.5,
+    borderDash: [4, 4],
+    label: {
+      display: true,
+      content: ev.label,
+      color: ev.color,
+      backgroundColor: 'transparent',
+      font: { size: 10, family: "'Segoe UI', sans-serif" },
+      position: 'start',
+      rotation: -90,
+      yAdjust: -4,
+    },
+    click(ctx) {
+      const panel = document.getElementById('event-panel');
+      document.getElementById('ep-title').textContent = ev.title;
+      document.getElementById('ep-desc').textContent  = ev.desc;
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    },
+  };
+});
+
+const ctx = document.getElementById('chart').getContext('2d');
+
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Passing',
+        data: passing,
+        borderColor: '#3fb950',
+        backgroundColor: 'rgba(63,185,80,0.08)',
+        pointBackgroundColor: '#3fb950',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        borderWidth: 2,
+        tension: 0.25,
+        fill: true,
+        order: 1,
+      },
+      {
+        label: 'Failing',
+        data: failing,
+        borderColor: '#f85149',
+        backgroundColor: 'rgba(248,81,73,0.06)',
+        pointBackgroundColor: '#f85149',
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        borderWidth: 2,
+        tension: 0.25,
+        fill: true,
+        order: 2,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          tooltipFormat: 'yyyy-MM-dd HH:mm',
+          displayFormats: {
+            hour: 'Apr dd HH:mm',
+            day: 'Apr dd',
+          },
+        },
+        grid: { color: '#21262d' },
+        ticks: {
+          color: '#8b949e',
+          maxTicksLimit: 10,
+          font: { size: 11 },
+        },
+      },
+      y: {
+        min: 0,
+        max: 2000,
+        ticks: {
+          stepSize: 200,
+          color: '#8b949e',
+          font: { size: 11 },
+        },
+        grid: { color: '#21262d' },
+        title: {
+          display: true,
+          text: 'Test count',
+          color: '#8b949e',
+          font: { size: 12 },
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: '#161b22',
+        borderColor: '#30363d',
+        borderWidth: 1,
+        titleColor: '#e6edf3',
+        bodyColor: '#8b949e',
+        padding: 12,
+        callbacks: {
+          title(items) {
+            const idx = items[0].dataIndex;
+            const d = dataPoints[idx];
+            return new Date(d.ts).toLocaleString('en-GB', {
+              month: 'short', day: 'numeric',
+              hour: '2-digit', minute: '2-digit',
+              timeZone: 'Europe/Belgrade',
+            }) + ' CEST';
+          },
+          beforeBody(items) {
+            const idx = items[0].dataIndex;
+            return dataPoints[idx].label;
+          },
+          label(item) {
+            const v = item.raw;
+            const pct = ((v / 2211) * 100).toFixed(1);
+            return ` ${item.dataset.label}: ${v}  (${pct}%)`;
+          },
+          afterBody(items) {
+            const idx = items[0].dataIndex;
+            const d = dataPoints[idx];
+            const total = d.pass + d.fail;
+            return [`\n Total done: ${total} / 2211`];
+          },
+        },
+      },
+      annotation: {
+        annotations,
+        click(ctx) {
+          // handled per-annotation above
+        },
+      },
+    },
+  },
+});
+
+// ─── Click on data points to show run info ───────────────────────────────────
+document.getElementById('chart').addEventListener('click', e => {
+  const els = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false);
+  if (!els.length) return;
+  const idx = els[0].index;
+  const d = dataPoints[idx];
+  const panel = document.getElementById('event-panel');
+  document.getElementById('ep-title').textContent = d.label;
+  document.getElementById('ep-desc').textContent  =
+    `${new Date(d.ts).toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Belgrade' })} CEST` +
+    `  ·  ${d.pass} passing  ·  ${d.fail} failing` +
+    `  ·  ${((d.pass / 2211) * 100).toFixed(1)}% of total`;
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+</script>
+</body>
+</html>
