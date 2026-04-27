@@ -81,9 +81,10 @@
     border-radius: 8px;
     padding: 20px;
     position: relative;
+    height: 440px;
   }
 
-  canvas { display: block; }
+  canvas { display: block; width: 100% !important; height: 380px !important; }
 
   /* ── Event detail panel ── */
   #event-panel {
@@ -174,7 +175,7 @@
 </div>
 
 <div class="chart-wrap">
-  <canvas id="chart" height="420"></canvas>
+  <canvas id="chart"></canvas>
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div> Passing tests</div>
     <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div> Failing tests</div>
@@ -410,6 +411,7 @@ const chart = new Chart(ctx, {
   },
   options: {
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {
       mode: 'index',
       intersect: false,
