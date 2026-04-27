@@ -152,9 +152,9 @@
 
 <div class="stats">
   <div class="stat-card">
-    <div class="label">Current passing (run #5 live)</div>
-    <div class="value green" id="stat-current">756</div>
-    <div class="sub">of 2211 &nbsp;·&nbsp; 34% complete</div>
+    <div class="label">Current passing (run #11 live)</div>
+    <div class="value green" id="stat-current">283</div>
+    <div class="sub">of 2211 &nbsp;·&nbsp; ~17min in, timeout fixes applied</div>
   </div>
   <div class="stat-card">
     <div class="label">Peak passing (run #3 final)</div>
@@ -162,14 +162,14 @@
     <div class="sub">62.7% — run 200339, 2026-04-27 00:55</div>
   </div>
   <div class="stat-card">
-    <div class="label">Current failing (run #5 live)</div>
-    <div class="value red" id="stat-fail">47</div>
-    <div class="sub">6.2% fail rate so far</div>
+    <div class="label">Current failing (run #11 live)</div>
+    <div class="value red" id="stat-fail">12</div>
+    <div class="sub">4.1% fail rate (early, ~17min in)</div>
   </div>
   <div class="stat-card">
     <div class="label">Trend</div>
-    <div class="value yellow">↑ fixing</div>
-    <div class="sub">VSIX 0.1.13 · recompile gate landed</div>
+    <div class="value yellow">↑ timeout fixes</div>
+    <div class="sub">globalTimeout 3h · base 90s · test.slow()=270s</div>
   </div>
 </div>
 
@@ -188,7 +188,7 @@
   <p id="ep-desc"></p>
 </div>
 
-<footer>Generated 2026-04-27 · data from workfile + live Docker logs</footer>
+<footer>Updated 2026-04-27 20:00 CEST · run #11 live · data from workfile + Docker logs</footer>
 
 <script>
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -216,6 +216,14 @@ const dataPoints = [
   { ts: '2026-04-27T12:10:00+02:00', pass: 968,  fail: 93,  label: 'run 100009 (run #4 at 2h10m)' },
   { ts: '2026-04-27T15:06:00+02:00', pass: 756,  fail: 47,  label: 'run 140618 (run #5 start)' },
   { ts: '2026-04-27T16:45:00+02:00', pass: 988,  fail: 53,  label: 'run 140618 (run #5 ~1h40m live)' },
+
+  // Runs #6-#9 aborted (163311, 170054, 175223, 180420) — no playwright summary (killed before completion)
+
+  // Run #10 — globalTimeout 30min hit, only 30% of tests ran
+  { ts: '2026-04-27T19:21:00+02:00', pass: 358,  fail: 19,  label: 'run 185123 (run #10 FINAL, 30min globalTimeout)' },
+
+  // Run #11 — first run with all timeout fixes (globalTimeout 3h, base 90s, test.slow()=270s)
+  { ts: '2026-04-27T19:55:00+02:00', pass: 283,  fail: 12,  label: 'run 193834 (run #11 ~17min live, timeout-fixed)' },
 ];
 
 // ─── Events ──────────────────────────────────────────────────────────────────
@@ -308,9 +316,23 @@ const events = [
   {
     ts: '2026-04-27T14:06:00+02:00',
     color: '#a371f7',
-    label: 'Run #5 LIVE',
-    title: 'Run #5 started — VSIX 0.1.13 (current)',
-    desc: 'Current live run with VSIX 0.1.13. As of polling: 756 pass / 47 fail across 4 shards (~34% complete).',
+    label: 'Run #5',
+    title: 'Run #5 started — VSIX 0.1.13',
+    desc: 'Run with VSIX 0.1.13. Final: 988 pass / 53 fail at ~1h40m. Hits globalTimeout 30min (only ~34% tested).',
+  },
+  {
+    ts: '2026-04-27T19:30:00+02:00',
+    color: '#58a6ff',
+    label: 'Timeout suite',
+    title: 'globalTimeout 3h + base 90s + test.slow() normalization',
+    desc: 'Batch timeout fixes: (1) globalTimeout 30min → 3h — was killing 70-82% of tests before they ran; (2) base timeout 60s → 90s so test.slow()=270s covers Remix cold compile ~155s + body; (3) CommandPalette open timeout 5s → 15s — root cause of 11/12 shard-2 failures; (4) replaced all test.setTimeout(90-180s) with test.slow() across 24 spec files; (5) excluded hero-shot.spec.ts from dep matrix (hard-coded local paths).',
+  },
+  {
+    ts: '2026-04-27T19:38:00+02:00',
+    color: '#a371f7',
+    label: 'Run #11',
+    title: 'Run #11 started — first run with full timeout suite',
+    desc: 'First run with: globalTimeout 3h, base timeout 90s, test.slow()=270s, CommandPalette 15s, hero-shot excluded. Run #10 (185123) before this had globalTimeout 30min and only reached 358 pass / 19 fail.',
   },
 ];
 
