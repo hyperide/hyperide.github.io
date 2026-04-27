@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E2E Test Progress — HyperIDE Extension</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -213,7 +214,8 @@ const dataPoints = [
   { ts: '2026-04-27T03:25:00+02:00', pass: 1039, fail: 109, label: 'run 005017 at 3h' },
   { ts: '2026-04-27T04:50:00+02:00', pass: 1345, fail: 170, label: 'run 005017 KILLED (4 shards, 88.8%)' },
   { ts: '2026-04-27T12:10:00+02:00', pass: 968,  fail: 93,  label: 'run 100009 (run #4 at 2h10m)' },
-  { ts: '2026-04-27T15:06:00+02:00', pass: 756,  fail: 47,  label: 'run 140618 (run #5 LIVE)' },
+  { ts: '2026-04-27T15:06:00+02:00', pass: 756,  fail: 47,  label: 'run 140618 (run #5 start)' },
+  { ts: '2026-04-27T16:45:00+02:00', pass: 988,  fail: 53,  label: 'run 140618 (run #5 ~1h40m live)' },
 ];
 
 // ─── Events ──────────────────────────────────────────────────────────────────
