@@ -21,9 +21,11 @@ window.Report = (function () {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function fileLink(path, lines) {
+  function fileLink(path, lines, repoOverride, shaOverride) {
     var hash = lines ? '#' + lines : '';
-    return data.repo + '/blob/' + data.headSha + '/' + path + hash;
+    var repo = repoOverride || data.repo;
+    var sha = shaOverride || data.headSha;
+    return repo + '/blob/' + sha + '/' + path + hash;
   }
 
   function fileLinkHtml(f) {
@@ -183,7 +185,7 @@ window.Report = (function () {
         '<span class="badge ' + statusClass(f.status) + '">' + f.status + '</span>' +
         '<span>' + esc(f.title) + '</span></div>' +
         '<div class="finding-body">' +
-        '<p><strong>File:</strong> <a href="' + fileLink(f.file, f.lines || '') + '" target="_blank">' + esc(f.file) + linesLabel + '</a></p>' +
+        '<p><strong>File:</strong> <a href="' + fileLink(f.file, f.lines || '', f.fileRepo, f.fileHeadSha) + '" target="_blank">' + esc(f.file) + linesLabel + '</a></p>' +
         '<p style="margin-top:8px"><strong>Issue:</strong> ' + esc(f.desc) + '</p>' +
         '<p style="margin-top:8px"><strong>Resolution:</strong> ' + esc(f.fix) + '</p>' +
         '</div>';
@@ -207,7 +209,7 @@ window.Report = (function () {
         '<div class="timeline-dot"></div>' +
         '<div class="timeline-sha">' + esc(c.sha) + '</div>' +
         '<div class="timeline-msg">' + esc(shortMsg) + '</div>';
-      item.addEventListener('click', function () { window.open(data.repo + '/commit/' + c.sha, '_blank'); });
+      item.addEventListener('click', function () { window.open((c.repo || data.repo) + '/commit/' + c.sha, '_blank'); });
       tl.appendChild(item);
     });
   }
