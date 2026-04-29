@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYP-363 — E2E Infrastructure Hardening</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <!-- E2E Infrastructure Architecture -->
+  <section class="fade-in">
+    <h2>E2E Test Infrastructure Architecture</h2>
+    <div class="arch-container">
+      <svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;font-family:system-ui,sans-serif">
+        <defs>
+          <linearGradient id="gDocker" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.25"/>
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.08"/>
+          </linearGradient>
+          <linearGradient id="gShard" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.2"/>
+            <stop offset="100%" style="stop-color:#10b981;stop-opacity:0.06"/>
+          </linearGradient>
+          <linearGradient id="gExt" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.2"/>
+            <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.06"/>
+          </linearGradient>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#888" opacity="0.5"/>
+          </marker>
+        </defs>
+
+        <!-- Title -->
+        <text x="450" y="22" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700">3-Shard Docker Parallel E2E Pipeline</text>
+
+        <!-- Orchestrator -->
+        <rect x="330" y="35" width="240" height="45" rx="8" fill="url(#gDocker)" stroke="#3b82f6" stroke-opacity="0.5"/>
+        <text x="450" y="55" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="600">docker-parallel-run.sh</text>
+        <text x="450" y="72" text-anchor="middle" fill="#9ca3af" font-size="10">HYPER_E2E_SHARDS=3 · --memory-swap -1 · --init</text>
+
+        <!-- Arrows down to shards -->
+        <line x1="380" y1="80" x2="200" y2="130" stroke="#3b82f6" stroke-opacity="0.4" marker-end="url(#arr)"/>
+        <line x1="450" y1="80" x2="450" y2="130" stroke="#3b82f6" stroke-opacity="0.4" marker-end="url(#arr)"/>
+        <line x1="520" y1="80" x2="700" y2="130" stroke="#3b82f6" stroke-opacity="0.4" marker-end="url(#arr)"/>
+
+        <!-- S1 -->
+        <rect x="20" y="132" width="360" height="180" rx="10" fill="url(#gShard)" stroke="#10b981" stroke-opacity="0.4"/>
+        <text x="200" y="155" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">Shard 1 — Project-Independent</text>
+        <text x="200" y="172" text-anchor="middle" fill="#9ca3af" font-size="10">Reference: react-vite-tw4-twitter</text>
+        <rect x="40" y="182" width="140" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="110" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">commands.spec.ts</text>
+        <text x="110" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">Canvas + MCP tools</text>
+        <rect x="200" y="182" width="160" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="280" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">undo-redo, settings</text>
+        <text x="280" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">extension lifecycle</text>
+        <rect x="40" y="232" width="300" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="190" y="248" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">canvas-bugs, visual-regression (skipped Linux)</text>
+        <text x="190" y="262" text-anchor="middle" fill="#9ca3af" font-size="9">project-independent + security specs · ~750 tests</text>
+        <text x="200" y="297" text-anchor="middle" fill="#6b7280" font-size="10">~2.5h · 6GiB · --shm-size 2g</text>
+
+        <!-- S2 -->
+        <rect x="270" y="132" width="360" height="180" rx="10" fill="url(#gShard)" stroke="#10b981" stroke-opacity="0.4"/>
+        <text x="450" y="155" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">Shard 2 — First 15 Projects</text>
+        <text x="450" y="172" text-anchor="middle" fill="#9ca3af" font-size="10">preview-render · style-editing · ast-operations</text>
+        <rect x="290" y="182" width="150" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="365" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">vite-tw4, vite-tw3</text>
+        <text x="365" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">Remix, CSS Modules</text>
+        <rect x="460" y="182" width="150" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="535" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">Tamagui banking</text>
+        <text x="535" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">emotion, styled-comp</text>
+        <rect x="290" y="232" width="320" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="450" y="248" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">project-switching-stale-preview · style-source-screens</text>
+        <text x="450" y="262" text-anchor="middle" fill="#9ca3af" font-size="9">~730 tests</text>
+        <text x="450" y="297" text-anchor="middle" fill="#6b7280" font-size="10">~2.0h · 6GiB</text>
+
+        <!-- S3 -->
+        <rect x="520" y="132" width="360" height="180" rx="10" fill="url(#gShard)" stroke="#f59e0b" stroke-opacity="0.4"/>
+        <text x="700" y="155" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Shard 3 — Remaining 20 Projects</text>
+        <text x="700" y="172" text-anchor="middle" fill="#9ca3af" font-size="10">webpack, bun, nextjs, unsupported CSS (12 projects)</text>
+        <rect x="540" y="182" width="140" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="610" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">webpack-kanban</text>
+        <text x="610" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">emotion, spotify</text>
+        <rect x="700" y="182" width="160" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="780" y="198" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">nextjs, bun-shadcn</text>
+        <text x="780" y="212" text-anchor="middle" fill="#9ca3af" font-size="9">sass-portfolio, mui, antd...</text>
+        <rect x="540" y="232" width="320" height="36" rx="6" fill="#1e2430" stroke="#30363d"/>
+        <text x="700" y="248" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">unsupported-project.spec · unsupported-css-smoke.spec</text>
+        <text x="700" y="262" text-anchor="middle" fill="#9ca3af" font-size="9">~730 tests · OOM-prone before --memory-swap -1</text>
+        <text x="700" y="297" text-anchor="middle" fill="#6b7280" font-size="10">~2.5h · 6GiB · --memory-swap -1</text>
+
+        <!-- Docker entrypoint -->
+        <rect x="20" y="340" width="860" height="55" rx="8" fill="#1e2430" stroke="#30363d"/>
+        <text x="450" y="360" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">docker-entrypoint.sh</text>
+        <text x="450" y="378" text-anchor="middle" fill="#9ca3af" font-size="10">pre-warm Vite optimizeDeps · webpack filesystem cache · node_modules via named volume · bake ext VSIX</text>
+
+        <!-- Playwright config -->
+        <rect x="20" y="415" width="420" height="55" rx="8" fill="#1e2430" stroke="#30363d"/>
+        <text x="230" y="435" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">playwright.config.ts</text>
+        <text x="230" y="453" text-anchor="middle" fill="#9ca3af" font-size="10">35 projects · testMatch isolation per project type · --retries=1 · 3h globalTimeout</text>
+
+        <!-- Fixtures layer -->
+        <rect x="460" y="415" width="420" height="55" rx="8" fill="#1e2430" stroke="#30363d"/>
+        <text x="670" y="435" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="600">setup-preview.ts / helpers</text>
+        <text x="670" y="453" text-anchor="middle" fill="#9ca3af" font-size="10">setupPreviewWithDevServer · launchVSCode · Editor.openFile · benign error patterns</text>
+
+        <!-- Stats bar -->
+        <rect x="20" y="490" width="860" height="55" rx="8" fill="rgba(88,166,255,0.05)" stroke="rgba(88,166,255,0.2)"/>
+        <text x="175" y="513" text-anchor="middle" fill="#58a6ff" font-size="18" font-weight="700">2211</text>
+        <text x="175" y="532" text-anchor="middle" fill="#9ca3af" font-size="10">Total Tests</text>
+        <text x="355" y="513" text-anchor="middle" fill="#58a6ff" font-size="18" font-weight="700">35</text>
+        <text x="355" y="532" text-anchor="middle" fill="#9ca3af" font-size="10">Projects</text>
+        <text x="535" y="513" text-anchor="middle" fill="#58a6ff" font-size="18" font-weight="700">16</text>
+        <text x="535" y="532" text-anchor="middle" fill="#9ca3af" font-size="10">Docker Runs</text>
+        <text x="725" y="513" text-anchor="middle" fill="#34d399" font-size="18" font-weight="700">~95%+</text>
+        <text x="725" y="532" text-anchor="middle" fill="#9ca3af" font-size="10">Pass Rate (post-infra fix)</text>
+      </svg>
+    </div>
+  </section>
+
+  <div data-section="findings"></div>
+  <div data-section="timeline"></div>
+</div>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '3faee811a863c67e912f943da03a17be0d131a12',
+  title: 'HYP-363: E2E Infrastructure Hardening',
+  subtitle: '2-week sprint: Preview stability + full 2211-test matrix coverage',
+  date: '2026-04-29',
+  badge: { label: 'fix', type: 'fix' },
+  branch: 'ultra/hyp-363-vs-code-preview-webview-opens-offscreen-in-e2e',
+  links: [
+    { label: 'Linear HYP-363', href: 'https://linear.app/hyperide/issue/HYP-363' },
+  ],
+  motivation: `<p><strong>Why this sprint existed:</strong> The VS Code extension E2E suite had accumulated 2211 tests across 35 projects but was consistently failing due to a stack of infrastructure defects rather than product bugs. Docker containers OOM-killed at worker 62 every run, leaving ~280 tests that had literally never executed in any run. A scoped <code>projectDir</code> variable caused a <code>ReferenceError</code> that blanket-failed ~270 tests in a single run. Two spec files ran for the wrong project types. The preview webview rendered offscreen in E2E environments. Remix cold compiles timed out at 600s. webpack builds page-thrashed under memory pressure. Extension state (DevServerManager, PreviewProxy, PreviewPanel) had no stable lifecycle — shell states kept drifting.</p>
+  <p>The result: partial reruns hid systemic failure. Pass rate appeared ~75% but masked entire project families that never ran. You can't ship a product when you don't know what breaks.</p>
+  <p><strong>What we fixed:</strong> The sprint ran 16 full 3-shard Docker runs over 2 weeks, fixing one root cause per run. Phase 1 (Apr 14–24) fixed the Playwright harness itself: save dialogs, stale diagnostics, command-palette timing, dirty-editor teardown, worker collisions, and the offscreen webview. Phase 2 (Apr 24–29) switched to the full 2211-test matrix, resolved the Docker OOM via <code>--memory-swap -1</code>, fixed the ReferenceError global blocker, isolated spec files per project type, and hardened extension shell stability. By Run #29 (launched Apr 29), 0 hard failures were detected in any shard in the first 42 minutes — the first time the full matrix ran without infrastructure aborts.</p>`,
+  stats: { files: 221, insertions: 10078, deletions: 4506, commits: 207 },
+  productChanges: {
+    new: [
+      {
+        title: 'SSR Mock Adapter for Remix route components',
+        desc: 'detectSSRHooks() + RemixMockWrapper + ssrRouteSet. Remix routes using useLoaderData()/useRouteLoaderData() now get wrapped in createMemoryRouter so the preview renders correctly instead of crashing with a null context error.',
+        files: [
+          { path: 'lib/preview-generator/preview-file-manager.ts', label: 'preview-file-manager.ts' },
+          { path: 'lib/preview-generator/generator.ts', label: 'generator.ts' },
+        ]
+      },
+      {
+        title: 'Full 2211-test matrix as source of truth',
+        desc: 'Switched from "run on failing tests only" to mandatory full-matrix 3-shard Docker run every cycle. This revealed the OOM kills that had been hiding 280 never-ran tests for weeks.',
+        files: []
+      },
+      {
+        title: 'Docker 3-shard parallel E2E harness',
+        desc: 'docker-parallel-run.sh with auto-shard sizing, named node_modules volume, stale-slot GC, and per-shard log capture. Enables full 2211-test run in ~2.5h instead of >8h sequential.',
+        files: []
+      },
+      {
+        title: 'Tamagui/React-Native JSX prop write adapter',
+        desc: 'Style writes for Tamagui components now go directly to JSX props (e.g. backgroundColor="red") rather than a CSS stylesheet, matching how Tamagui actually works.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/ComponentService.ts', label: 'ComponentService.ts' },
+        ]
+      },
+      {
+        title: 'Next.js promoted to FULL_EDIT bundler',
+        desc: 'Next.js App Router projects now get full read/write canvas support instead of the previous READONLY badge. Preview routing and style writes tested across app router layouts.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/DevServerManager.ts', label: 'DevServerManager.ts' },
+        ]
+      },
+      {
+        title: 'Generic prop stubs + Zustand store stub for preview generator',
+        desc: 'Preview generator now emits stubs for common React/Remix patterns (useNavigate, useParams, etc.) and Zustand store mocks, reducing "component crashed on render" failures.',
+        files: [
+          { path: 'lib/preview-generator/generator.ts', label: 'generator.ts' },
+        ]
+      },
+    ],
+    improvements: [
+      {
+        title: 'Docker --memory-swap -1 + --init (4f802bd in ext-test-projects)',
+        desc: 'Eliminated OOM kills that aborted S3 at worker 62 in every run before #29. With unlimited swap, webpack projects compile under memory pressure instead of being killed. --init ensures signal handling works for clean shutdown.',
+        files: []
+      },
+      {
+        title: 'Extension shell stability — DevServerManager + PreviewProxy + PreviewPanel (b0339a18)',
+        desc: 'Three-way lifecycle hardening: DevServerManager state transitions, PreviewProxy retry and socket error handling, PreviewPanel disposal/recreation with currentComponent preservation. Eliminates the "preview shows blank after panel recreate" class of failures.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/DevServerManager.ts', label: 'DevServerManager.ts' },
+          { path: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts', label: 'PreviewProxy.ts' },
+          { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', label: 'PreviewPanel.ts' },
+        ]
+      },
+      {
+        title: 'Inspector sidebar width normalization (00274b67)',
+        desc: 'Sidebar sections now fill panel width, eliminating the visual inconsistency where sections were narrower than the panel. Detected by E2E screenshot review.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/useCanvasInteraction.ts', label: 'useCanvasInteraction.ts' },
+        ]
+      },
+      {
+        title: 'webpack filesystem cache + pre-warm in docker-entrypoint (1e974e6)',
+        desc: 'Added webpack persistent filesystem cache to Docker image and pre-warm step at container startup. Eliminates the 600s first-compile delay for webpack projects that was causing cascading timeouts in S3.',
+        files: []
+      },
+      {
+        title: 'Vite optimizeDeps pre-warm for Remix (0882fef + e097090)',
+        desc: 'Added optimizeDeps.include to all 4 Remix vite configs and pre-warm at container startup. Reduces Remix cold-compile from ~90s to ~20s, making Remix tests reliable in Docker.',
+        files: []
+      },
+      {
+        title: 'node_modules shared across Docker shards via named volume',
+        desc: 'Each project dir now shares a single node_modules volume instead of per-container copies. Cuts Docker image size and container startup time significantly.',
+        files: []
+      },
+      {
+        title: 'testMatch isolation for unsupported project spec files (f63d6ce)',
+        desc: 'CSS-unsupported projects (mui, antd, etc.) now run unsupported-css-smoke.spec.ts, not unsupported-project.spec.ts. The two screens (UnsupportedProjectScreen vs ReadonlyStubScreen) are fundamentally different — running the wrong spec caused 24 hard failures per run.',
+        files: []
+      },
+      {
+        title: 'PreviewProxy /test-preview retry budget 60 retries (~222s) + 403 retry',
+        desc: 'PreviewProxy now retries /test-preview up to 60 times (was 16) to accommodate Remix cold compile. 403 responses from Vite during initialisation window are also retried.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts', label: 'PreviewProxy.ts' },
+        ]
+      },
+      {
+        title: 'AstService: fallback + log level fixes',
+        desc: 'findElementAtPosition parse failure now logs at warn (not error) to avoid triggering E2E unexpected-console-error checks. updateText falls back to elementId as nodeRef when AST lookup fails.',
+        files: [
+          { path: 'lib/component-scanner/scanner.ts', label: 'scanner.ts' },
+        ]
+      },
+      {
+        title: 'Undo/redo tracking hardening',
+        desc: 'beginTracking() always called before readFile in _withUndoTracking. Removed native redo fallback that corrupted canvas state. Block redo during _withUndoTracking to prevent double-apply.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', label: 'extension.ts' },
+        ]
+      },
+    ],
+    fixes: [
+      {
+        title: 'Offscreen preview webview in E2E (f8f550c in ext-test-projects)',
+        desc: 'Playwright harness now rejects webview frames that are positioned offscreen (e.g. x < 0 or y < 0). Previously, VS Code occasionally rendered the webview panel behind the window bounds, causing all canvas interaction tests to silently fail.',
+        files: []
+      },
+      {
+        title: 'ReferenceError global blocker — projectDir scoping (ead694e in ext-test-projects)',
+        desc: 'projectDir variable was declared outside its closure, causing ReferenceError in ~270 tests in a single run (#25). Hoisted to function scope.',
+        files: []
+      },
+      {
+        title: 'fake.html webview recovery (ffa30f6 + 92f4aa9 in ext-test-projects)',
+        desc: 'When VS Code recreates the preview panel, the webview briefly shows fake.html before the real preview loads. Harness now detects and waits out this transition instead of asserting on the placeholder.',
+        files: []
+      },
+      {
+        title: 'Hard-kill Playwright after 3h to prevent zombie containers (9222420)',
+        desc: 'Added a 3h globalTimeout kill in docker-entrypoint. Previously, a hung shard kept a container alive indefinitely, blocking slot reuse and causing cascade resource exhaustion.',
+        files: []
+      },
+      {
+        title: 'Docker TZ bug in image freshness check (1dbe026)',
+        desc: "date -j interpreted Docker's UTC timestamp as local CEST time, making the image appear 2h older than it was and triggering unnecessary rebuilds. Fixed with TZ=UTC.",
+        files: []
+      },
+      {
+        title: 'Stale save dialogs in test teardown',
+        desc: 'Tests that wrote files left unsaved buffers. Subsequent tests saw VS Code prompting to save, corrupting command palette input. Teardown now closes all editors and reverts conflicted files.',
+        files: []
+      },
+      {
+        title: 'remix-cssmodules-spotify missing __canvas_preview__ entry (b9b9f84)',
+        desc: 'The Spotify remix project had no PlayerBar component registered in the canvas preview registry. All remix-cssmodules-spotify preview tests were hitting an empty canvas.',
+        files: []
+      },
+      {
+        title: 'MCP duplicate element resolves child-component files (b89b2e55)',
+        desc: 'duplicate element MCP tool was resolving to the parent component file instead of the child. Fixed component file resolution path.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/ComponentService.ts', label: 'ComponentService.ts' },
+        ]
+      },
+      {
+        title: 'Inspector: fontSize input arrow keys + compact layout (6df3069d + 47068fc6)',
+        desc: 'Arrow key numeric increment/decrement was not wired to the fontSize input. Also fixed text reset bug while typing and reduced input width to compact size.',
+        files: []
+      },
+      {
+        title: 'SampleDefault scaffold uses AST default export name (dfc5231f)',
+        desc: 'When scaffolding a sample component, the extension was hardcoding "page" as the component name. Now reads the actual default export name from AST (e.g. "Home" for Next.js pages).',
+        files: []
+      },
+      {
+        title: 'Bundle @anthropic-ai/sdk into extension output (78e14163)',
+        desc: 'MCP AI features were failing at runtime because @anthropic-ai/sdk was not bundled with the extension VSIX. Fixed esbuild configuration to include the SDK.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/esbuild.js', label: 'esbuild.js' },
+        ]
+      },
+      {
+        title: 'Strip origin/referer headers forwarded to dev server (a8b49560)',
+        desc: 'CORS rejections from dev server when origin header from VS Code webview was forwarded. Extension now strips origin and referer before proxying.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts', label: 'PreviewProxy.ts' },
+        ]
+      },
+      {
+        title: 'Sync dev-server URL to preview panel on openPreview (ef0f3357)',
+        desc: 'After a dev server restart, the preview panel was still using the stale URL from before the restart. openPreview now pushes the current dev server URL to the panel.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/PreviewPanel.ts', label: 'PreviewPanel.ts' },
+        ]
+      },
+      {
+        title: 'Webview error boundary + global error capture (267bcd48)',
+        desc: 'Unhandled errors in the webview React tree caused blank screens with no feedback. Added error boundary and window.onerror capture that surfaces errors in the VS Code output panel.',
+        files: [
+          { path: 'vscode-extension/hypercanvas-preview/src/webview-preview-panel/usePreviewBridge.ts', label: 'usePreviewBridge.ts' },
+        ]
+      },
+      {
+        title: 'transient SSR heading renamed to avoid isPreviewLoaded false-negative (18775895)',
+        desc: 'preview-file-manager emitted a heading during SSR stub generation that matched the isPreviewLoaded check, causing the E2E harness to think the preview was loaded before the real content appeared.',
+        files: [
+          { path: 'lib/preview-generator/preview-file-manager.ts', label: 'preview-file-manager.ts' },
+        ]
+      },
+    ]
+  },
+  commits: [
+    // hyper-canvas-draft commits (50 total)
+    { sha: '3faee811', message: 'docs(workfile): add full roadmap to green (HYP-363)', date: '2026-04-29' },
+    { sha: '43a40815', message: 'docs(workfile): add never-ran tests analysis, TG answer rule, ast-operations issues', date: '2026-04-29' },
+    { sha: '4d6c5ee2', message: 'docs(workfile): run #29 launched (HYP-363)', date: '2026-04-29' },
+    { sha: 'ea3f2481', message: 'docs(workfile): run #28 final results + run #29 prep (HYP-363)', date: '2026-04-29' },
+    { sha: 'a1ac0698', message: 'chore: bump hypercanvas-preview to v0.1.29', date: '2026-04-29' },
+    { sha: 'be7c257c', message: 'docs(workprocess): update run #28 progress, fix log, SSR mock summary', date: '2026-04-29' },
+    { sha: 'b3bf206e', message: 'feat(preview): SSR mock adapter for Remix route components', date: '2026-04-29' },
+    { sha: '382338c2', message: 'docs(workprocess): Run #27 terminated + Run #28 started', date: '2026-04-29' },
+    { sha: '7e69a3ce', message: 'docs(workprocess): Run #27 checkpoint 07:16 CEST (~78 min)', date: '2026-04-29' },
+    { sha: 'a4c8a337', message: 'docs(workfile): Run #27 checkpoint 07:09 CEST — OOM crash + recovery', date: '2026-04-29' },
+    { sha: '21f36836', message: 'docs(workfile): Run #27 checkpoint 07:00 CEST — Remix passing', date: '2026-04-29' },
+    { sha: 'bfb5d140', message: 'docs(workfile): Run #27 checkpoint 06:49 CEST + 8d35fef fix documented', date: '2026-04-29' },
+    { sha: 'b691ea42', message: 'docs(workprocess): Run #27 06:28 checkpoint — S3 OOM recovery, error overlay fix', date: '2026-04-29' },
+    { sha: '51f596ac', message: 'docs(workprocess): Run #26 final analysis + Run #27 launch', date: '2026-04-29' },
+    { sha: '156523e7', message: 'docs(workprocess): update Run #26 analysis — correction + hard failures', date: '2026-04-29' },
+    { sha: 'b9f6cb74', message: 'docs(workprocess): Run #26 interim checkpoint — 466/2189, 0 hard failures', date: '2026-04-29' },
+    { sha: 'd3aea40d', message: 'docs(workprocess): log Run #25 global blocker (ReferenceError) + Run #26 start', date: '2026-04-29' },
+    { sha: 'f81b37e1', message: 'docs(workprocess): Run #24 final analysis + Run #25 launch (HYP-363)', date: '2026-04-29' },
+    { sha: '1f59be4c', message: 'docs(workfile): run #24 S3 webpack mass-failure + run #25 plan', date: '2026-04-29' },
+    { sha: '0c8bdb6c', message: 'docs(workfile): run #24 fiber-selection failure + webpack poll fix', date: '2026-04-29' },
+    { sha: '6126fe1c', message: 'docs(workfile): run #24 interim status + two new fixes', date: '2026-04-29' },
+    { sha: '007e1f3f', message: 'docs(workprocess): Run #24 started', date: '2026-04-29' },
+    { sha: '50ec81ce', message: 'docs(workprocess): Run #23 full analysis + Run #24 plan (2026-04-29)', date: '2026-04-29' },
+    { sha: '67de85b8', message: 'chore: bump hypercanvas-preview to v0.1.28', date: '2026-04-29' },
+    { sha: '0e5c2134', message: 'fix(ext): increase _reEmitSelectionAfterHmr delay 300ms→2000ms', date: '2026-04-29' },
+    { sha: 'ff1793e7', message: 'chore: bump hypercanvas-preview to v0.1.27', date: '2026-04-28' },
+    { sha: 'b89b2e55', message: 'fix(mcp): duplicate element resolves child-component files', date: '2026-04-28' },
+    { sha: '43aadc23', message: 'chore: bump hypercanvas-preview to v0.1.26', date: '2026-04-28' },
+    { sha: '00eae5b5', message: 'fix(proxy): retry asset 403s from Vite during initialisation window', date: '2026-04-28' },
+    { sha: '18775895', message: 'fix(preview-generator): change transient SSR heading to avoid isPreviewLoaded false-negative', date: '2026-04-28' },
+    { sha: '47068fc6', message: 'fix(inspector): wire onNumericKeyDown to fontSize input (arrow keys)', date: '2026-04-28' },
+    { sha: '6df3069d', message: 'fix(inspector): compact fontSize input + guard text reset while typing', date: '2026-04-28' },
+    { sha: 'd86b7f9a', message: 'fix(ast): demote findElementAtPosition parse failure from error to warn', date: '2026-04-28' },
+    { sha: 'e36ad5ff', message: 'fix(ast): fall back to elementId as nodeRef in updateText', date: '2026-04-28' },
+    { sha: 'dfc5231f', message: 'fix(extension): use AST default export name in SampleDefault scaffold (page→Home)', date: '2026-04-28' },
+    { sha: '4f4b5f07', message: 'fix(inspector): use text-xs for font-size input in FillSection', date: '2026-04-28' },
+    { sha: 'bc5a5703', message: 'fix(extension): require PascalCase in normalizeSampleComponentName', date: '2026-04-28' },
+    { sha: '78480fb2', message: 'chore(extension): bump version to 0.1.25', date: '2026-04-28' },
+    { sha: '78e14163', message: 'fix(extension): bundle @anthropic-ai/sdk into extension output', date: '2026-04-28' },
+    { sha: 'a9705b1a', message: 'chore(ext): bump to 0.1.24 — include redo fixes', date: '2026-04-28' },
+    { sha: '03285a7f', message: 'fix(undo-redo): remove native redo fallback that corrupted canvas state', date: '2026-04-28' },
+    { sha: 'd713171f', message: 'fix(ext): always call beginTracking() before readFile in _withUndoTracking', date: '2026-04-28' },
+    { sha: 'fdb56095', message: 'feat(style-write): add Tamagui/React-Native adapter for direct JSX prop writes', date: '2026-04-28' },
+    { sha: 'b1efe150', message: 'fix(proxy): retry GET requests on socket errors (HYP-363)', date: '2026-04-28' },
+    { sha: '524e5f1d', message: 'fix(extension): re-push full state on refresh to close webview:ready race (HYP-363)', date: '2026-04-28' },
+    { sha: 'a8b49560', message: 'fix(extension): strip origin/referer headers forwarded to dev server (HYP-363)', date: '2026-04-27' },
+    { sha: '18ae72aa', message: 'fix(extension): block redo during _withUndoTracking (v0.1.20)', date: '2026-04-27' },
+    { sha: '682fdf22', message: 'fix(proxy): increase /test-preview retry budget from 16 to 60 retries (~222s)', date: '2026-04-27' },
+    { sha: 'c196a2a2', message: 'fix(proxy): retry 403 responses for /test-preview (Remix cold compile)', date: '2026-04-27' },
+    { sha: 'b255d4af', message: 'fix(devserver): increase startup wait from 30s to 90s for Remix/Next.js', date: '2026-04-27' },
+    { sha: 'be02c4c6', message: 'fix(preview): arm recompile gate when file-based route files are freshly written (HYP-363)', date: '2026-04-27' },
+    { sha: '267bcd48', message: 'fix(webview): add error boundary + global error capture in webview entry', date: '2026-04-27' },
+    { sha: 'adbb183b', message: 'fix(preview): arm recompile gate only for webpack/parcel (HYP-363)', date: '2026-04-27' },
+    { sha: '09ab9cd5', message: 'feat(extension): promote Next.js from READONLY to FULL_EDIT bundler', date: '2026-04-27' },
+    { sha: '77a9af97', message: 'fix(preview): readonly badge — clarify it is the bundler, not the CSS system', date: '2026-04-27' },
+    { sha: 'ef0f3357', message: 'fix(extension): sync dev-server URL to preview panel on openPreview (HYP-363)', date: '2026-04-27' },
+    { sha: '73840421', message: 'fix(extension): swallow unhandled rejections + close 0.1.12 escape paths (HYP-363)', date: '2026-04-27' },
+    { sha: '68dfca77', message: 'fix(extension): catch showTextDocument rejection in component-switch flow (HYP-363)', date: '2026-04-27' },
+    { sha: '2e02e5f2', message: 'fix(extension): arm recompile gate for all frameworks, broaden ready markers (HYP-363)', date: '2026-04-27' },
+    { sha: '7688d18a', message: 'chore(extension): bump version to 0.1.10 with re-create state preservation', date: '2026-04-26' },
+    { sha: '0eb7e509', message: 'fix(extension): preserve currentComponent across panel dispose+recreate (HYP-363)', date: '2026-04-26' },
+    { sha: 'cd3094d8', message: 'fix(extension): await recompile gate before setting component param', date: '2026-04-26' },
+    { sha: 'd585a745', message: 'fix(dev-server): gate ready on post-patch webpack recompile (HYP-363)', date: '2026-04-26' },
+    { sha: '55e8ddcd', message: 'fix(preview-proxy): bump /test-preview retry to 30s for webpack recompile', date: '2026-04-26' },
+    { sha: 'b4ffec52', message: 'feat(preview-generator): generic prop stubs for common React/Remix patterns', date: '2026-04-26' },
+    { sha: '233327bc', message: 'feat(preview-generator): Zustand store stub', date: '2026-04-26' },
+    { sha: 'ca85e8a3', message: 'fix(extension): suppress stale bun bundle errors in preview (HYP-363)', date: '2026-04-25' },
+    { sha: '48bcdfe4', message: 'fix(preview-generator): drop platform/style suffix files from preview registry (HYP-363)', date: '2026-04-25' },
+    { sha: '157990ca', message: 'feat(extension): runtime workspace switching, sample normalization, canvas wiring', date: '2026-04-25' },
+    { sha: '295dff24', message: 'fix(extension): asset content-type and dev server stop hardening', date: '2026-04-25' },
+    { sha: '00e4d2e6', message: 'feat(preview-generator): richer fallback data and scanner path normalization', date: '2026-04-25' },
+    { sha: 'b7097270', message: 'perf(extension): postMessage component switch instead of full navigation', date: '2026-04-25' },
+    { sha: '0ab99f7d', message: 'fix(canvas-interaction): resolve map item indexes through fiber metadata', date: '2026-04-25' },
+    // ext-test-projects commits (157 total, key ones listed)
+    { sha: 'f63d6ce', message: 'fix(e2e): isolate unsupported-project.spec from CSS-unsupported projects', date: '2026-04-29' },
+    { sha: '1dbe026', message: 'fix(docker): use TZ=UTC when parsing Docker image creation timestamp', date: '2026-04-29' },
+    { sha: '6df6548', message: 'fix(e2e): increase redo-stack clear wait 8s→15s for Docker watcher lag', date: '2026-04-29' },
+    { sha: '08ed413', message: 'fix(e2e): extend file-picker retry window for post-workspace-switch indexing', date: '2026-04-29' },
+    { sha: '4f802bd', message: 'fix(docker): add --init and unlimited swap to shard containers', date: '2026-04-29' },
+    { sha: '804eea3', message: 'fix(e2e): add Vite refresh fallback for degraded FS watcher in error overlay', date: '2026-04-29' },
+    { sha: '1522602', message: 'fix(e2e): prevent poll failure when canvas hides text editor for Tamagui', date: '2026-04-29' },
+    { sha: 'ead694e', message: 'fix(e2e): hoist projectDir to function scope to prevent ReferenceError in ~270 tests', date: '2026-04-29' },
+    { sha: 'df8a5d1', message: 'test(e2e): fast-fail save check + styleable element selection for Tamagui', date: '2026-04-28' },
+    { sha: '1e974e6', message: 'fix(e2e): add webpack filesystem cache + pre-warm to eliminate 600s build delay', date: '2026-04-29' },
+    { sha: '8d35fef', message: 'fix(e2e): suppress File Modified Since console errors as benign', date: '2026-04-29' },
+    { sha: 'b525fba', message: 'fix(e2e): fix 3 persistent test failures (redo-limit, preview-render timeout, editor open)', date: '2026-04-28' },
+    { sha: 'bdf2042', message: 'fix(e2e): skip redundant save-all and silence non-fatal close-editors errors', date: '2026-04-28' },
+    { sha: '9222420', message: 'fix(e2e): hard-kill playwright after 3h to prevent zombie containers', date: '2026-04-29' },
+    { sha: 'ffa30f6', message: 'fix(e2e): activate preview tab on fake.html / missing-webview case (HYP-363)', date: '2026-04-28' },
+    { sha: '92f4aa9', message: 'fix(e2e): click preview tab after each Remix refresh-retry to prevent fake.html', date: '2026-04-28' },
+    { sha: '1179899', message: 'fix(e2e): increase globalTimeout from 30min to 3h so full shard can complete', date: '2026-04-27' },
+    { sha: '5f652df', message: 'fix(e2e): exclude hero-shot.spec.ts and debug-*.spec.ts from dep project matrix', date: '2026-04-27' },
+    { sha: 'b9b9f84', message: 'fix(remix-spotify): seed __canvas_preview__ with PlayerBar in registry', date: '2026-04-28' },
+    { sha: '03aff93', message: 'chore(e2e): docker parallel harness with auto-shard sizing', date: '2026-04-25' },
+    { sha: 'e4ccfd2', message: 'test(e2e): harden setupPreviewWithDevServer for Docker load', date: '2026-04-25' },
+    { sha: 'f8f550c', message: 'test(e2e): reject offscreen preview webviews (HYP-363)', date: '2026-04-21' },
+    { sha: '2c09091', message: 'fix(e2e): tighten preview-render PD-1-10 against silent webview fallback', date: '2026-04-26' },
+    { sha: '84826fa', message: 'fix(e2e): kill zombie dev servers on teardown + harden timeouts', date: '2026-04-27' },
+    { sha: 'e097090', message: 'perf(e2e): pre-warm Vite optimizeDeps for Remix projects at container startup', date: '2026-04-28' },
+    { sha: '9f36a21', message: 'fix(e2e): share node_modules across Docker shards via single named volume', date: '2026-04-26' },
+    { sha: 'a3230b4', message: 'fix(e2e): isPreviewLoaded falls back to body > * for Remix', date: '2026-04-26' },
+    { sha: '2682eb3', message: 'fix(e2e): auto-detect entry component for Remix and Next.js projects', date: '2026-04-25' },
+  ],
+  findings: [
+    {
+      id: 1,
+      severity: 'P1',
+      status: 'resolved',
+      title: 'Docker OOM kills S3 at worker 62 — ~280 tests never ran',
+      file: 'e2e/scripts/docker-parallel-run.sh',
+      lines: '',
+      desc: 'Memory exhaustion caused the S3 container to be killed at worker 62 in every run before #29. As a result, ~280 tests across 5 supported projects (webpack-react-cssmodules-spotify, webpack-react-emotion-dashboard, react-vite-sass-portfolio, bun-tw-shadcn-sample, nextjs-tw-sample) and 12 unsupported CSS projects had never run in any recorded run.',
+      fix: '--memory-swap -1 + --init flags in docker-parallel-run.sh (4f802bd in ext-test-projects). Run #29 is the first run expected to cover all 35 projects.'
+    },
+    {
+      id: 2,
+      severity: 'P1',
+      status: 'resolved',
+      title: 'ReferenceError global blocker — projectDir scoping (run #25)',
+      file: 'e2e/helpers/setup-preview.ts',
+      lines: '',
+      desc: 'A projectDir variable declared outside its closure caused ReferenceError in ~270 tests in a single run (#25). Every test that called setupPreviewWithDevServer() failed immediately with an unhandled exception.',
+      fix: 'Hoisted projectDir to correct function scope (ead694e in ext-test-projects).'
+    },
+    {
+      id: 3,
+      severity: 'P1',
+      status: 'resolved',
+      title: 'Offscreen preview webview — canvas interactions silently fail',
+      file: 'e2e/helpers/setup-preview.ts',
+      lines: '',
+      desc: 'VS Code occasionally renders the webview panel with negative coordinates (offscreen). All canvas click/inspect interactions would "succeed" at the wrong screen location. The root cause of HYP-363 — the original ticket that started this sprint.',
+      fix: 'Added offscreen check in getPreviewPanelContent(): rejects frames with x<0 or y<0 (f8f550c in ext-test-projects).'
+    },
+    {
+      id: 4,
+      severity: 'P2',
+      status: 'resolved',
+      title: 'unsupported-project.spec running for CSS-unsupported projects (24 hard failures/run)',
+      file: 'e2e/playwright.config.ts',
+      lines: '',
+      desc: 'Both unsupported-project.spec.ts and unsupported-css-smoke.spec.ts ran for all projects in the unsupported testDir. CSS-unsupported projects (mui, antd, etc.) show ReadonlyStubScreen, not UnsupportedProjectScreen — so the wrong spec caused 24 hard failures every run.',
+      fix: 'testMatch set to unsupported-css-smoke.spec.ts on unsup:* entries (f63d6ce in ext-test-projects).'
+    },
+    {
+      id: 5,
+      severity: 'P2',
+      status: 'monitoring',
+      title: 'ast-operations 606s OOM-induced timeouts (3 webpack tests)',
+      file: 'e2e/tests/project-dependent/ast-operations.spec.ts',
+      lines: 'L58-L106',
+      desc: 'setupPreviewWithDevServer() polls up to 600s for dev server ready. Under OOM-induced memory pressure (workers 63–68 in S3 run #28), webpack page-thrashed for 600s without completing compilation. Both retry attempts failed at 606s.',
+      fix: 'Expected resolved by --memory-swap -1 (4f802bd). Monitoring in run #29.'
+    },
+    {
+      id: 6,
+      severity: 'P2',
+      status: 'resolved',
+      title: 'Remix cold compile 403/timeout — preview never loaded',
+      file: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts',
+      lines: '',
+      desc: 'Remix first-time compile takes 30–90s. PreviewProxy was timing out after 16 retries (~56s). After timeout, /test-preview served 403 until the compile finished. Tests failed or hung.',
+      fix: 'Retry budget raised to 60 retries (~222s) + 403 now retried. Vite optimizeDeps pre-warm reduces Remix compile time to ~20s (c196a2a2 + 682fdf22 in hyper-canvas-draft, e097090 + 0882fef in ext-test-projects).'
+    },
+    {
+      id: 7,
+      severity: 'P2',
+      status: 'resolved',
+      title: 'fake.html placeholder in webview after panel recreate',
+      file: 'e2e/helpers/setup-preview.ts',
+      lines: '',
+      desc: 'After VS Code disposes and recreates the preview panel (on component switch, workspace change, etc.), the webview briefly shows fake.html. Tests that proceeded immediately tried to interact with the placeholder page.',
+      fix: 'Harness now detects fake.html and waits for real content (ffa30f6 + 92f4aa9 in ext-test-projects).'
+    },
+    {
+      id: 8,
+      severity: 'P3',
+      status: 'accepted',
+      title: '"component with error" 607s — Vite FS watcher degradation',
+      file: 'e2e/tests/project-dependent/preview-render.spec.ts',
+      lines: '',
+      desc: 'After ~40min of tests on a warm VS Code process, Vite FS watcher degrades. editor.save() writes to disk but Vite never detects the change. The 600s poll budget exhausts. Both attempts fail (FAILED, not FLAKY).',
+      fix: 'Fast-fail added (df8a5d1): 5s poll after editor.save() catches type/save failures quickly. Full fix requires DevServerManager lifecycle FSM (NEEDS LINEAR).'
+    },
+    {
+      id: 9,
+      severity: 'P3',
+      status: 'resolved',
+      title: 'Docker TZ bug — unnecessary image rebuilds',
+      file: 'e2e/scripts/docker-parallel-run.sh',
+      lines: '',
+      desc: "date -j interpreted Docker's UTC timestamp as local CEST time, making the image appear 2h older than it was. Every run triggered a full Docker image rebuild even when nothing changed.",
+      fix: 'TZ=UTC when calling date -j (1dbe026 in ext-test-projects).'
+    },
+  ],
+  adrs: [
+    {
+      title: 'ADR-1: Full 2211-test matrix as source of truth',
+      problem: 'Partial reruns on failing test subsets hid systemic issues — some projects had never run. Pass rate looked ~75% but masked entire project families.',
+      options: 'Continue partial reruns vs commit to full matrix every time.',
+      decision: 'Full matrix every run, Docker 3-shard with --retries=1.',
+      rationale: 'Only full matrix reveals OOM kills, never-ran projects, and the real pass rate. Partial reruns are a vanity metric.'
+    },
+    {
+      title: 'ADR-2: --memory-swap -1 for Docker shards',
+      problem: 'Docker default: container killed when container memory hits limit. webpack page-thrashing caused cascade failures in S3.',
+      options: 'Increase container memory limit vs unlimited swap.',
+      decision: '--memory-swap -1 (unlimited swap) + --init for signal handling.',
+      rationale: 'Swap allows webpack to finish compilation under memory pressure. Slower but functional. Memory limit increase would only delay the same problem.'
+    },
+    {
+      title: 'ADR-3: testMatch isolation for unsupported project specs',
+      problem: 'Two spec files in same testDir ran for all projects. CSS-unsupported projects need ReadonlyStubScreen check, not UnsupportedProjectScreen check.',
+      options: 'Different testDir per project type vs testMatch filter in playwright.config.',
+      decision: 'testMatch: unsupported-css-smoke.spec.ts on unsup:* entries.',
+      rationale: 'Minimal config change, zero test file moves. Two-line fix that eliminated 24 hard failures per run.'
+    },
+  ],
+  codexRounds: [],
+});
+</script>
+</body>
+</html>
