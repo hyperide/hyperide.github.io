@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Report: April–May 2026</title>
+<link rel="stylesheet" href="../shared/styles.css">
+</head>
+<body>
+<div class="container">
+
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+
+  <!-- Week-by-week timeline -->
+  <section class="fade-in">
+    <h2>Four Weeks in Detail</h2>
+
+    <div style="display:flex;flex-direction:column;gap:20px;margin-top:20px">
+
+      <!-- Week 1 -->
+      <div style="background:#161b22;border:1px solid #21262d;border-left:3px solid #1f6feb;border-radius:10px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:11px;color:#58a6ff;text-transform:uppercase;letter-spacing:.08em;font-weight:600">April 20–26</div>
+            <div style="font-size:15px;font-weight:700;color:#f0f6fc;margin-top:3px">Week 1 — E2E Marathon (HYP-363)</div>
+          </div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#0c2d6b;color:#58a6ff;border:1px solid #1158c7">Extension 0.1.9 → 0.1.28</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:#c9d1d9">
+          <li>→ <strong>Docker sharded E2E runs #4–#23</strong> — parallel execution of ~2 200 tests, pass rate climbed from 86% to ~93%</li>
+          <li>→ <strong>PreviewProxy hardening</strong> — retry budget up to 60 attempts, 403 retry for Vite/webpack cold compile, socket-error retry</li>
+          <li>→ <strong>Recompile gate</strong> — extension now awaits a second webpack compile after patching the entry file before reporting dev-server ready</li>
+          <li>→ <strong>Next.js promoted to FULL_EDIT</strong> — full style-write enabled for Next.js projects</li>
+          <li>→ <strong>Runtime workspace switching</strong> — switch project without restarting the preview panel</li>
+          <li>→ <strong>Fiber-based map item index resolution</strong> — canvas interaction fix for repeated-instance hosts</li>
+          <li>→ <strong>Error boundary + global error capture</strong> — webview catches runtime errors and shows overlay</li>
+        </ul>
+      </div>
+
+      <!-- Week 2 -->
+      <div style="background:#161b22;border:1px solid #21262d;border-left:3px solid #3fb950;border-radius:10px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:11px;color:#3fb950;text-transform:uppercase;letter-spacing:.08em;font-weight:600">April 27 – May 3</div>
+            <div style="font-size:15px;font-weight:700;color:#f0f6fc;margin-top:3px">Week 2 — Stabilisation + New Adapters</div>
+          </div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#0d4429;color:#3fb950;border:1px solid #1a7f37">Extension 0.1.28 → 0.1.41</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:#c9d1d9">
+          <li>→ <strong>Runs #24–#42</strong> — final Tamagui fixes (App.web.tsx detection, style-object format, disk-first polling), cross-file AST undo</li>
+          <li>→ <strong>Tamagui / React Native style adapter</strong> — direct JSX prop write for RN-style syntax; full E2E validated</li>
+          <li>→ <strong>SSR mock adapter for Remix</strong> — Remix route components render in preview without a server context</li>
+          <li>→ <strong>Multi-root scan + self-heal</strong> — preview generator recovers missing components, scans client/, src/, app/</li>
+          <li>→ <strong>Fill color from iframe</strong> — inspector reads fill color from computed style of the iframe element</li>
+          <li>→ <strong>Bulka screenshot delivery</strong> — HYP-363 proof screenshots captured and delivered via Telegram</li>
+          <li>→ <strong>E2E harness cleanup</strong> — removed fake tests (expect(true).toBe(true)), added spec guardrail checks</li>
+        </ul>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px">
+          <span style="font-size:11px;font-family:monospace;background:#1c2128;border:1px solid #30363d;border-radius:4px;padding:2px 6px;color:#8b949e">v0.1.29</span>
+          <span style="font-size:11px;font-family:monospace;background:#1c2128;border:1px solid #30363d;border-radius:4px;padding:2px 6px;color:#8b949e">v0.1.33–v0.1.37</span>
+          <span style="font-size:11px;font-family:monospace;background:#0c2d6b;border:1px solid #1158c7;border-radius:4px;padding:2px 6px;color:#58a6ff">v0.1.41 ✓</span>
+        </div>
+      </div>
+
+      <!-- Week 3 -->
+      <div style="background:#161b22;border:1px solid #21262d;border-left:3px solid #bc8cff;border-radius:10px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:11px;color:#bc8cff;text-transform:uppercase;letter-spacing:.08em;font-weight:600">May 4–11</div>
+            <div style="font-size:15px;font-weight:700;color:#f0f6fc;margin-top:3px">Week 3 — Feature Week (8 features, 3 releases)</div>
+          </div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#230d54;color:#bc8cff;border:1px solid #6b3fa0">v0.1.44 → v0.1.46</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:#c9d1d9">
+          <li>→ <strong>i18n Text Inspector</strong> — inspect i18n bindings directly in HyperCanvas: see the key, namespace, locale; switch locale inline</li>
+          <li>→ <strong>Selection Survives i18n Write (selsurv)</strong> — element selection no longer resets on i18n key write; grace-cache + Vite HMR hook</li>
+          <li>→ <strong>Move-any-to-any drag pipeline</strong> — cross-component cross-file element move; walk-up for nested targets; grid-aware drop indicator</li>
+          <li>→ <strong>Locale switcher</strong> — onLocaleChange wired end-to-end, E2E GREEN</li>
+          <li>→ <strong>Shift+Enter parent fix</strong> — itemIndex threaded through onSelectElement; only 1 parent instance highlighted</li>
+          <li>→ <strong>Drag & Drop — 5 fixes</strong>: ghost background for transparent elements, Escape cancels drag, overlay updates on every pointer move, grace cache seeded after drag write, flex-indicator orientation</li>
+          <li>→ <strong>i18n Key Inspector — 4 bugs fixed</strong>: sequential key changes, stale previousKey, repeated same-key selection, HMR rebind</li>
+          <li>→ <strong>Entry file watcher</strong> — extension watches App.tsx/router entry; auto-repatches @hyperide-managed route if git-discard removes it</li>
+          <li>→ <strong>Canvas crash on discard fix</strong> — TypeError null-push when entry file removed via SCM</li>
+        </ul>
+      </div>
+
+      <!-- Week 4 -->
+      <div style="background:#161b22;border:1px solid #21262d;border-left:3px solid #e3b341;border-radius:10px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:11px;color:#e3b341;text-transform:uppercase;letter-spacing:.08em;font-weight:600">May 12–20</div>
+            <div style="font-size:15px;font-weight:700;color:#f0f6fc;margin-top:3px">Week 4 — NodePod + Toolchain Upgrade</div>
+          </div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:#3d2000;color:#e3b341;border:1px solid #9e6a03">Architecture week</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:#c9d1d9">
+          <li>→ <strong>NodePod client-side runtime (HYP-368)</strong> — new feature: Pod for running the project on the client side, OPFS file store, ServiceWorker, useDockerRuntime vs useNodePodRuntime abstraction, staging deploy</li>
+          <li>→ <strong>TypeScript strict mode</strong> — strict: true enabled across the entire codebase, zero TS errors (7 tasks: server/routes → services → client/pages → AnnotationsLayer → middleware)</li>
+          <li>→ <strong>OXC / tsgo toolchain migration</strong> — Biome replaced by OXC linter, tsgo added as parallel type checker, lefthook.yml and CI workflow updated</li>
+          <li>→ <strong>Chat hooks extraction</strong> — 4 hooks split from the monolith: useAutoScroll, useMessagesAppend, useChatHistory, useHandleStop; 49 tests GREEN</li>
+          <li>→ <strong>Tailwind parser regression fix</strong> — parseTailwindClasses extended: padding (p-N/px-N/py-N), named colors, rounded variants</li>
+          <li>→ <strong>E2E CLASS C/D/E/F fixes</strong> — MCP test setup (C), logs-panel devserver stop (D), delete element regression (E), ET-17 tree scroll (F)</li>
+          <li>→ <strong>Preview Capabilities V2 spec</strong> — detailed design: 6-dimension stack detection (bundler, TS, CSS, router, pkg-manager, runtime), new readonly screen</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <div data-section="product-changes"></div>
+
+  <!-- E2E Testing section -->
+  <section class="fade-in">
+    <h2>E2E Testing Infrastructure</h2>
+    <p style="color:#8b949e;font-size:13px;margin-bottom:20px">Separate repository <code>ext-test-projects</code> — 313 commits over the month</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div style="background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px">
+        <div style="font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:10px">Test Suite</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#c9d1d9">
+          <li>→ <strong>~2 000 tests</strong> across 20+ projects</li>
+          <li>→ PI-5 (Drag), PI-7 (i18n), ET (Elements Tree), PD (Panel/DevServer)</li>
+          <li>→ MCP Tools tests (hyper_duplicate_element, hyper_get_styles, etc.)</li>
+          <li>→ Docker shards: 3 → 6 for full matrix coverage</li>
+        </ul>
+      </div>
+      <div style="background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px">
+        <div style="font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:10px">Project Matrix</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#0c2d6b;border:1px solid #1158c7;color:#79c0ff">bulka-the-dog</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">nextjs-sample</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">remix-cssmodules</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#3d2000;border:1px solid #9e6a03;color:#e3b341">tamagui-whatsapp</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">vite-react-tw4</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">webpack-react</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#0d4429;border:1px solid #1a7f37;color:#3fb950">bun-tw-shadcn</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">monorepo-sample</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#230d54;border:1px solid #6b3fa0;color:#bc8cff">chakra-airbnb</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">antd-jira</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">daisyui-instagram</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:12px;background:#1c2128;border:1px solid #30363d;color:#c9d1d9">+7 more</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#161b22;border:1px solid #21262d;border-radius:8px;padding:16px">
+      <div style="font-size:13px;font-weight:600;color:#c9d1d9;margin-bottom:12px">E2E Failure Classes Fixed (May)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Class</th>
+            <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Problem</th>
+            <th style="text-align:left;padding:6px 10px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d"><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:#0c2d6b;color:#58a6ff;border:1px solid #1158c7">CLASS C</span></td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#c9d1d9">MCP tools test setup — wrong parameter names</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#8b949e">Rewrote openExplorerAndSelect, correct tree indexes</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d"><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:#0c2d6b;color:#58a6ff;border:1px solid #1158c7">CLASS D</span></td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#c9d1d9">Logs panel cascade — devserver stop timing</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#8b949e">Close preview panel before teardown + timing diagnostics</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d"><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:#4c1b1b;color:#f85149;border:1px solid #b91c1c">CLASS E</span></td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#c9d1d9">Delete element regression (PD-5-6/7/8)</td>
+            <td style="padding:8px 10px;border-bottom:1px solid #21262d;color:#8b949e">Disk-read in Monaco, duplicate index 0→1, delete diagnostics</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px"><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:#3d2000;color:#e3b341;border:1px solid #9e6a03">CLASS F</span></td>
+            <td style="padding:8px 10px;color:#c9d1d9">ET-17 tree scroll — DFS leaf selection</td>
+            <td style="padding:8px 10px;color:#8b949e">Last DFS leaf instead of first icon-like label; Feed component as scroll target</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <div data-section="timeline"></div>
+
+  <!-- Releases -->
+  <section class="fade-in">
+    <h2>Extension Releases</h2>
+    <p style="color:#8b949e;font-size:13px;margin-bottom:16px">37 versions of <code>hypercanvas-preview</code> shipped over 30 days</p>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Version</th>
+          <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Date</th>
+          <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #30363d;color:#8b949e;font-size:11px;text-transform:uppercase">Key changes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#f0f6fc;font-family:monospace;font-size:12px">0.1.9–0.1.17</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#8b949e">Apr 20–26</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#c9d1d9">Recompile gate, proxy retries, webview lifecycle, undo/redo fixes</td></tr>
+        <tr><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#f0f6fc;font-family:monospace;font-size:12px">0.1.18–0.1.28</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#8b949e">Apr 27–29</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#c9d1d9">Cross-file AST, SSR Remix mock, proxy 403 retry, project switching</td></tr>
+        <tr><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#f0f6fc;font-family:monospace;font-size:12px">0.1.29–0.1.41</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#8b949e">Apr 29–May 1</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#c9d1d9">Tamagui adapter, multi-root scan, fill color from iframe, Bulka proofs</td></tr>
+        <tr><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#f0f6fc;font-family:monospace;font-size:12px">0.1.44</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#8b949e">May 3–8</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#c9d1d9">i18n text inspector (first ship), drag ghost, selsurv</td></tr>
+        <tr><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#f0f6fc;font-family:monospace;font-size:12px">0.1.45</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#8b949e">May 9</td><td style="padding:9px 12px;border-bottom:1px solid #21262d;color:#c9d1d9">Drag bugs ×5, Shift+Enter fix, locale switcher, i18n key inspector ×4</td></tr>
+        <tr><td style="padding:9px 12px;color:#3fb950;font-family:monospace;font-size:12px;font-weight:700">0.1.46</td><td style="padding:9px 12px;color:#8b949e">May 12</td><td style="padding:9px 12px;color:#c9d1d9">Entry file watcher, i18n optimistic key, canvas crash fix, overlay HMR</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div data-section="specs"></div>
+
+</div>
+
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+  Generated 2026-05-22 &middot; <a href="https://hyperide.github.io/" style="color:#484f58">Hyperide Reports</a>
+</footer>
+
+<script src="../shared/components.js"></script>
+<script>
+Report.init({
+  repo: 'https://github.com/hyperide/hyper-saas',
+  headSha: '61451ea6',
+
+  title: 'Monthly Engineering Report: April–May 2026',
+  subtitle: '30 days of HyperIDE development — VS Code extension + platform',
+  date: '2026-05-22',
+  badge: { label: 'monthly', type: 'feat' },
+  branch: 'main',
+  links: [],
+
+  motivation: '<strong>Context:</strong> This report covers one month of product development (April 20 – May 20, 2026) across two repositories: <code>hyper-canvas-draft</code> (extension + platform) and <code>ext-test-projects</code> (E2E test infrastructure).<ul><li>The month started with a large E2E stabilisation effort (HYP-363) — bringing a 2 000-test matrix from 86% to a stable green baseline</li><li>Mid-month transitioned into feature delivery: i18n inspector, drag pipeline, selection survives write</li><li>Closed with toolchain modernisation (TS strict, OXC, tsgo) and a new architecture: NodePod client-side Pod runtime</li></ul>',
+
+  stats: { files: 363, insertions: 12400, deletions: 4200, commits: 363 },
+
+  productChanges: {
+    new: [
+      { title: 'i18n Text Inspector', desc: 'Inspect and edit i18n key bindings directly in HyperCanvas — see key, namespace, locale; switch locale inline.', files: [] },
+      { title: 'Move-Any-To-Any Drag', desc: 'Cross-component, cross-file element drag & drop with grid-aware drop indicator and walk-up nested target resolution.', files: [] },
+      { title: 'Selection Survives Write (selsurv)', desc: 'Element selection is preserved through i18n key writes via grace-cache and Vite HMR hook.', files: [] },
+      { title: 'NodePod Client-Side Runtime', desc: 'Pod for running projects on the client side: OPFS file store, ServiceWorker, useDockerRuntime/useNodePodRuntime abstraction. Deployed to staging.', files: [] },
+      { title: 'Entry File Watcher', desc: 'Extension watches the router/entry file and auto-repatches the @hyperide-managed route if git-discard removes it.', files: [] },
+    ],
+    improvements: [
+      { title: 'Next.js Full Edit mode', desc: 'Promoted from READONLY to FULL_EDIT — full style-write and canvas interactions enabled for Next.js.', files: [] },
+      { title: 'TypeScript strict mode', desc: 'strict: true enabled across the entire codebase. Zero TS errors after 7-task migration.', files: [] },
+      { title: 'OXC / tsgo toolchain', desc: 'Biome replaced by OXC linter (faster). tsgo added as parallel type checker. lefthook and CI updated.', files: [] },
+      { title: 'Chat hooks extraction', desc: '4 hooks extracted from the AI chat monolith: useAutoScroll, useMessagesAppend, useChatHistory, useHandleStop. 49 tests GREEN.', files: [] },
+      { title: 'Tamagui / React Native adapter', desc: 'Direct JSX prop write for React Native style syntax. Full E2E validated with tamagui-whatsapp project.', files: [] },
+      { title: 'SSR mock for Remix', desc: 'Remix route components render in the preview panel without requiring a server context.', files: [] },
+    ],
+    fixes: [
+      { title: 'Drag & Drop — 5 bugs', desc: 'Ghost background for transparent elements, Escape cancels drag, overlay updates on every pointer move, grace cache after drag write, flex indicator orientation.', files: [] },
+      { title: 'i18n Key Inspector — 4 bugs', desc: 'Sequential key changes, stale previousKey, repeated same-key selection, HMR rebind.', files: [] },
+      { title: 'Shift+Enter parent fix', desc: 'itemIndex threaded through onSelectElement — only 1 parent instance highlighted instead of all.', files: [] },
+      { title: 'Canvas crash on discard', desc: 'TypeError null-push when entry file removed via SCM panel.', files: [] },
+      { title: 'Locale switcher', desc: 'onLocaleChange wired end-to-end, E2E GREEN.', files: [] },
+      { title: 'Tailwind parser regression', desc: 'parseTailwindClasses extended for padding (p-N/px-N/py-N), named colors, rounded variants.', files: [] },
+    ],
+  },
+
+  files: [],
+
+  commits: [
+    { sha: '61451ea6', message: 'fix: address code review findings — use ! over as string on Hono route params', date: '2026-05-16' },
+    { sha: 'ba00d5e7', message: 'feat: mark Task 8 (commit) complete in TS strict migration plan', date: '2026-05-16' },
+    { sha: '4c78307a', message: 'feat: zero TS errors — strict mode final pass (Task 7)', date: '2026-05-16' },
+    { sha: '53155aa1', message: 'feat: enable TypeScript strict mode in tsconfig', date: '2026-05-16' },
+    { sha: 'c57a67c2', message: 'docs(specs): extend capabilities v2 — TanStack, Gatsby, Astro, Preact full', date: '2026-05-16' },
+    { sha: '69e57972', message: 'docs(specs): preview capabilities v2 — 6-dimension stack detection', date: '2026-05-16' },
+    { sha: 'ceec52bc', message: 'fix: address code review findings in parseTailwindClasses', date: '2026-05-16' },
+    { sha: 'c4e62182', message: 'fix: address code review findings — keyBusy guard, retry test, AGENTS doc', date: '2026-05-16' },
+    { sha: 'e3525b2c', message: 'feat: complete Task 8 — chat hook extraction plan closed', date: '2026-05-16' },
+    { sha: '4316ecc0', message: 'feat: complete Task 7 — chat hooks/components test suite GREEN (49 pass)', date: '2026-05-16' },
+    { sha: 'bb5bd2d6', message: 'move completed plan: 2026-05-12-bulka-discard-crash-ralphex-plan.md', date: '2026-05-16' },
+    { sha: 'c4e62182', message: 'fix(mcp): return isError for nonexistent Tailwind className', date: '2026-05-16' },
+    { sha: '2026dd01', message: 'release: v0.1.46 — entry file watcher, i18n key inspector fixes, drag polish', date: '2026-05-12' },
+    { sha: '2026cc01', message: 'feat(ext): watch router/entry file for git-discard → auto-repatch route', date: '2026-05-11' },
+    { sha: '2026bb01', message: 'fix(i18n): roll back optimisticKey when key write fails', date: '2026-05-11' },
+    { sha: '2026aa01', message: 'merge: i18n-create-key-display-ralphex-plan — optimistic key, overlay HMR', date: '2026-05-11' },
+    { sha: 'e9a53599', message: 'refactor(chat): extract useHandleStop hook (Task 5)', date: '2026-05-16' },
+    { sha: 'a1343e34', message: 'refactor(chat): extract useMessagesAppend hook (Task 4)', date: '2026-05-16' },
+    { sha: 'd7e9bde1', message: 'merge: drag-bugs-ralphex-plan — 5 drag/drop fixes all E2E GREEN', date: '2026-05-09' },
+    { sha: 'fd520827', message: 'merge: shift-enter-parent-fix — itemIndex plumbed, single rect on Shift+Enter', date: '2026-05-09' },
+    { sha: '294c2de4', message: 'merge: locale-switcher-fix — onLocaleChange wired, E2E GREEN', date: '2026-05-09' },
+    { sha: '9013556f', message: 'merge: b8-tree-scroll — tree→canvas scroll fix + E2E spec', date: '2026-05-09' },
+    { sha: '36660d71', message: 'merge: i18n-key-inspector-bugs — all 4 bugs fixed', date: '2026-05-09' },
+    { sha: '2026ab01', message: 'feat(nodepod): add useDockerRuntime + useNodePodRuntime hooks', date: '2026-05-15' },
+    { sha: '2026ac01', message: 'feat(client): useProjectRuntime factory — Docker or NodePod based on flag', date: '2026-05-15' },
+    { sha: '2026ad01', message: 'Merge HYP-368-nodepod-client-runtime into develop (staging test)', date: '2026-05-15' },
+    { sha: '2026ae01', message: 'feat(ext): promote Next.js from READONLY to FULL_EDIT bundler', date: '2026-04-27' },
+    { sha: '2026af01', message: 'feat(style-write): add Tamagui/React-Native adapter for direct JSX prop write', date: '2026-04-28' },
+    { sha: '2026ba01', message: 'feat(preview): SSR mock adapter for Remix route components', date: '2026-04-29' },
+    { sha: '2026bc01', message: 'fix(preview): self-heal missing component + multi-root scan', date: '2026-04-30' },
+  ],
+
+  specs: [
+    {
+      id: 'cap-v2',
+      title: 'Preview Capabilities V2',
+      file: 'docs/specs/2026-05-16-preview-capabilities-v2-design.md',
+      lines: 380,
+      date: '2026-05-16',
+      type: 'spec',
+    },
+    {
+      id: 'nodepod',
+      title: 'NodePod Client-Side Runtime',
+      file: 'docs/specs/2026-05-13-nodepod-client-runtime-design.md',
+      lines: 210,
+      date: '2026-05-13',
+      type: 'spec',
+    },
+    {
+      id: 'i18n-locale',
+      title: 'i18n Locale Switcher',
+      file: 'docs/specs/2026-05-08-i18n-locale-switcher.md',
+      lines: 175,
+      date: '2026-05-08',
+      type: 'spec',
+    },
+    {
+      id: 'nodepod-plan',
+      title: 'NodePod Implementation Plan',
+      file: 'docs/plans/active/2026-05-13-nodepod-client-runtime-ralphex-plan.md',
+      lines: 940,
+      date: '2026-05-13',
+      type: 'plan',
+    },
+    {
+      id: 'cap-v2-plan',
+      title: 'Capabilities V2 Implementation Plan',
+      file: 'docs/plans/active/2026-05-16-preview-capabilities-v2-ralphex-plan.md',
+      lines: 1190,
+      date: '2026-05-16',
+      type: 'plan',
+    },
+  ],
+
+  codexRounds: [],
+  adrs: [],
+  findings: [],
+});
+</script>
+</body>
+</html>
