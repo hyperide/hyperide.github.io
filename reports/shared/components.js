@@ -411,6 +411,8 @@ window.Report = (function () {
       overlay.querySelector('#rpt-spec-next').disabled = idx === specs.length - 1;
       overlay.querySelector('#rpt-spec-counter').textContent = (idx + 1) + ' / ' + specs.length;
       var body = overlay.querySelector('#rpt-spec-body');
+      // Inline content takes priority — no network request needed (use for private repos)
+      if (spec.content && !spec._content) { spec._content = spec.content; }
       if (spec._content) { loadMarked().then(function () { body.innerHTML = renderMarkdown(spec._content); }); return; }
       body.innerHTML = '<p class="loading">Loading…</p>';
       var rawUrl = spec.rawUrl || ('https://raw.githubusercontent.com/' + data.repo.replace('https://github.com/', '') + '/' + data.headSha + '/' + spec.file);
@@ -419,7 +421,7 @@ window.Report = (function () {
         loadMarked()
       ])
         .then(function (res) { spec._content = res[0]; body.innerHTML = renderMarkdown(spec._content); })
-        .catch(function () { body.innerHTML = '<p style="color:var(--red)">Failed to load. <a href="' + ghUrl + '" target="_blank">View on GitHub &#8599;</a></p>'; });
+        .catch(function () { body.innerHTML = '<p style="color:var(--red)">Content unavailable — repo is private or file was moved. <a href="' + ghUrl + '" target="_blank">View on GitHub &#8599;</a></p>'; });
     }
 
     overlay.querySelector('.spec-modal-close').addEventListener('click', function () { overlay.classList.remove('open'); });
