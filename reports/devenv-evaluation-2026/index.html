@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>devenv.sh for HyperIDE — Evaluation Report</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.65;-webkit-font-smoothing:antialiased}
+code,pre,.mono{font-family:'SF Mono','Cascadia Code','Fira Code',monospace}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1000px;margin:0 auto;padding:0 24px}
+section{padding:44px 0;border-top:1px solid #21262d}
+h1{font-size:2.7rem;font-weight:800;background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;line-height:1.1}
+h2{font-size:1.5rem;font-weight:700;margin-bottom:18px;background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h3{font-size:1.12rem;font-weight:600;color:#e6edf3;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0;padding-left:22px}
+li{margin:4px 0}
+strong{color:#e6edf3}
+code{background:#161b22;border:1px solid #21262d;padding:1px 6px;border-radius:5px;font-size:.86em;color:#bc8cff}
+pre{background:#161b22;border:1px solid #21262d;border-radius:8px;padding:14px 16px;overflow-x:auto;margin:12px 0;font-size:.82rem;line-height:1.5}
+pre code{background:none;border:none;padding:0;color:#c9d1d9}
+.cmt{color:#6e7681}.kw{color:#ff7b72}.str{color:#a5d6ff}.att{color:#d2a8ff}
+.header{padding:56px 0 36px}
+.subtitle{font-size:1.2rem;color:#8b949e;margin-bottom:18px}
+.header-meta{display:flex;gap:10px 20px;flex-wrap:wrap;color:#8b949e;font-size:.86rem}
+.header-meta b{color:#c9d1d9}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.78rem;font-weight:600;background:rgba(88,166,255,.12);color:#58a6ff;vertical-align:middle}
+.tag.ok{background:rgba(63,185,80,.14);color:#3fb950}
+.tag.no{background:rgba(248,81,73,.14);color:#f85149}
+.callout{border-left:3px solid #58a6ff;background:#0f1620;padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+.callout.ok{border-color:#3fb950;background:#0f1a12}
+.callout.warn{border-color:#d29922;background:#1a1509}
+.callout.no{border-color:#f85149;background:#1a1011}
+.callout p:first-child{margin-top:0}.callout p:last-child{margin-bottom:0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88rem}
+th,td{border:1px solid #21262d;padding:8px 11px;text-align:left;vertical-align:top}
+th{background:#161b22;color:#e6edf3;font-weight:600}
+tr:nth-child(even) td{background:#0f141a}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.col{border:1px solid #21262d;border-radius:10px;padding:14px 16px;background:#0d1117}
+.col.pro{border-top:3px solid #3fb950}
+.col.con{border-top:3px solid #f85149}
+.col h3{margin-top:0}
+.src{font-size:.82rem;color:#8b949e}
+.src li{margin:3px 0}
+footer{text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:20px}
+@media(max-width:680px){.cards{grid-template-columns:1fr}h1{font-size:2rem}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="tag">Tooling Evaluation · Developer Experience</span>
+    <h1>devenv.sh for HyperIDE</h1>
+    <div class="subtitle">Can Nix-based environments help a bun + oxc/tsgo + docker-e2e monorepo — and is adoption worth it?</div>
+    <div class="header-meta">
+      <span><b>Date:</b> June 3, 2026</span>
+      <span><b>Method:</b> deep-research harness</span>
+      <span><b>Sources:</b> 22 (mostly primary)</span>
+      <span><b>Claims:</b> 25 verified → 23 confirmed, 2 refuted</span>
+      <span><b>Verification:</b> 3-vote adversarial</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<section>
+  <div class="callout">
+    <p><strong>TL;DR.</strong> devenv.sh is a declarative, reproducible developer-environment manager built on Nix. For HyperIDE it genuinely covers four things: (1) a single environment with first-class bun support, (2) a built-in native Rust process manager (devenv 2.0) for orchestrating dev servers and e2e services, (3) a tasks DAG with content-aware incremental caching for monorepo builds, and (4) declarative git-hooks with a ready-made <code>oxfmt</code> hook and the same definitions in CI via a single <code>devenv test</code>. The price: a hard dependency on Nix (an onboarding cost for the whole team), partial loss of reproducibility on macOS, and fresh, not-yet-settled 2.0 subsystems. <strong>Verdict: a scoped pilot is justified; a wholesale migration is not.</strong></p>
+  </div>
+</section>
+
+<section>
+  <h2>1. What it is and how it works</h2>
+  <p><strong>devenv</strong> (repo <code>cachix/devenv</code>) is a manager of "fast, declarative, reproducible and composable" development environments built on top of <strong>Nix</strong>. It exposes 100,000+ Nixpkgs packages for Linux and macOS, x64 and ARM64 (including WSL2). <strong>devenv 2.0</strong> (March 2026) is positioned as "a fresh interface to Nix": it keeps Nix's reproducibility guarantees while removing most of its day-to-day friction.</p>
+  <p>An environment is scaffolded with <code>devenv init</code>, which creates three files:</p>
+  <ul>
+    <li><code>devenv.nix</code> — the main declarative description: packages, env vars, languages, processes, services, tasks, git-hooks;</li>
+    <li><code>devenv.yaml</code> — inputs (Nixpkgs sources) and imports, including monorepo imports;</li>
+    <li><code>.gitignore</code> — ignores build artifacts (<code>.devenv/</code>).</li>
+  </ul>
+  <div class="callout warn">
+    <p><strong>Key architectural fact: a hard dependency on Nix.</strong> Installation is two-step — first Nix (the official installer or Determinate Systems' <code>nix-installer</code>), then devenv itself via <code>nix profile install nixpkgs#devenv</code>. <strong>There is no standalone, Nix-free binary.</strong> Even the Docker variant runs Nix inside the container. This means: adopting devenv = adopting Nix for every developer and in CI. This is the main cost line, and it is organizational, not technical.</p>
+  </div>
+</section>
+
+<section>
+  <h2>2. Subsystems relevant to HyperIDE</h2>
+
+  <h3>2.1 Environment &amp; first-class bun <span class="tag ok">confirmed 3-0</span></h3>
+  <p>devenv knows about bun at the language-module level. Enabling it is fully declarative:</p>
+  <pre><code><span class="cmt"># devenv.nix</span>
+{
+  languages.javascript.<span class="att">enable</span> = <span class="kw">true</span>;
+  languages.javascript.bun.<span class="att">enable</span> = <span class="kw">true</span>;          <span class="cmt"># installs bun from Nixpkgs</span>
+  languages.javascript.bun.install.<span class="att">enable</span> = <span class="kw">true</span>;  <span class="cmt"># bun install on env entry</span>
+}</code></pre>
+  <p>The implementation (<code>src/modules/languages/javascript.nix</code>) is version-aware: for bun ≥ 1.2 it uses <code>--save-text-lockfile</code>, and the <code>bun install</code> run is gated by a checksum of the lockfile + Node version so it doesn't re-install needlessly. For HyperIDE, which sits entirely on bun, this means the bun version stops being "whatever is in your PATH" and gets pinned in the repo.</p>
+
+  <h3>2.2 Built-in Rust process manager <span class="tag ok">confirmed 3-0</span></h3>
+  <p>devenv 2.0 introduced its own native Rust process manager, replacing the external <code>process-compose</code>. Capabilities:</p>
+  <ul>
+    <li><strong>Supervision + dependency ordering</strong> via <code>before</code>/<code>after</code>;</li>
+    <li><strong>Restart policies</strong> — <code>on_failure</code> / <code>always</code> / <code>never</code>;</li>
+    <li><strong>Readiness probes</strong> — <code>exec</code>, <code>HTTP</code>, systemd notify;</li>
+    <li><strong>Socket activation</strong> for zero-downtime restarts;</li>
+    <li><strong>Watchdog heartbeats</strong> and <strong>file watching</strong> with auto-restart on file change;</li>
+    <li><strong>Automatic free-port allocation</strong> (disable with <code>--strict-ports</code>).</li>
+  </ul>
+  <pre><code><span class="cmt"># processes are declared right in devenv.nix</span>
+processes.devserver = {
+  exec = <span class="str">"bun run scripts/dev.ts"</span>;
+};
+<span class="cmt"># start: devenv up   ·   stop: devenv processes down / devenv down</span></code></pre>
+  <p>This is a direct replacement for HyperIDE's ad-hoc dev-server orchestration (currently <code>bun install &amp;&amp; bun run scripts/dev.ts</code>) and for chaining dependent e2e services. Readiness probes (an HTTP probe on "compiled successfully") aim squarely at the project's known pain around waiting for dev-server readiness.</p>
+  <div class="callout no">
+    <p><strong>Caution: detached teardown.</strong> Open issues <code>#1210</code> / <code>#1597</code> report edge-case bugs stopping background services under <code>devenv up -d</code>, and <code>#2484</code> covers a port-allocation edge case. The feature exists, but the reliability of clean teardown for detached processes is in question. For a CI/e2e pipeline that relies on a guaranteed shutdown of background services, this is critical — verify in a pilot.</p>
+  </div>
+
+  <h3>2.3 Services <span class="tag ok">confirmed 2-1</span></h3>
+  <p>Services are a higher-level abstraction over processes: ~48 pre-configured ones (PostgreSQL, Redis, MongoDB, Kafka, MySQL, Elasticsearch, RabbitMQ, etc.) with ready-made interfaces (e.g. <code>services.postgres.initialDatabases</code>). HyperIDE gets little direct value from DB services — it isn't on a classic DB stack — but the mechanism is useful if e2e ever needs to spin up auxiliary backends locally without Docker.</p>
+
+  <h3>2.4 Tasks: a DAG with incremental caching <span class="tag ok">confirmed 3-0</span></h3>
+  <p>Tasks (added in devenv 1.7, present in 2.0) form a directed acyclic graph executed in parallel; edges are declared with <code>before</code>/<code>after</code>. The key feature is <strong>content-aware incremental execution</strong> via <code>execIfModified</code>: a task is skipped if the listed files haven't changed. Tracking is by both mtime and content hash — if the timestamp changed but content didn't, the task is still skipped.</p>
+  <pre><code>tasks.<span class="str">"build:client"</span> = {
+  exec = <span class="str">"bun ./scripts/build-client.ts"</span>;
+  execIfModified = [ <span class="str">"client/"</span> <span class="str">"shared/"</span> ];  <span class="cmt"># skip if untouched</span>
+};</code></pre>
+  <p>For HyperIDE's oxc/tsgo monorepo this is a native build/lint/typecheck cache without a separate Turborepo/Nx. It doesn't match them feature-for-feature (no remote cache out of the box like Turbo/Nx Cloud — that's covered by Cachix), but locally a DAG + content-hash covers the typical "don't rebuild what didn't change" case.</p>
+
+  <h3>2.5 git-hooks: declarative, with oxfmt <span class="tag ok">confirmed 3-0</span></h3>
+  <p>devenv has first-class pre-commit integration via the <code>git-hooks.nix</code> module (formerly <code>pre-commit-hooks.nix</code>; the backend recently migrated from <code>pre-commit</code> to the Rust-based <code>prek</code>). Hooks are declared in <code>devenv.nix</code>; the integration auto-enables as soon as any hook is configured. On shell entry, <code>.git/hooks/pre-commit</code> is installed automatically, and <code>.pre-commit-config.yaml</code> is a symlink into the Nix store (no need to commit it).</p>
+  <div class="callout ok">
+    <p><strong>A direct hit on HyperIDE's toolchain.</strong> <code>git-hooks.nix</code> ships ready hooks for <code>eslint</code>, <code>biome</code>, <code>prettier</code>, <code>denofmt</code> and — importantly — <strong><code>oxfmt</code></strong> (with a configurable <code>binPath</code>). The formatter from the project's oxc toolchain is available as a declarative hook with no custom wrapper. <em>(Initial web summaries wrongly claimed oxfmt was absent due to a truncated GitHub blob view; the raw <code>modules/hooks.nix</code> source disproved this.)</em></p>
+  </div>
+  <pre><code>git-hooks.hooks = {
+  oxfmt.<span class="att">enable</span> = <span class="kw">true</span>;
+  <span class="cmt"># oxlint and the tsgo typecheck — via a custom entry hook (see open questions)</span>
+};</code></pre>
+
+  <h3>2.6 Monorepo imports <span class="tag ok">confirmed 3-0</span></h3>
+  <p>devenv 1.10 (Oct 2025) added monorepo imports: each subdirectory carries its own <code>devenv.nix</code>/<code>devenv.yaml</code> and imports a centralized shared config. <strong>Paths starting with <code>/</code> resolve from the git repository root</strong> (where <code>.git</code> lives). The shared config centralizes <code>packages</code>, services and git-hooks, and packages inherit and extend them. This maps onto HyperIDE's layout (<code>workspaces: ["packages/*"]</code>): one shared base config plus per-package overrides.</p>
+
+  <h3>2.7 CI in one command <span class="tag ok">confirmed 3-0</span></h3>
+  <p>The recommended two-step: hooks at commit time locally + <code>devenv test</code> in CI. <code>devenv test</code> builds the shell and runs all defined git-hooks against the <strong>whole repository</strong> (pre-commit only hits staged files — different scope, same definitions), plus <code>enterTest</code> and process start/stop. GitHub Actions integration uses standard composable actions:</p>
+  <pre><code><span class="cmt"># .github/workflows/ci.yml (fragment)</span>
+- <span class="att">uses</span>: actions/checkout@v5
+- <span class="att">uses</span>: cachix/install-nix-action@v31
+- <span class="att">uses</span>: cachix/cachix-action@v16    <span class="cmt"># Nix binary cache → CI doesn't rebuild the env</span>
+  <span class="att">with</span>: { name: devenv }
+- <span class="att">run</span>: nix profile add nixpkgs#devenv
+- <span class="att">run</span>: devenv test</code></pre>
+</section>
+
+<section>
+  <h2>3. Realistic use in HyperIDE</h2>
+  <table>
+    <tr><th>Scenario</th><th>Replaces / adds</th><th>Value</th></tr>
+    <tr><td><strong>Toolchain pinning</strong> (bun, node, rsvg-convert, Playwright deps)</td><td>"whatever's in PATH", <code>.tool-versions</code>, manual README steps</td><td>High: kills "works on my machine"; pins system binaries (e.g. <code>rsvg-convert</code> for vector-cli)</td></tr>
+    <tr><td><strong>Dev-server orchestration</strong> with readiness probes</td><td>ad-hoc <code>scripts/dev.ts</code>, manual "compiled successfully" waits</td><td>High: HTTP readiness probe aims at real pain (HYP-371 — awaiting the second "compiled successfully")</td></tr>
+    <tr><td><strong>Declarative git-hooks</strong> (oxfmt + custom oxlint/tsgo)</td><td>husky/lint-staged (if any) or their absence</td><td>Medium: oxfmt out of the box, but oxlint/tsgo need manual wrapping</td></tr>
+    <tr><td><strong>Incremental builds</strong> via the tasks DAG</td><td>hand-rolled bun scripts with no cache; not Turbo/Nx</td><td>Medium: local content-hash cache yes, remote only via Cachix</td></tr>
+    <tr><td><strong>Unified CI</strong> via <code>devenv test</code></td><td>scattered GitHub Actions steps</td><td>Medium: same definitions locally and in CI, but adds Nix to the pipeline</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>4. devenv vs the current stack (bun + Docker)</h2>
+  <div class="cards">
+    <div class="col pro">
+      <h3>For devenv</h3>
+      <ul>
+        <li>Nix-grade reproducibility — exact versions of all binaries, not just JS packages;</li>
+        <li>Runs natively on the host — no virtualization overhead (faster dev loop than Docker on macOS);</li>
+        <li>One declaration = packages + processes + services + hooks + CI;</li>
+        <li>First-class bun, an oxfmt hook, monorepo imports — hits the project's stack;</li>
+        <li>Cachix provides a binary cache — CI and fresh machines don't rebuild the env.</li>
+      </ul>
+    </div>
+    <div class="col con">
+      <h3>Against devenv</h3>
+      <ul>
+        <li>Requires Nix for everyone — steep learning curve, a new class of debugging problems;</li>
+        <li>Does not isolate the OS like Docker — devenv reproduces <em>dependencies</em>, not the kernel/distro; it doesn't replace Docker-based e2e;</li>
+        <li>On macOS the system Apple SDK breaks part of reproducibility (see §5);</li>
+        <li>2.0 subsystems (Rust process manager, prek backend) are fresh — the API may not have settled;</li>
+        <li>The "&lt;100ms activation" myth is refuted — there is no instant shell entry.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <p><strong>The key coexistence nuance.</strong> devenv and HyperIDE's Docker e2e are <strong>not</strong> interchangeable. Docker gives OS isolation for e2e (which devenv does not), while devenv gives a declarative environment and on-host process orchestration. The realistic scenario is that devenv <em>complements</em> the stack (managing the host toolchain and local dev processes) while Docker stays for e2e. Exactly how devenv processes coexist with the current Docker pipeline (port/resource contention) is not covered by the sources — it's the first thing to verify in a pilot.</p>
+  </div>
+</section>
+
+<section>
+  <h2>5. Risks and pitfalls</h2>
+  <table>
+    <tr><th>Risk</th><th>Substance</th><th>Severity</th></tr>
+    <tr><td>Nix dependency</td><td>Adoption = Nix for the whole team and CI; no standalone binary. Onboarding cost and a new error class.</td><td><span class="tag no">High</span></td></tr>
+    <tr><td>macOS / Apple SDK</td><td><code>apple.sdk = null</code> lets you use the system SDK at the cost of reproducibility (the SDK varies by machine and macOS version). Opt-in, not default, but relevant to a darwin team.</td><td><span class="tag no">Medium</span></td></tr>
+    <tr><td>Detached teardown</td><td>Issues <code>#1210</code>/<code>#1597</code> — bugs stopping background services under <code>devenv up -d</code>; <code>#2484</code> — port allocation. Critical for CI/e2e.</td><td><span class="tag no">Medium</span></td></tr>
+    <tr><td>2.0 immaturity</td><td>The Rust process manager (March 2026) and the git-hooks migration to prek are fresh; the processes/tasks API may not have settled.</td><td><span class="tag no">Medium</span></td></tr>
+  </table>
+  <div class="callout no">
+    <p><strong>Refuted by voting (do not use as an argument):</strong></p>
+    <p>· "devenv activates an environment in &lt;100ms via Nix eval caching" — <strong>0-3, refuted</strong>. There is no instant activation; benchmark cold entry on a HyperIDE-sized monorepo.<br>
+    · "50+ pre-configured services" — <strong>1-2, refuted</strong>. The actual count is ~48; "50+" was not confirmed by the source.</p>
+  </div>
+</section>
+
+<section>
+  <h2>6. Open questions for a pilot</h2>
+  <ol>
+    <li><strong>Coexistence with Docker e2e</strong> — does devenv replace, complement, or contend (ports/resources) with Docker orchestration of local services? The sources don't cover interaction with an existing pipeline.</li>
+    <li><strong>Real cold-entry speed</strong> into <code>devenv shell</code> on team machines (with and without Cachix) — there is no "instant" activation; a benchmark is needed.</li>
+    <li><strong>Teardown reliability</strong> under <code>devenv up -d</code> given the open issues — critical if e2e relies on clean shutdown of background services.</li>
+    <li><strong>oxlint and tsgo as hooks</strong> — <code>git-hooks.nix</code> ships <code>oxfmt</code>, but does it cover <code>oxlint</code> as a ready hook, and how easy is wrapping the <code>tsgo</code> typecheck in a custom shell hook to fully replace any husky/lint-staged setup?</li>
+  </ol>
+</section>
+
+<section>
+  <h2>7. Recommendation</h2>
+  <div class="callout ok">
+    <p><strong>A scoped pilot — yes; a wholesale migration — no.</strong> Technically devenv hits HyperIDE's stack accurately (bun, oxfmt, monorepo, dev-server orchestration). But the main cost is organizational, not technical: Nix for the whole team. A sensible path:</p>
+    <p><strong>Phase 1 (1–2 days).</strong> One developer installs Nix + devenv, writes a <code>devenv.nix</code> with <code>languages.javascript.bun</code>, orchestration of <code>scripts/dev.ts</code> with an HTTP readiness probe, and an <code>oxfmt</code> hook. Measures cold/warm entry, checks process teardown, checks Docker-e2e port conflicts.</p>
+    <p><strong>Phase 2 (only if Phase 1 lands).</strong> Monorepo imports for <code>packages/*</code>, <code>devenv test</code> in one CI job alongside the existing one, a Cachix cache. The decision on a full switch comes only from results — never upfront.</p>
+    <p><strong>Do not:</strong> replace Docker e2e with devenv (different jobs), rely on "instant activation" (it doesn't exist), or roll it out to the whole team without measuring the Nix onboarding cost.</p>
+  </div>
+</section>
+
+<section>
+  <h2>8. Sources</h2>
+  <p class="src">Mostly primary: official devenv.sh docs, the <code>cachix/devenv</code> README, Nix module sources on <code>main</code>, release blogs. Factual claims (Nix backend, option names, hook availability) are verified in source; DX marketing phrasing is subjective. The "relevant to HyperIDE" mapping is analytical inference and must be confirmed by a pilot.</p>
+  <ul class="src">
+    <li>devenv 2.0 — "A Fresh Interface to Nix": <a href="https://devenv.sh/blog/2026/03/05/devenv-20-a-fresh-interface-to-nix/">devenv.sh/blog/2026/03/05/…</a></li>
+    <li>Getting Started: <a href="https://devenv.sh/getting-started/">devenv.sh/getting-started</a></li>
+    <li>Processes: <a href="https://devenv.sh/processes/">devenv.sh/processes</a> · Services: <a href="https://devenv.sh/services/">/services</a> · Tasks: <a href="https://devenv.sh/tasks/">/tasks</a></li>
+    <li>JavaScript / bun: <a href="https://devenv.sh/supported-languages/javascript/">devenv.sh/supported-languages/javascript</a> · source <code>src/modules/languages/javascript.nix</code></li>
+    <li>git-hooks: <a href="https://devenv.sh/git-hooks/">devenv.sh/git-hooks</a> · <a href="https://github.com/cachix/git-hooks.nix">github.com/cachix/git-hooks.nix</a> · source <code>modules/hooks.nix</code></li>
+    <li>Monorepo: <a href="https://devenv.sh/guides/monorepo/">devenv.sh/guides/monorepo</a> · blog 1.10 (2025-10-07)</li>
+    <li>GitHub Actions: <a href="https://devenv.sh/integrations/github-actions/">devenv.sh/integrations/github-actions</a> · Tests: <a href="https://devenv.sh/tests/">/tests</a></li>
+    <li>macOS recipe (Apple SDK): <a href="https://devenv.sh/recipes/macos/">devenv.sh/recipes/macos</a></li>
+    <li>Issues: <code>cachix/devenv#1210</code>, <code>#1597</code>, <code>#2484</code> · Playwright on NixOS: discourse.nixos.org/t/25655</li>
+    <li>Comparisons (secondary): devtoolreviews.com (devbox vs dev-containers vs nix), brunopaz.dev, news.ycombinator.com/item?id=44990044</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  Generated by a deep-research harness: 6 search angles → 22 sources → 100 extracted claims → 25 verified via 3-vote adversarial voting (23 confirmed, 2 refuted) → 12 synthesized findings. Confidence on core technical facts is high; applied value for HyperIDE's specific stack requires pilot confirmation. · HyperIDE · 2026-06-03
+</footer>
+
+</body>
+</html>
