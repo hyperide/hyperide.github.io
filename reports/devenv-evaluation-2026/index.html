@@ -71,8 +71,8 @@ footer{text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-
 <div class="container">
 
 <section>
-  <div class="callout">
-    <p><strong>TL;DR.</strong> devenv.sh is a declarative, reproducible developer-environment manager built on Nix. For HyperIDE it genuinely covers four things: (1) a single environment with first-class bun support, (2) a built-in native Rust process manager (devenv 2.0) for orchestrating dev servers and e2e services, (3) a tasks DAG with content-aware incremental caching for monorepo builds, and (4) declarative git-hooks with a ready-made <code>oxfmt</code> hook and the same definitions in CI via a single <code>devenv test</code>. The price: a hard dependency on Nix (an onboarding cost for the whole team), partial loss of reproducibility on macOS, and fresh, not-yet-settled 2.0 subsystems. <strong>Verdict: a scoped pilot is justified; a wholesale migration is not.</strong></p>
+  <div class="callout no">
+    <p><strong>TL;DR (revised after fitting to the actual stack).</strong> devenv.sh is a real, well-built declarative environment manager on Nix. But for HyperIDE specifically it is <strong>a solution looking for a problem the project does not have.</strong> Its headline features — the process manager and pre-configured services — are built for backend / multi-service stacks (Postgres + Redis + Kafka). HyperIDE is a bun monorepo + a VS Code extension with no such backend, already on fast native tooling (bun, oxc, tsgo), with no felt pain in CI or local builds. The only genuinely-real gap devenv would close is pinning a handful of non-JS system binaries (e.g. <code>rsvg-convert</code> that vector-cli shells out to) — a thumbtack, not a wound, and far cheaper to fix with one line in Docker/brew than by putting Nix on every machine. <strong>Verdict: not recommended for this stack. Not even a pilot — there is no problem to pilot against.</strong> The technical sections below remain accurate; sections 3–7 are the honest fit assessment.</p>
   </div>
 </section>
 
@@ -159,15 +159,16 @@ processes.devserver = {
 </section>
 
 <section>
-  <h2>3. Realistic use in HyperIDE</h2>
+  <h2>3. Fit assessment for HyperIDE — mostly "no"</h2>
+  <p>An earlier draft rated several of these "High". That was the tool's capability talking, not HyperIDE's pain. Re-rated against what the project actually feels:</p>
   <table>
-    <tr><th>Scenario</th><th>Replaces / adds</th><th>Value</th></tr>
-    <tr><td><strong>Toolchain pinning</strong> (bun, node, rsvg-convert, Playwright deps)</td><td>"whatever's in PATH", <code>.tool-versions</code>, manual README steps</td><td>High: kills "works on my machine"; pins system binaries (e.g. <code>rsvg-convert</code> for vector-cli)</td></tr>
-    <tr><td><strong>Dev-server orchestration</strong> with readiness probes</td><td>ad-hoc <code>scripts/dev.ts</code>, manual "compiled successfully" waits</td><td>High: HTTP readiness probe aims at real pain (HYP-371 — awaiting the second "compiled successfully")</td></tr>
-    <tr><td><strong>Declarative git-hooks</strong> (oxfmt + custom oxlint/tsgo)</td><td>husky/lint-staged (if any) or their absence</td><td>Medium: oxfmt out of the box, but oxlint/tsgo need manual wrapping</td></tr>
-    <tr><td><strong>Incremental builds</strong> via the tasks DAG</td><td>hand-rolled bun scripts with no cache; not Turbo/Nx</td><td>Medium: local content-hash cache yes, remote only via Cachix</td></tr>
-    <tr><td><strong>Unified CI</strong> via <code>devenv test</code></td><td>scattered GitHub Actions steps</td><td>Medium: same definitions locally and in CI, but adds Nix to the pipeline</td></tr>
+    <tr><th>Scenario</th><th>Reality for HyperIDE</th><th>Real value</th></tr>
+    <tr><td><strong>Process / service orchestration</strong> (the headline feature)</td><td>Built for backend stacks (DBs, queues, multiple daemons). HyperIDE has none — a bun monorepo + a VS Code extension. Docker e2e already covers integration.</td><td><span class="tag no">~None</span> backend-oriented</td></tr>
+    <tr><td><strong>Pinning non-JS system binaries</strong> (<code>rsvg-convert</code>, potrace/vtracer, graphviz)</td><td>The one genuine gap: bun doesn't manage these. vector-cli shells out to <code>rsvg-convert</code> (librsvg, not on npm); a machine without it fails silently.</td><td><span class="tag">Low–real</span> but a 1-line brew/Docker fix is cheaper</td></tr>
+    <tr><td><strong>Dev-server orchestration</strong> with readiness probes</td><td>Nice in theory, but <code>scripts/dev.ts</code> already works and isn't a felt blocker; adopting Nix to get an HTTP probe is disproportionate.</td><td><span class="tag no">Marginal</span></td></tr>
+    <tr><td><strong>git-hooks / incremental builds / unified CI</strong></td><td>Already covered: oxc/tsgo are fast and native, bun pins JS deps, CI is green. devenv would add a Nix layer, not remove pain.</td><td><span class="tag no">Marginal</span></td></tr>
   </table>
+  <p>The project's instinct — "I use bun and oxc, I don't have these problems, isn't orchestration a backend thing?" — is correct. It is.</p>
 </section>
 
 <section>
@@ -204,7 +205,7 @@ processes.devserver = {
   <table>
     <tr><th>Risk</th><th>Substance</th><th>Severity</th></tr>
     <tr><td>Nix dependency</td><td>Adoption = Nix for the whole team and CI; no standalone binary. Onboarding cost and a new error class.</td><td><span class="tag no">High</span></td></tr>
-    <tr><td>macOS / Apple SDK</td><td><code>apple.sdk = null</code> lets you use the system SDK at the cost of reproducibility (the SDK varies by machine and macOS version). Opt-in, not default, but relevant to a darwin team.</td><td><span class="tag no">Medium</span></td></tr>
+    <tr><td>macOS / Apple SDK</td><td><code>apple.sdk = null</code> trades reproducibility for the system SDK — but it is <strong>opt-in</strong>, and modern devenv pins a specific SDK (<code>apple-sdk_15</code>) by default. You'd only touch it when compiling native code against the macOS SDK. <strong>For a pure-JS/bun project this is a non-issue</strong> (corrected from the first draft, which overstated it).</td><td><span class="tag">N/A here</span></td></tr>
     <tr><td>Detached teardown</td><td>Issues <code>#1210</code>/<code>#1597</code> — bugs stopping background services under <code>devenv up -d</code>; <code>#2484</code> — port allocation. Critical for CI/e2e.</td><td><span class="tag no">Medium</span></td></tr>
     <tr><td>2.0 immaturity</td><td>The Rust process manager (March 2026) and the git-hooks migration to prek are fresh; the processes/tasks API may not have settled.</td><td><span class="tag no">Medium</span></td></tr>
   </table>
@@ -226,13 +227,14 @@ processes.devserver = {
 </section>
 
 <section>
-  <h2>7. Recommendation</h2>
-  <div class="callout ok">
-    <p><strong>A scoped pilot — yes; a wholesale migration — no.</strong> Technically devenv hits HyperIDE's stack accurately (bun, oxfmt, monorepo, dev-server orchestration). But the main cost is organizational, not technical: Nix for the whole team. A sensible path:</p>
-    <p><strong>Phase 1 (1–2 days).</strong> One developer installs Nix + devenv, writes a <code>devenv.nix</code> with <code>languages.javascript.bun</code>, orchestration of <code>scripts/dev.ts</code> with an HTTP readiness probe, and an <code>oxfmt</code> hook. Measures cold/warm entry, checks process teardown, checks Docker-e2e port conflicts.</p>
-    <p><strong>Phase 2 (only if Phase 1 lands).</strong> Monorepo imports for <code>packages/*</code>, <code>devenv test</code> in one CI job alongside the existing one, a Cachix cache. The decision on a full switch comes only from results — never upfront.</p>
-    <p><strong>Do not:</strong> replace Docker e2e with devenv (different jobs), rely on "instant activation" (it doesn't exist), or roll it out to the whole team without measuring the Nix onboarding cost.</p>
+  <h2>7. Recommendation — don't adopt</h2>
+  <div class="callout no">
+    <p><strong>Do not adopt devenv for HyperIDE.</strong> Not a migration, not even a pilot. devenv is a good tool, but adoption is justified by a problem it removes, and this stack doesn't have one: the orchestration/services are backend machinery you don't run, and bun + oxc + tsgo already give fast, pinned, green builds. The cost — Nix on every developer's machine and in CI — is real and permanent; the benefit here is near-zero.</p>
   </div>
+  <div class="callout ok">
+    <p><strong>The only thing worth doing (≈5 minutes, no Nix).</strong> The single real gap surfaced by this evaluation is unmanaged non-JS system binaries — notably <code>rsvg-convert</code> (librsvg), which vector-cli shells out to and which fails silently on a machine that lacks it. Pin it where it's actually needed: a <code>brew install librsvg</code> line in setup docs and an explicit install step in the CI/Docker job that runs vector-cli. Same for potrace/vtracer/graphviz if those paths ship. That closes the only real hole at a fraction of devenv's cost.</p>
+  </div>
+  <p class="src">Reconsider only if the stack changes shape — e.g. HyperIDE grows a real multi-service backend (DB + queue + workers) that developers must run locally. That is the workload devenv is built for; until then it's overhead.</p>
 </section>
 
 <section>
@@ -255,7 +257,7 @@ processes.devserver = {
 </div>
 
 <footer>
-  Generated by a deep-research harness: 6 search angles → 22 sources → 100 extracted claims → 25 verified via 3-vote adversarial voting (23 confirmed, 2 refuted) → 12 synthesized findings. Confidence on core technical facts is high; applied value for HyperIDE's specific stack requires pilot confirmation. · HyperIDE · 2026-06-03
+  Generated by a deep-research harness: 6 search angles → 22 sources → 100 extracted claims → 25 verified via 3-vote adversarial voting (23 confirmed, 2 refuted) → 12 synthesized findings. Technical facts are high-confidence and verified in primary sources. <strong>Rev 2 (2026-06-03): fit assessment corrected after grounding against HyperIDE's actual stack — verdict changed from "scoped pilot" to "don't adopt".</strong> · HyperIDE · 2026-06-03
 </footer>
 
 </body>
