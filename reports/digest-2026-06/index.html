@@ -1,0 +1,278 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HyperIDE — June 2026 Digest</title>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<style>
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:16px;margin-top:20px}
+.theme-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:16px 18px}
+.theme-card h3{font-size:1rem;color:#e6edf3;margin-bottom:6px;-webkit-text-fill-color:initial;background:none}
+.theme-card p{font-size:.85rem;color:var(--text-dim);line-height:1.55;margin-bottom:10px}
+.theme-card .prs{display:flex;flex-wrap:wrap;gap:6px}
+.theme-card .prs a{font-size:.75rem;font-family:'SF Mono',Menlo,Consolas,monospace;background:rgba(110,118,129,.15);border:1px solid var(--border);border-radius:6px;padding:1px 7px;color:var(--accent1)}
+.theme-card .prs a:hover{border-color:var(--accent1);text-decoration:none}
+@media (max-width:540px){.container{padding-left:14px;padding-right:14px}}
+</style>
+</head><body><div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <section class="fade-in">
+    <h2>Work by theme</h2>
+    <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:4px">Thirteen clusters the June work fell into. Each card links its key pull requests.</p>
+    <div class="theme-grid" id="theme-grid"></div>
+  </section>
+
+  <div data-section="specs"></div>
+  <div data-section="file-impact"></div>
+  <div data-section="timeline"></div>
+  <div data-section="adr"></div>
+</div>
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+Generated 2026-06-29 &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a></footer>
+<script src="../shared/components.js"></script>
+<script>
+var REPO = 'https://github.com/hyperide/hyper-saas';
+
+// ── Custom: theme cards (clusters A–M) ──
+var THEMES = [
+  { color: '#58a6ff', name: 'Preview rendering &amp; framework support',
+    desc: 'Hardening the isolated cross-framework preview — Remix dual-React, Next.js Turbopack, Vite optimize, Astro, monorepo sub-packages, entry-provider replication and in-preview app navigation.',
+    prs: [491, 504, 505, 525, 541, 542] },
+  { color: '#3fb950', name: 'Drag &amp; drop',
+    desc: 'Made drag-and-drop correct in headless and real flows: elementFromPoint drop resolution, cross-parent reparenting, decorative-source provenance, and pointer-events over the dragged subtree.',
+    prs: [500, 501, 506, 510, 511] },
+  { color: '#bc8cff', name: 'Inspector, canvas selection &amp; styling',
+    desc: 'Multi-select batch editing, additive Shift-select, real-background contrast judging, the selection-identity navigation cluster, and inspector polish (themed color tokens, resize snap-grid, NudgeHUD).',
+    prs: [270, 382, 530, 531, 533, 536] },
+  { color: '#d29922', name: 'Framework / CSS-in-JS detection &amp; AST collisions',
+    desc: 'Detect @chakra-ui/react before the emotion fallback, and degrade AST traversal gracefully via traverseWithoutScope when a user component name collides with a Babel binding — across read and write paths.',
+    prs: [543, 544, 545, 547] },
+  { color: '#f85149', name: 'MCP, Go-to-Code &amp; OAuth',
+    desc: 'OAuth 2.1 + PKCE authorization server with Dynamic Client Registration and a consent screen for public MCP clients; restored Setup MCP and fixed Go-to-Code / Go-to-Visual no-ops.',
+    prs: [346, 425, 537, 538] },
+  { color: '#db6d28', name: 'Style-write pipeline + master spec',
+    desc: 'The styles-system master spec (Rev 0.3) plus the B0 write transaction — snapshot, journal and rollback — and format-preserving className writes underneath it.',
+    prs: [387, 479, 494] },
+  { color: '#58a6ff', name: 'i18n',
+    desc: 'Content-first i18n key discovery from DOM text, browser-mode and NodePod retargeting with full dictionaries, and an AST I18nFormatAdapter registry.',
+    prs: [448, 477, 478] },
+  { color: '#3fb950', name: 'Vector engine CLI',
+    desc: 'The vector CLI moved off the stub onto a real CanvasKit/Clipper PathOps backend, with glyph text-on-path, Visvalingam simplification, baked operand transforms and a visual-regression harness.',
+    prs: [355] },
+  { color: '#bc8cff', name: 'AI providers',
+    desc: 'Added Fireworks and DeepSeek V4 Pro providers, OpenAI function-calling tools, and per-provider purchase hints in the panel and QuickPick.',
+    prs: [389, 391, 396] },
+  { color: '#d29922', name: 'Security &amp; dependency hardening',
+    desc: 'A quarterly pen-test and its fixes — removed a host RCE in the Tamagui token route, auth + project-access on the proxy, refresh-token reuse detection, account linking, path-traversal guards, and ~46 dependency bumps.',
+    prs: [435, 436, 437, 439] },
+  { color: '#f85149', name: 'Dev-stand, infra &amp; CI',
+    desc: 'One-command local dev-stand, rig.yaml + CI guardrails, gitleaks / CodeQL / Semgrep gates, dev-server EADDRINUSE reaping, and webview reuse-after-dispose guards.',
+    prs: [404, 463, 502, 522] },
+  { color: '#db6d28', name: 'Visual-verify &amp; quality',
+    desc: 'An unstyled-render detector to catch silent style-less previews, plus shared component error overlays and error-recovery wiring.',
+    prs: [459] },
+  { color: '#58a6ff', name: 'Landing, site, docs &amp; renames',
+    desc: 'Landing hero screenshot, robots.txt for LLM crawlers, the fusion-starter → hyper-saas and hyper-canvas-draft → hyperide renames, and a decompose pass splitting large files below 1,200 lines.',
+    prs: [383, 460, 517] }
+];
+(function () {
+  var grid = document.getElementById('theme-grid');
+  THEMES.forEach(function (t) {
+    var card = document.createElement('div');
+    card.className = 'theme-card';
+    card.style.borderLeftColor = t.color;
+    var prs = t.prs.map(function (n) {
+      return '<a href="' + REPO + '/pull/' + n + '" target="_blank">#' + n + '</a>';
+    }).join('');
+    card.innerHTML = '<h3>' + t.name + '</h3><p>' + t.desc + '</p><div class="prs">' + prs + '</div>';
+    grid.appendChild(card);
+  });
+})();
+
+Report.init({
+  repo: REPO,
+  headSha: 'ec090264ca2ac8067059be5c221363ecbf20a90f',
+  title: 'June 2026 Digest — Cross-Framework Preview, Drag, Auth & the Styles Master Spec',
+  subtitle: 'Everything shipped 2026-06-04 → 2026-06-28',
+  date: '2026-06-29',
+  badge: { label: 'overview', type: 'feat' },
+  branch: 'main',
+  links: [
+    { label: 'Reports home', href: 'https://hyperide.github.io/' },
+    { label: 'Prev: May 2026', href: 'https://hyperide.github.io/reports/monthly-2026-may/' }
+  ],
+
+  motivation:
+    '<p>This is the first product report since the <strong>May monthly</strong> (the early-June <em>devenv</em> entry was a tooling evaluation, not a digest of work). The four-and-a-half weeks of June 2026 — <strong>2026-06-04 to 2026-06-28</strong> — were never digested, so this covers all of it: <strong>212 commits, 196 merged PRs, 967 files, +133,219 / −23,150 lines, and 8 marketplace releases (ext v0.1.57 → v0.1.64)</strong>.</p>' +
+    '<p>June was not a single big feature. It was hardening the things that already half-worked, plus laying foundations. The isolated cross-framework preview got serious attention (Remix / Next.js / Vite / Astro / monorepo all render in their own paradigm now), drag-and-drop and multi-select were made actually correct in headless and real flows instead of just green in CI, MCP got a standards-based OAuth 2.1 auth server, a wave of security/auth hardening landed behind a quarterly pen-test, and the styles-system master spec (Rev 0.3) plus the B0 write-transaction foundation were written down so the styling work stops being folklore.</p>' +
+    '<p>Eleven PRs are still open at the boundary — most notably the CSS-in-JS full-edit track (#548/#551), the app-mode render-failure fallback (#492), and extension telemetry (#497) — so a few themes below are in flight, not shipped.</p>' +
+    '<ul>' +
+    '<li><strong>Cross-framework preview</strong> — isolated previews that survive Remix dual-React, Next.js Turbopack, Vite optimize, Astro and monorepos.</li>' +
+    '<li><strong>Drag, multi-select & inspector correctness</strong> — drop resolution via elementFromPoint, cross-parent reparenting, batch style edits, real-background contrast.</li>' +
+    '<li><strong>OAuth 2.1 MCP auth</strong> — authorization server with PKCE, Dynamic Client Registration and consent.</li>' +
+    '<li><strong>Security hardening</strong> — host-RCE removal, proxy auth, refresh-token reuse detection, a pen-test and ~46 dependency bumps.</li>' +
+    '<li><strong>Styles master spec + B0 write transaction</strong> — one source of truth and a snapshot/journal/rollback foundation for style writes.</li>' +
+    '</ul>',
+
+  stats: { files: 967, insertions: 133219, deletions: 23150, commits: 212 },
+
+  productChanges: {
+    new: [
+      { title: 'OAuth 2.1 MCP authorization server',
+        desc: 'Standards-based auth for public MCP clients: an authorization server with /authorize + /token (OAuth 2.1 + PKCE), Dynamic Client Registration and a consent screen. (HYP-262, #346/#425)',
+        files: [{ path: 'server/routes/oauth-authorize-token.test.ts', label: 'oauth-authorize-token.test.ts' }] },
+      { title: 'Styles-system master spec + B0 write transaction',
+        desc: 'A single ~6,900-line master spec (Rev 0.3) became the source of truth for the styling system, and the B0 write transaction (snapshot / journal / rollback) landed underneath the style-write pipeline. (HYP-722, #479/#494)',
+        files: [{ path: 'docs/specs/2026-06-12-styles-system-master-spec.md', label: 'styles-system master spec' }, { path: 'lib/style-write/style-write-executor.ts', label: 'style-write-executor.ts' }] },
+      { title: 'Preview-as-app: real in-preview navigation',
+        desc: 'The isolated preview can run a project in app mode and navigate between code-derived routes inside the canvas, with an address bar. App-mode is entered as a render-failure fallback, not an upfront guess. (#490/#491/#505; #492 still open)',
+        files: [{ path: 'client/pages/Editor/components/hooks/useAppPreviewMode.ts', label: 'useAppPreviewMode.ts' }] },
+      { title: 'One-command local dev-stand',
+        desc: 'A single script brings up the full local SaaS stand (Postgres + server + client) for dogfooding and e2e. (HYP-638, #404)',
+        files: [{ path: 'scripts/dev-stand.sh', label: 'dev-stand.sh' }] },
+      { title: 'New AI providers + tool-calling',
+        desc: 'Added Fireworks and DeepSeek V4 Pro providers and OpenAI function-calling tools, plus per-provider purchase hints. (#389/#391/#396)',
+        files: [] },
+      { title: 'Vector-engine CLI: real PathOps backend',
+        desc: 'The vector CLI is now wired to a real CanvasKit/Clipper PathOps backend instead of the stub. (HYP-509, #355)',
+        files: [] },
+      { title: 'Unstyled-render detector',
+        desc: 'A visual-verify check that detects when a preview rendered with no styles applied — a silent failure class the green matrix kept missing. (HYP-733, #459)',
+        files: [{ path: 'lib/visual-verify/detect-style-presence.ts', label: 'detect-style-presence.ts' }] },
+      { title: 'Extension telemetry (in flight)',
+        desc: 'Extension-side telemetry to see what actually breaks in the field. (#497, still open.)',
+        files: [] }
+    ],
+    improvements: [
+      { title: 'Multi-select batch style editing + additive-on-Shift',
+        desc: 'Editing a style now applies to every selected element at once, and Shift-click adds to the selection universally across project types. (HYP-271/301/765, #270/#533)',
+        files: [{ path: 'shared/canvas-interaction/selection-utils.ts', label: 'selection-utils.ts' }] },
+      { title: 'Inspector: go-to-main-component, real-bg contrast, works Explorer-closed',
+        desc: 'Inspector contrast is judged against the actually-painted background (not a guessed one), there is a go-to-main-component jump, and the inspector list works with the Explorer collapsed. (#382/#531/#530)',
+        files: [{ path: 'shared/utils/color.ts', label: 'color.ts' }] },
+      { title: 'Selection-identity navigation cluster',
+        desc: 'Map-click selects the right repeated instance, and go-to-visual / go-to-code resolve to the correct node. (HYP-771, #536)',
+        files: [{ path: 'shared/element-tracing/fiber-internals.ts', label: 'fiber-internals.ts' }] },
+      { title: 'i18n content-first discovery + retarget',
+        desc: 'i18n keys are discovered content-first from DOM text and can be retargeted in browser-mode and NodePod with full-dictionary support. (HYP-372/694, #477/#478)',
+        files: [] },
+      { title: 'Themed color-token field, resize snap-grid, NudgeHUD',
+        desc: 'A theme-aware color-token field in the inspector, resize snapping to a grid with real-sibling spacing guides, and a NudgeHUD for keyboard nudges. (HYP-716/405/590/404)',
+        files: [] },
+      { title: 'Large-file decompose + CI guardrails',
+        desc: 'Big files were split below 1,200 lines and dead code removed; CI / dev-stand / rig.yaml guardrails plus gitleaks / CodeQL / Semgrep were wired into the merge gate. (HYP-561, #383)',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/extension-commands.ts', label: 'extension-commands.ts' }] }
+    ],
+    fixes: [
+      { title: 'Drag drop-target via elementFromPoint + cross-parent reparent',
+        desc: 'setPointerCapture redirected e.target to the drag source, so the drop target resolved to the source and moveElement never fired headless; now resolved via document.elementFromPoint, with cross-parent reparenting and card-swap via swapElements. (HYP-31, #501/#506)',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-drag-handlers.ts', label: 'iframe-drag-handlers.ts' }] },
+      { title: 'Decorative drag source + pointer-events subtree',
+        desc: 'A decorative (aria-hidden) element resolved the drag source to a garbage node; fixed with a provenance-safe source map and pointer-events covering the whole dragged subtree. (HYP-49 / PI-5-DR-EK, #510/#511)',
+        files: [{ path: 'shared/canvas-interaction/drag-source-resolver.ts', label: 'drag-source-resolver.ts' }] },
+      { title: 'Cross-framework preview wave (Remix / Next.js / Vite / Astro / monorepo)',
+        desc: 'A long wave of isolated-preview fixes: Vite optimize + Remix dual-React, Remix SSR-JSX script injection and SSR-route mock, process-shim in Remix SSR, no webpack recompile gate for Next.js Turbopack, stale-import scan, serving /__hypercanvas/* on the SaaS proxy, and replicating the app entry providers. (#504/#507/#521–#527/#541/#542)',
+        files: [{ path: 'lib/services/component-parser.ts', label: 'component-parser.ts' }, { path: 'vscode-extension/hypercanvas-preview/src/extension-provider-detection.ts', label: 'extension-provider-detection.ts' }] },
+      { title: 'process-shim blank-preview',
+        desc: 'A node-only @babel path leaked `process` into the browser preview bundle and blanked the panel; shimmed in PreviewProxy and kept out of the webview bundle. (#489)',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts', label: 'PreviewProxy.ts' }] },
+      { title: 'AST name-collision resilience',
+        desc: 'A user component whose top-level name collides with a Babel binding crashed scope-enabled traversal; read and write/mutation paths now degrade to traverseWithoutScope on collision. (HYP-784/785/786/789, #543/#544/#545/#547)',
+        files: [{ path: 'lib/services/component-parser.ts', label: 'component-parser.ts' }] },
+      { title: 'Restore Setup MCP live getter + Go-to-Code/Visual no-ops',
+        desc: 'The decompose work (#383) regressed Hyper: Setup MCP — restored via a live getMcpServer accessor — and Go-to-Code / multiline Go-to-Visual stopped firing. (#537, HYP-778 #538)',
+        files: [] },
+      { title: 'Dev-server lifecycle + webview disposed-getter guards',
+        desc: 'Reap orphaned dev-servers on EADDRINUSE and guard reuse-after-dispose on the webview getter across RPC / ensure-sample / post paths. (#502/#508/#514/#515/#520)',
+        files: [] },
+      { title: 'Security / auth hardening + dependency bumps',
+        desc: 'Removed a host RCE in the Tamagui token route (static extraction), added auth + checkProjectAccess on the proxy, refresh-token reuse detection and account linking, path-traversal guards, plus a quarterly pen-test and ~46 Dependabot/advisory bumps. (HYP-669..676, #435/#439/#436/#437)',
+        files: [{ path: 'server/routes/getTamaguiTokens.ts', label: 'getTamaguiTokens.ts' }] }
+    ]
+  },
+
+  specs: [
+    { id: 'styles', title: 'Styles-System Master Spec (Rev 0.3)', file: 'docs/specs/2026-06-12-styles-system-master-spec.md', type: 'spec', date: '2026-06-12' },
+    { id: 'bugplan', title: 'Autonomous Interactive Bug-Discovery Plan', file: 'docs/plans/autonomous-interactive-bug-discovery.md', type: 'plan' }
+  ],
+
+  files: [
+    { path: 'docs/specs/2026-06-12-styles-system-master-spec.md', dir: 'docs/specs', add: 6927, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension-commands.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 1022, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension-provider-detection.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 540, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/PreviewProxy.ts', dir: 'vscode-extension/hypercanvas-preview/src/services', add: 69, del: 17, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/scripts/iframe-drag-handlers.ts', dir: 'vscode-extension/hypercanvas-preview/src/services/scripts', add: 530, del: 0, status: 'new' },
+    { path: 'lib/style-write/style-write-executor.test.ts', dir: 'lib/style-write', add: 1043, del: 1, status: 'modified' },
+    { path: 'lib/style-write/style-write-executor.ts', dir: 'lib/style-write', add: 413, del: 23, status: 'modified' },
+    { path: 'lib/preview-generator/__tests__/preview-file-manager.test.ts', dir: 'lib/preview-generator/__tests__', add: 862, del: 0, status: 'new' },
+    { path: 'lib/services/component-parser.ts', dir: 'lib/services', add: 101, del: 119, status: 'modified' },
+    { path: 'lib/visual-verify/detect-style-presence.ts', dir: 'lib/visual-verify', add: 611, del: 0, status: 'new' },
+    { path: 'server/routes/oauth-authorize-token.test.ts', dir: 'server/routes', add: 838, del: 0, status: 'new' },
+    { path: 'server/routes/getTamaguiTokens.ts', dir: 'server/routes', add: 236, del: 358, status: 'modified' },
+    { path: 'shared/canvas-interaction/drag-source-resolver.ts', dir: 'shared/canvas-interaction', add: 73, del: 19, status: 'modified' },
+    { path: 'shared/canvas-interaction/selection-utils.ts', dir: 'shared/canvas-interaction', add: 15, del: 2, status: 'modified' },
+    { path: 'shared/element-tracing/fiber-internals.ts', dir: 'shared/element-tracing', add: 302, del: 86, status: 'modified' },
+    { path: 'shared/utils/color.ts', dir: 'shared/utils', add: 95, del: 0, status: 'modified' },
+    { path: 'client/pages/Editor/components/hooks/useAppPreviewMode.ts', dir: 'client/pages/Editor/components/hooks', add: 265, del: 0, status: 'new' },
+    { path: 'scripts/dev-stand.sh', dir: 'scripts', add: 394, del: 0, status: 'new' },
+    { path: '.claude/scripts/pr-ship.test.sh', dir: '.claude/scripts', add: 886, del: 0, status: 'new' }
+  ],
+
+  commits: [
+    { sha: '69d3d22b', message: 'feat(vecli): wire real CanvasKit/Clipper PathOps backend (HYP-509) (#355)', date: '2026-06-04' },
+    { sha: 'd65ce9db', message: 'feat(dev-stand): one-command local SaaS stand (HYP-638) (#404)', date: '2026-06-10' },
+    { sha: '83e54bfa', message: 'fix(parser): extract JSX for named fn exported via separate export default (HYP-585) (#403)', date: '2026-06-10' },
+    { sha: 'e682d833', message: 'feat(mcp): OAuth AS /authorize + /token (OAuth 2.1 + PKCE) (HYP-262 Phase 3) (#346)', date: '2026-06-11' },
+    { sha: '75a9a43e', message: 'feat(ai): per-provider purchase hints in SaaS panel and ext QuickPick (HYP-640) (#401)', date: '2026-06-11' },
+    { sha: 'ce00d17f', message: 'chore(ext): bump version to 0.1.57 for marketplace release (HYP-643) (#409)', date: '2026-06-11' },
+    { sha: '13120d70', message: 'security(tamagui): static token extraction, remove host RCE (HYP-676) (#435)', date: '2026-06-12' },
+    { sha: 'f36cf0cf', message: 'feat(saas): browser-mode i18n key read + existing-key retarget (HYP-372 M3) (#477)', date: '2026-06-17' },
+    { sha: '282a8904', message: 'feat(saas): i18n key retarget in client-only/NodePod + full-dict (HYP-746) (#478)', date: '2026-06-17' },
+    { sha: '6ab3d38c', message: 'docs(spec): styles-system master spec Rev 0.3 (HYP-722) (#479)', date: '2026-06-18' },
+    { sha: '1c007584', message: 'chore: bump hypercanvas-preview to v0.1.58', date: '2026-06-19' },
+    { sha: 'c030d36f', message: 'chore: bump hypercanvas-preview to v0.1.59', date: '2026-06-19' },
+    { sha: 'e7a1d05e', message: 'chore: bump hypercanvas-preview to v0.1.60', date: '2026-06-19' },
+    { sha: '09736b6f', message: 'chore: bump hypercanvas-preview to v0.1.61', date: '2026-06-20' },
+    { sha: 'a49ec195', message: 'chore: bump hypercanvas-preview to v0.1.62', date: '2026-06-21' },
+    { sha: '54fa263c', message: 'feat(style): B0 write transaction — snapshot/journal/rollback (HYP-722 T1a) (#494)', date: '2026-06-22' },
+    { sha: '900ee6b2', message: 'fix(preview): resolve drag drop-target via elementFromPoint, not e.target (HYP-31) (#501)', date: '2026-06-23' },
+    { sha: 'c06c61d3', message: 'fix(preview): moveElement reparents on cross-parent drop; card-swap via swapElements (HYP-31) (#506)', date: '2026-06-24' },
+    { sha: 'bdf7faa1', message: 'fix(drag): resolve decorative drag source via provenance-safe source map (HYP-49) (#510)', date: '2026-06-24' },
+    { sha: '88911ddf', message: 'fix(drag): pointer-events on dragged subtree + descendant guard (PI-5-DR-EK) (#511)', date: '2026-06-24' },
+    { sha: '92f8fe92', message: 'fix(preview): guard disposed webview getter on RPC + ensure-sample + post (HYP-762) (#520)', date: '2026-06-25' },
+    { sha: '22e397da', message: 'fix(preview): render process-shim in Remix SSR route (#79) (#525)', date: '2026-06-26' },
+    { sha: 'ecf933a3', message: 'chore: bump hypercanvas-preview to v0.1.63', date: '2026-06-27' },
+    { sha: 'e6b21c09', message: 'fix(canvas): multi-select additive on Shift, universal (HYP-765) (#533)', date: '2026-06-27' },
+    { sha: '46f7c936', message: 'fix(inspector): judge text contrast against the real painted background (HYP-763) (#531)', date: '2026-06-27' },
+    { sha: '4e5bc68c', message: 'fix(canvas): selection-identity nav cluster — map-click, go-to-visual, go-to-code (HYP-771) (#536)', date: '2026-06-27' },
+    { sha: 'ca6aa269', message: 'fix(preview): replicate the app entry providers in isolated previews (HYP-782) (#541)', date: '2026-06-28' },
+    { sha: '5ed273ea', message: 'chore: bump hypercanvas-preview to v0.1.64', date: '2026-06-28' }
+  ],
+
+  adrs: [
+    { title: 'ADR-1 — Drag drop-target resolution via document.elementFromPoint (not e.target)',
+      problem: 'setPointerCapture redirects e.target back to the drag source during a pointer move, so the drop handler read targetId === sourceId and moveElement never fired in headless runs — drag-and-drop was green in CI but inert in real flows.',
+      options: 'Keep reading e.target and special-case capture; release pointer capture mid-drag; resolve the drop target geometrically via document.elementFromPoint at the drop coordinates.',
+      decision: 'Resolve the drop target via document.elementFromPoint at the drop coordinates, independent of pointer capture.',
+      rationale: 'It reflects what is actually under the cursor regardless of capture redirection, works identically headless and interactive, and unblocked the rest of the move pipeline (cross-parent reparent, card-swap). (HYP-31, #501)' },
+    { title: 'ADR-2 — app-mode is a render-failure FALLBACK, not an upfront guess',
+      problem: 'Guessing app-vs-component up front mis-rendered self-bootstrapping roots: a root that boots its own app was previewed as a bare component (or vice-versa), producing blank or broken previews.',
+      options: 'Detect app-vs-component from static signals before rendering; always render in app mode; try component preview first and fall back to app-mode only on render failure.',
+      decision: 'Try component preview first; enter app-mode only as a fallback when the component render fails.',
+      rationale: 'Most components preview correctly as components; only the self-bootstrapping minority needs app-mode, so making it a fallback avoids penalising the common case and removes the brittle upfront guess. (HYP-753, #492/#505 — #492 still open.)' },
+    { title: 'ADR-3 — OAuth 2.1 + PKCE + Dynamic Client Registration for MCP auth',
+      problem: 'Public MCP clients need standards-based authorization; an ad-hoc token scheme would not interoperate with off-the-shelf MCP clients and would be hard to audit.',
+      options: 'A bespoke API-key scheme; a minimal token endpoint only; a full OAuth 2.1 authorization server with PKCE, Dynamic Client Registration and a consent screen.',
+      decision: 'Implement a full authorization server: /authorize, /token, PKCE, Dynamic Client Registration and consent.',
+      rationale: 'OAuth 2.1 is what MCP clients already speak; PKCE covers public clients, DCR removes manual client setup, and consent keeps the user in the loop — interoperable and auditable instead of bespoke. (HYP-262, #346/#425)' },
+    { title: 'ADR-4 — AST walks route through traverseWithoutScope on top-level name collisions',
+      problem: 'A user component whose top-level name collides with a Babel scope binding crashed scope-enabled traversal, which surfaced as preview/parse failures on otherwise valid projects.',
+      options: 'Rename or namespace user bindings before traversal; catch and abort the parse; degrade to scope-free traversal (traverseWithoutScope) on collision.',
+      decision: 'Detect the collision and degrade gracefully to traverseWithoutScope across both read and write/mutation paths.',
+      rationale: 'Scope-free traversal still yields the AST data the read/write paths need without crashing, so a name collision degrades to working-but-scopeless instead of a hard failure. Applied uniformly across read and write paths. (HYP-784/785/786/789)' }
+  ]
+});
+</script>
+</body></html>
