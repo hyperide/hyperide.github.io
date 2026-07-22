@@ -1,0 +1,339 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HyperIDE — July 2026 Digest</title>
+<link rel="stylesheet" href="../shared/styles.css"/>
+<style>
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:16px;margin-top:20px}
+.theme-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:16px 18px}
+.theme-card h3{font-size:1rem;color:#e6edf3;margin-bottom:6px;-webkit-text-fill-color:initial;background:none}
+.theme-card p{font-size:.85rem;color:var(--text-dim);line-height:1.55;margin-bottom:10px}
+.theme-card .prs{display:flex;flex-wrap:wrap;gap:6px}
+.theme-card .prs a{font-size:.75rem;font-family:'SF Mono',Menlo,Consolas,monospace;background:rgba(110,118,129,.15);border:1px solid var(--border);border-radius:6px;padding:1px 7px;color:var(--accent1)}
+.theme-card .prs a:hover{border-color:var(--accent1);text-decoration:none}
+.finding-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:12px}
+.finding-card .fbadge{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:8px;letter-spacing:.03em}
+.fbadge.p1{background:rgba(248,81,73,.15);color:#f85149;border:1px solid rgba(248,81,73,.4)}
+.fbadge.p2{background:rgba(210,153,34,.15);color:#d29922;border:1px solid rgba(210,153,34,.4)}
+.fbadge.open{background:rgba(88,166,255,.12);color:#58a6ff;border:1px solid rgba(88,166,255,.35)}
+.fbadge.resolved{background:rgba(63,185,80,.12);color:#3fb950;border:1px solid rgba(63,185,80,.35)}
+.finding-card h4{font-size:.95rem;color:#e6edf3;margin-bottom:6px}
+.finding-card p{font-size:.85rem;color:var(--text-dim);line-height:1.55;margin:4px 0}
+.finding-card a.floc{font-family:'SF Mono',Menlo,Consolas,monospace;font-size:.78rem;color:var(--accent1)}
+@media (max-width:540px){.container{padding-left:14px;padding-right:14px}}
+</style>
+</head><body><div class="container">
+  <div data-section="header"></div>
+  <div data-section="motivation"></div>
+  <div data-section="summary"></div>
+  <div data-section="product-changes"></div>
+
+  <section class="fade-in">
+    <h2>Work by theme</h2>
+    <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:4px">Ten clusters the July work fell into. Each card links its key pull requests.</p>
+    <div class="theme-grid" id="theme-grid"></div>
+  </section>
+
+  <section class="fade-in">
+    <h2>Findings — bugs surfaced and their status</h2>
+    <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:16px">The genuinely significant bugs found this month, mostly via code review on other tickets. Not all are closed — two are still open and tracked.</p>
+    <div id="findings-list"></div>
+  </section>
+
+  <div data-section="file-impact"></div>
+  <p style="color:var(--text-dim);font-size:.85rem;margin:24px 0 -8px">Timeline shows 47 commits — the ones behind the PRs discussed above plus a sample of version bumps — rather than all 122, so the dots stay legible instead of overlapping.</p>
+  <div data-section="timeline"></div>
+  <div data-section="adr"></div>
+</div>
+<footer style="text-align:center;padding:40px 24px;color:#484f58;font-size:.8rem;border-top:1px solid #21262d;margin-top:40px">
+Generated 2026-07-22 &middot; <a href="https://hyperide.github.io/">Hyperide Reports</a></footer>
+<script src="../shared/components.js"></script>
+<script>
+var REPO = 'https://github.com/hyperide/hyper-saas';
+var HEAD_SHA = 'f263be1c5326d4f3f2e88c199a0c6d23891a9e53';
+
+// ── Custom: theme cards ──
+var THEMES = [
+  { color: '#f85149', name: 'Agent-ecosystem retrospective &amp; process hardening',
+    desc: 'CTO-commissioned audit (HYP-858) of the whole agent workflow — ratified 2026-07-12. Produced the curated AGENTS-CORE.md import, retired docs/rules into skills + AGENTS.md, and fed directly into the CI/security hardening wave below.',
+    prs: [604, 639, 640, 652] },
+  { color: '#d29922', name: 'CI &amp; security hardening',
+    desc: 'Blocked direct pushes to main via a lefthook pre-push gate, cleared a 59-finding CodeQL backlog on main, closed a gh-api bypass around the gh-pr-merge block hook, authenticated the loopback MCP HTTP server, and deduped statusCheckRollup in pr-ship.',
+    prs: [603, 606, 607, 643, 651, 619] },
+  { color: '#58a6ff', name: 'Extension telemetry',
+    desc: 'PostHog + Sentry telemetry for the extension — sessions, errors, satisfaction/dissatisfaction signals, opt-out — plus the plan and manifest completion that made it actually turn on.',
+    prs: [497, 581, 598, 602, 605] },
+  { color: '#3fb950', name: 'Style-write pipeline maturation',
+    desc: 'Production callsites wired through the B0 write transaction, a byte-surgical static className writer that stops quote/blank-line churn, verify-and-retry for non-forwarding custom components (M1), and flooring surfaceless edits to the project Tailwind default.',
+    prs: [583, 616, 623, 662] },
+  { color: '#bc8cff', name: 'Preview framework-compat wave',
+    desc: 'Continuing the cross-framework preview wave the June digest covered through Remix/Next.js/Astro: per-(sub-)repo support-dimension tabs, a static provider-wrapper scaffold generator, and the Auto Fix button on unsupported-framework / dev-server-unreachable screens.',
+    prs: [560, 618, 626, 629, 632, 633] },
+  { color: '#db6d28', name: 'Canvas &amp; inspector UX',
+    desc: 'Code/Canvas layout toggle with Explorer+Inspector revealed by default, auto-expand ancestors on canvas selection, design-system token panel when nothing is selected, and HintTooltip extended from Layout to Border and Fill.',
+    prs: [558, 570, 584, 679] },
+  { color: '#f85149', name: 'Dev-server lifecycle',
+    desc: 'Fixed the orphan reaper\'s wrong liveness gate (leader pid vs. process-group), a single-slot registry that lost older orphans, and an auto-restart on Bun HMR-staleness signature.',
+    prs: [587, 634] },
+  { color: '#58a6ff', name: 'React-19 click resolution saga',
+    desc: 'Two rounds mapping a React-19 compiled _debugStack call-site to real source instead of a compiled position, then the bigger fix: composed-root clicks resolve to their own editable source instead of collapsing to the parent call-site — which itself surfaced two new security/correctness findings (HYP-1012, HYP-1061).',
+    prs: [658, 660, 668] },
+  { color: '#3fb950', name: 'MCP self-healing',
+    desc: 'HyperMcpServer start() failures now surface instead of silently console.error-ing, ensureStarted() adds retry + on-demand restart, and Open VSX / Marketplace publish gates were decoupled and hardened.',
+    prs: [641, 644, 647, 648, 649, 657] },
+  { color: '#d29922', name: 'ext bug-blitz kickoff',
+    desc: 'A four-agent recon pass plus a 3-model panel produced the phased bug-blitz plan (HYP-1029), and the first fix under it landed: HMR re-read no longer clobbers a focused numeric inspector field.',
+    prs: [671, 664] }
+];
+(function () {
+  var grid = document.getElementById('theme-grid');
+  THEMES.forEach(function (t) {
+    var card = document.createElement('div');
+    card.className = 'theme-card';
+    card.style.borderLeftColor = t.color;
+    var prs = t.prs.map(function (n) {
+      return '<a href="' + REPO + '/pull/' + n + '" target="_blank" rel="noopener noreferrer">#' + n + '</a>';
+    }).join('');
+    card.innerHTML = '<h3>' + t.name + '</h3><p>' + t.desc + '</p><div class="prs">' + prs + '</div>';
+    grid.appendChild(card);
+  });
+})();
+
+// ── Custom: findings list ──
+var FINDINGS = [
+  { severity: 'p1', status: 'open', title: 'Security finding under remediation (HYP-1061)',
+    body: 'Found during HYP-1006 review. Security finding, details withheld until resolved. Tracked, remediation in progress.',
+    file: null, lines: null, url: null },
+  { severity: 'p2', status: 'open', title: 'Security finding under remediation (HYP-1012)',
+    body: 'Also surfaced during HYP-1006 review. Security finding, details withheld until resolved. Tracked, remediation in progress.',
+    file: null, lines: null, url: null },
+  { severity: 'p1', status: 'resolved', title: 'Dev-server orphan reaper gated reap eligibility on the wrong process (HYP-926)',
+    body: 'reapStaleOwnedDevServer checked isProcessAlive() on the recorded wrapper-leader pid (npm run dev / bun run dev). In every real orphan observed, the leader dies before its nested dev-server child, which survives in the same process group holding the port — the old code saw "leader dead", deleted the record, and returned without ever attempting the kill. Fixed with a process-group liveness check and a positive-identity recheck before killing a leader-dead group, added after a review pass caught the first fix had zero identity verification on that new path.',
+    file: 'vscode-extension/hypercanvas-preview/src/services/devServerOrphanRegistry.ts', lines: 'L198-L336', url: 'vscode-extension/hypercanvas-preview/src/services/devServerOrphanRegistry.ts#L198-L336' },
+  { severity: 'p1', status: 'resolved', title: 'Loopback MCP HTTP server had no authentication (HYP-956)',
+    body: 'The extension\'s MCP server listened on loopback with no bearer-token check, so any local process on the machine could drive AST mutations through it. Added bearer-token extraction from the Authorization header (with a ?token= query fallback for clients that only carry a URL) and an _isAuthenticated gate in front of every request.',
+    file: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', lines: 'L192-L201', url: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts#L192-L201' },
+  { severity: 'p1', status: 'resolved', title: 'gh-api PR-merge bypass around the block-gh-pr-merge hook (HYP-960)',
+    body: 'The pre-existing hook blocked raw `gh pr merge` but not an equivalent mutation issued via `gh api` against the same REST endpoint — a working bypass of the merge-quorum gate. Closed by classifying gh api calls for write-method + merge-endpoint shape, while also killing several false-positive blocks the broader net had been throwing on legitimate read-only gh api usage.',
+    file: '.claude/hooks/block-gh-pr-merge.py', lines: 'L294-L384', url: '.claude/hooks/block-gh-pr-merge.py#L294-L384' },
+  { severity: 'p2', status: 'resolved', title: 'HMR re-read clobbered a focused numeric inspector field mid-edit (HYP-1001)',
+    body: 'Every inspector style write triggers an HMR re-read that re-runs usePopulateStyleState; while a field was focused, that re-populate reset it to the last computed value mid-keystroke — typing 12px into margin landed as 2px, or the value reverted to empty and ArrowUp then nudged from 0 instead of the visible value. Fixed with a focused-text-input guard mirroring the existing text-content guard. The follow-up PR extending the same HintTooltip pattern to Border/Fill (HYP-1085) had its own review catch: a forwardRef-only attempt to fix trigger prop-spreading on Radix Slot components didn\'t actually work and was reverted for the existing wrapper-div technique; the real Slot-compatibility fix is tracked separately as HYP-1086.',
+    file: 'client/components/RightSidebar/hooks/usePopulateStyleState.ts', lines: 'L88', url: 'client/components/RightSidebar/hooks/usePopulateStyleState.ts#L88' }
+];
+(function () {
+  var list = document.getElementById('findings-list');
+  FINDINGS.forEach(function (f) {
+    var card = document.createElement('div');
+    card.className = 'finding-card';
+    var sevLabel = f.severity === 'p1' ? 'P1' : 'P2';
+    var statusLabel = f.status === 'open' ? 'OPEN' : 'RESOLVED';
+    var loc = f.url
+      ? '<a class="floc" href="' + REPO + '/blob/' + HEAD_SHA + '/' + f.url + '" target="_blank" rel="noopener noreferrer">' + f.file + ':' + f.lines + '</a>'
+      : '';
+    card.innerHTML =
+      '<div><span class="fbadge ' + f.severity + '">' + sevLabel + '</span>' +
+      '<span class="fbadge ' + f.status + '">' + statusLabel + '</span></div>' +
+      '<h4 style="margin-top:8px">' + f.title + '</h4>' +
+      '<p>' + f.body + '</p>' +
+      loc;
+    list.appendChild(card);
+  });
+})();
+
+Report.init({
+  repo: REPO,
+  headSha: 'f263be1c5326d4f3f2e88c199a0c6d23891a9e53',
+  title: 'July 2026 Digest — Retrospective Hardening, MCP Security, Composed-Root Clicks',
+  subtitle: 'Everything shipped 2026-06-29 → 2026-07-19, continuing directly from the June 2026 digest',
+  date: '2026-07-22',
+  badge: { label: 'monthly', type: 'feat' },
+  branch: 'main',
+  links: [
+    { label: 'Reports home', href: 'https://hyperide.github.io/' },
+    { label: 'Prev: June 2026', href: 'https://hyperide.github.io/reports/digest-2026-06/' }
+  ],
+
+  motivation:
+    '<p>This digest picks up exactly where the <strong>June 2026 digest</strong> left off (2026-06-28) and covers <strong>2026-06-29 to 2026-07-19</strong> — three weeks, not a strict rolling 30 days, chosen to avoid re-reporting PRs the June digest already covered. In that window: <strong>122 commits, 117 merged PRs, 426 files, +46,056 / −5,865 lines, extension v0.1.64 → v0.1.71</strong>.</p>' +
+    '<p>Two real drivers shaped the month, both documented in <code>docs/specs/</code> rather than reconstructed after the fact. First, a CTO-commissioned <strong>agent-ecosystem retrospective</strong> (HYP-858, produced 2026-07-01 by ten investigation agents plus multi-model quorums and brainstorms, ratified by the CTO on 2026-07-12) found — among other things — that the rulebook was too large to actually reach every agent; the direct fix was the curated AGENTS-CORE.md import, and its broader strategy fed the CI/security hardening wave (direct-push block, CodeQL backlog, MCP auth, the gh-api merge-bypass close). Second, a live QA sweep on a fresh 0.1.71 build plus a 3-model panel produced the <strong>ext bug-blitz plan</strong> (HYP-1029, dated 2026-07-18) after finding that several recurring bug classes — drag-source resolution, React-19 <code>_debugStack</code> resolution, selection-rect divergence — share one root shape: the failure is silent, and point-fixing the same class repeatedly is not progress. The blitz\'s first confirmed finding, composed-root clicks collapsing to the wrong call-site (HYP-1006), is the largest single fix in this window and itself produced two new tracked findings (HYP-1012, HYP-1061) — see the Findings section below.</p>' +
+    '<p>Outside those two threads: extension telemetry (PostHog + Sentry, opt-out) went from plan to shipped, the style-write pipeline kept maturing (byte-surgical className writes, verify-and-retry for non-forwarding components), and the preview framework-compat wave continued with an Auto Fix button and a static provider-wrapper scaffold generator.</p>' +
+    '<ul>' +
+    '<li><strong>Retrospective-driven hardening</strong> — AGENTS-CORE.md curated import, direct-push block, CodeQL backlog cleared, MCP loopback auth, gh-api bypass closed.</li>' +
+    '<li><strong>Composed-root click resolution</strong> — the largest fix of the window (HYP-1006), plus two findings it surfaced that are still open.</li>' +
+    '<li><strong>Extension telemetry shipped</strong> — PostHog + Sentry, sessions/errors/satisfaction, opt-out.</li>' +
+    '<li><strong>Style-write pipeline maturation</strong> — byte-surgical writes, verify-and-retry M1, surfaceless-edit flooring.</li>' +
+    '<li><strong>ext bug-blitz kicked off</strong> — a systemic plan targeting repeat-offender bug classes, first fix already landed.</li>' +
+    '</ul>',
+
+  stats: { files: 426, insertions: 46056, deletions: 5865, commits: 122 },
+
+  productChanges: {
+    new: [
+      { title: 'Auto Fix button on unsupported-framework / dev-server-unreachable screens',
+        desc: 'One-click remediation when the preview can\'t render — a compat-table row highlight for the detected framework plus an actionable fix path instead of a dead end. (HYP-917/918/924, #629/#632/#633)',
+        files: [] },
+      { title: 'Extension telemetry (PostHog + Sentry, opt-out)',
+        desc: 'Sessions, errors, satisfaction/dissatisfaction signals wired end-to-end with a completed manifest and EU-region PostHog analytics; opt-out respected. (#497/#581/#598/#602/#605)',
+        files: [{ path: 'docs/specs/2026-07-02-telemetry-plan.md', label: 'telemetry-plan.md' }] },
+      { title: 'Static provider-wrapper scaffold generator',
+        desc: 'Generates a static provider-wrapper scaffold for isolated previews instead of relying on a live detection pass every time, with follow-up redelivery of generated sample props until the iframe is listening. (HYP-880, #618/#617)',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/services/preview-wrapper-scaffold.ts', label: 'preview-wrapper-scaffold.ts' }] },
+      { title: 'Design-system tokens panel with nothing selected',
+        desc: 'The inspector now shows the project\'s design-system tokens when no element is selected, instead of an empty panel. (HYP-5224, #570)',
+        files: [] },
+      { title: 'Code/Canvas layout toggle, Explorer+Inspector revealed by default',
+        desc: 'Opening Hyper Canvas now reveals the Explorer and Inspector panels and hides AI Chat by default, plus a new toggle to switch between Code and Canvas layouts. (HYP-804, #558)',
+        files: [] },
+      { title: 'MCP self-healing startup',
+        desc: 'HyperMcpServer start() failures now surface instead of a silent console.error, and ensureStarted() adds retry plus on-demand restart. (HYP-953/954, #641/#644)',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', label: 'HyperMcpServer.ts' }] },
+      { title: 'Block direct pushes to main',
+        desc: 'A lefthook pre-push gate blocks direct pushes to main across the org\'s repos. (HYP-856, #603)',
+        files: [{ path: '.claude/hooks/block-gh-pr-merge.py', label: 'block-gh-pr-merge.py' }] }
+    ],
+    improvements: [
+      { title: 'AGENTS-CORE.md curated import',
+        desc: 'A ~30KB curated subset of the 98.7KB AGENTS.md, imported by CLAUDE.md, so every agent gets the highest-value rules without the full rulebook crowding out working context. Direct fix for the retrospective\'s Finding A ("the rulebook never reaches the agents"). (HYP-946, #639)',
+        files: [{ path: 'AGENTS-CORE.md', label: 'AGENTS-CORE.md' }] },
+      { title: 'Byte-surgical static className writes',
+        desc: 'Style writes to a static className now edit only the changed bytes instead of reformatting the whole attribute — stops quote-style, blank-line and newline churn showing up as noise in every diff. (HYP-877, #616)',
+        files: [] },
+      { title: 'Verify-and-retry for non-forwarding custom components (M1)',
+        desc: 'Style writes on a custom component that doesn\'t forward props now verify the write landed and retry against the next candidate target instead of silently no-opping. (HYP-987, #623)',
+        files: [] },
+      { title: 'Per-(sub-)repo support-dimension tabs',
+        desc: 'Detection of CSS systems and other support dimensions now runs per member of a multi-package repo, each with its own tab, instead of one repo-wide guess. (HYP-807, #560)',
+        files: [] },
+      { title: 'WebviewViewRef<T> extraction',
+        desc: 'DRY\'d the disposed-safe post + clear pattern that several webview call sites had been hand-rolling. (#585)',
+        files: [] },
+      { title: 'CI: statusCheckRollup dedup + CodeQL backlog cleared',
+        desc: 'pr-ship now dedups statusCheckRollup by check name and keeps the latest run (HYP-895, #619); a separate pass cleared 59 pre-existing CodeQL "Code Quality" findings on main so the gate could be turned on without inheriting a backlog (HYP-861, #607).',
+        files: [] }
+    ],
+    fixes: [
+      { title: 'Composed-root clicks resolve to their own editable source (HYP-1006)',
+        desc: 'Clicking an element inside an imported child component previously collapsed the whole subtree to the child\'s call-site — one overlay covered everything, and writes silently no-opped. Source ownership is now editability-based: an element resolves to its own file whenever that file is a first-party editable source, regardless of how many component layers sit above it in the render tree. The largest single fix of the window (#668, +1,376/−179), and the fix that surfaced the two findings below.',
+        files: [{ path: 'server/lib/resolve-element.ts', lines: 'L34', label: 'resolve-element.ts:34 (resolveElement)' }] },
+      { title: 'React-19 compiled _debugStack mapped to real source, not compiled position (HYP-970/HYP-974)',
+        desc: 'Two rounds: the call-site walk-up was reading the Vite/jsxDEV-transformed module position under React 19 instead of the original file, which made every inspector style write fail with "Element not found". Fixed by routing through the source-map mapper and skipping unresolvable ancestors rather than committing a compiled line; a residual case (a compiled LEAF seed getting committed anyway) needed a second pass a day later.',
+        files: [{ path: 'client/lib/element-tracing/fiber-source-resolvers.ts', lines: 'L51', label: 'fiber-source-resolvers.ts:51 (createFiberSourceResolvers)' }] },
+      { title: 'Focused numeric inspector field clobbered by HMR re-read (HYP-1001)',
+        desc: 'Every style write triggers an HMR re-read that re-runs usePopulateStyleState; while a field was focused, the re-populate reset it mid-keystroke (12px landed as 2px). Fixed with a focused-text-input guard. Also labeled the previously-unlabeled Layout-section flex-mode icons.',
+        files: [{ path: 'client/components/RightSidebar/hooks/usePopulateStyleState.ts', lines: 'L88', label: 'usePopulateStyleState.ts:88' }] },
+      { title: 'Dev-server orphan reap: leader-vs-group liveness bug (HYP-926)',
+        desc: 'The reaper checked liveness on the wrapper-leader pid, but the leader routinely dies before its nested dev-server child, which survives in the same process group holding the port — the reap silently no-opped in the exact case it existed for. Fixed with a process-group liveness check plus a positive-identity recheck.',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/services/devServerOrphanRegistry.ts', lines: 'L336', label: 'devServerOrphanRegistry.ts:336 (reapStaleOwnedDevServer)' }] },
+      { title: 'MCP loopback HTTP server authentication (HYP-956, security)',
+        desc: 'The extension\'s MCP server accepted requests from any local process with no bearer-token check. Added Authorization-header (and ?token= query fallback) verification in front of every request.',
+        files: [{ path: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', lines: 'L192-L201', label: 'HyperMcpServer.ts:192 (_extractAuthToken)' }] },
+      { title: 'gh-api PR-merge bypass closed (HYP-960, security)',
+        desc: 'The block-gh-pr-merge hook stopped raw `gh pr merge` but not the equivalent write issued via `gh api` against the same REST endpoint. Closed by classifying gh api calls for write-method + merge-endpoint shape, while removing several false positives the wider net had been throwing.',
+        files: [{ path: '.claude/hooks/block-gh-pr-merge.py', lines: 'L294-L384', label: 'block-gh-pr-merge.py:294 (gh_api_reason)' }] },
+      { title: 'Idempotent DDL migrations (HYP-866, staging 503 RCA)',
+        desc: 'A staging outage traced to non-idempotent DDL migrations; made them safe to re-run.',
+        files: [] },
+      { title: '@hyperide-managed injection reverted on crash/teardown + startup sweep (HYP-945)',
+        desc: 'The router-entry patch could survive a crashed or torn-down dev server and leak into the user\'s git diff; now reverted on crash/teardown with a startup sweep to clean up anything already dirty.',
+        files: [] },
+      { title: 'Entry-file fallback for data-router projects (HYP-934)',
+        desc: 'patchRouterConfig no-ops on a data router (createBrowserRouter-style config), which previously left the preview unpatched with no fallback; added an entry-file fallback path.',
+        files: [] },
+      { title: 'Floor surfaceless style edits to the project Tailwind default (HYP-983)',
+        desc: 'A style edit on an element with no existing surface (no className/inline-style anchor) in the extension now floors to the project\'s configured Tailwind default instead of guessing.',
+        files: [] }
+    ]
+  },
+
+  files: [
+    { path: 'docs/specs/2026-07-01-agent-ecosystem-retrospective.md', dir: 'docs/specs', add: 2451, del: 0, status: 'new' },
+    { path: 'docs/specs/2026-07-02-telemetry-plan.md', dir: 'docs/specs', add: 1231, del: 0, status: 'new' },
+    { path: 'docs/specs/2026-06-12-styles-system-master-spec.md', dir: 'docs/specs', add: 1040, del: 846, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/extension.ts', dir: 'vscode-extension/hypercanvas-preview/src', add: 764, del: 83, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/preview-wrapper-scaffold.ts', dir: 'vscode-extension/hypercanvas-preview/src/services', add: 750, del: 0, status: 'new' },
+    { path: 'lib/component-props/extract-props-types.ts', dir: 'lib/component-props', add: 692, del: 0, status: 'new' },
+    { path: 'docs/plans/2026-06-28-css-in-js-full-edit-support-plan.md', dir: 'docs/plans', add: 635, del: 0, status: 'new' },
+    { path: 'lib/component-scanner/scanner.test.ts', dir: 'lib/component-scanner', add: 626, del: 5, status: 'modified' },
+    { path: '.claude/scripts/pr-ship.test.sh', dir: '.claude/scripts', add: 515, del: 1, status: 'modified' },
+    { path: '.claude/hooks/block-gh-pr-merge.py', dir: '.claude/hooks', add: 510, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/ast-update-utils.ts', dir: 'vscode-extension/hypercanvas-preview/src/services', add: 426, del: 23, status: 'modified' },
+    { path: 'AGENTS-CORE.md', dir: '.', add: 419, del: 0, status: 'new' },
+    { path: 'lib/component-scanner/scanner.ts', dir: 'lib/component-scanner', add: 361, del: 61, status: 'modified' },
+    { path: 'lib/preview-generator/preview-mode-manager.ts', dir: 'lib/preview-generator', add: 355, del: 71, status: 'modified' },
+    { path: 'client/hooks/usePropsEditorSource.ts', dir: 'client/hooks', add: 350, del: 0, status: 'new' },
+    { path: 'vscode-extension/hypercanvas-preview/src/services/devServerOrphanRegistry.ts', dir: 'vscode-extension/hypercanvas-preview/src/services', add: 214, del: 64, status: 'modified' },
+    { path: 'vscode-extension/hypercanvas-preview/src/mcp/HyperMcpServer.ts', dir: 'vscode-extension/hypercanvas-preview/src/mcp', add: 82, del: 3, status: 'modified' },
+    { path: 'client/components/RightSidebar/hooks/usePopulateStyleState.ts', dir: 'client/components/RightSidebar/hooks', add: 60, del: 2, status: 'modified' },
+    { path: 'client/lib/element-tracing/fiber-source-resolvers.ts', dir: 'client/lib/element-tracing', add: 59, del: 0, status: 'new' },
+    { path: 'server/lib/resolve-element.ts', dir: 'server/lib', add: 19, del: 0, status: 'modified' }
+  ],
+
+  commits: [
+    { sha: '15d289b1', message: 'feat(ext): reveal Explorer+Inspector on canvas open, hide AI Chat by default, add Code/Canvas layout toggle (HYP-804) (#558)', date: '2026-06-29' },
+    { sha: 'a52891d9', message: 'feat(preview): per-(sub-)repo support-dimension tabs + per-member detectCssSystems (HYP-807; HYP-787 groundwork) (#560)', date: '2026-06-29' },
+    { sha: '070f0a55', message: 'chore: bump hypercanvas-preview to v0.1.65', date: '2026-06-29' },
+    { sha: '003824f7', message: 'feat(inspector): show design system tokens when no element selected (HYP-5224) (#570)', date: '2026-06-30' },
+    { sha: '598217cc', message: 'fix(test): update ComponentService readonly-fallback tests for post-#542 scope bypass (#575)', date: '2026-06-30' },
+    { sha: '26428f2c', message: 'feat(ext): telemetry — sessions/errors/satisfaction/dissatisfaction (PostHog+Sentry, opt-out) (#497)', date: '2026-07-01' },
+    { sha: 'ee105fb0', message: 'fix(ext-telemetry): complete manifest + fix no-key outcome (HYP-840) (#581)', date: '2026-07-01' },
+    { sha: '2973983d', message: 'feat(explorer): auto-expand collapsed ancestors when canvas selects a hidden node (HYP-841) (#584)', date: '2026-07-01' },
+    { sha: '927a3491', message: 'feat(style): wire 3 production callsites through runStyleWriteTransaction (HYP-722 T1a) (#583)', date: '2026-07-01' },
+    { sha: '27ff3f54', message: 'feat(analytics): integrate PostHog EU analytics (#598)', date: '2026-07-01' },
+    { sha: '131faf40', message: 'fix(ci): clear the 3 red-main signatures blocking green-gated merges (HYP-860) (#606)', date: '2026-07-02' },
+    { sha: '5543bc4c', message: 'feat(hooks): block direct pushes to main via lefthook pre-push gate (HYP-856) (#603)', date: '2026-07-02' },
+    { sha: '01176fd2', message: 'fix(client): unbreak prod white-screen + make PostHog EU analytics actually run (HYP-855) (#602)', date: '2026-07-02' },
+    { sha: '5609e4b5', message: 'fix(ci): clear the CodeQL Self-Gate 59-finding backlog on main (HYP-861) (#607)', date: '2026-07-02' },
+    { sha: 'e9608e04', message: 'docs(specs): telemetry plan — maximally detailed AND useful PostHog telemetry (HYP-859) (#605)', date: '2026-07-02' },
+    { sha: 'ae2c618e', message: 'docs(specs): agent-ecosystem retrospective and fix strategy 2026-07-01 (HYP-858) (#604)', date: '2026-07-03' },
+    { sha: '85ab74ec', message: 'fix(style-write): byte-surgical static className write — stop quote/blank-line/newline churn (HYP-877) (#616)', date: '2026-07-03' },
+    { sha: 'a8f87254', message: 'fix(preview): redeliver generated sample props until iframe listens (HYP-880) (#617)', date: '2026-07-03' },
+    { sha: '71423838', message: 'feat(preview): static provider-wrapper scaffold generator (HYP-880) (#618)', date: '2026-07-04' },
+    { sha: '115eb196', message: 'fix(pr-ship): dedup statusCheckRollup by check name, keep latest run (HYP-895) (#619)', date: '2026-07-04' },
+    { sha: 'bc923602', message: 'fix(preview): dev-server root fallback for /test-preview + retry-guard hang fix (HYP-903) (#626)', date: '2026-07-04' },
+    { sha: '6690e6cb', message: 'feat(preview): Auto Fix button on unsupported-framework and blocking-dimension screens (HYP-917) (#629)', date: '2026-07-04' },
+    { sha: '0e45bfa3', message: 'feat(preview): highlight the detected framework\'s row in the compatibility table (HYP-924) (#632)', date: '2026-07-04' },
+    { sha: 'ea207783', message: 'fix(preview): Auto Fix on dev-server-unreachable, remove from unsupported (HYP-918/HYP-917) (#633)', date: '2026-07-05' },
+    { sha: '0a539849', message: 'fix(preview): reap dev-server orphans across leader-vs-group liveness and multiple generations (HYP-926) (#634)', date: '2026-07-05' },
+    { sha: '4b0d72fb', message: 'fix(docs): deliver a curated AGENTS-CORE.md via CLAUDE.md @import (HYP-946) (#639)', date: '2026-07-08' },
+    { sha: 'cacc87d5', message: 'docs(rules): retire docs/rules to pointer stubs, migrate content into skills + AGENTS.md (#640)', date: '2026-07-08' },
+    { sha: 'c8eca7dc', message: 'fix(mcp): surface HyperMcpServer start() failures instead of silent console.error (HYP-953) (#641)', date: '2026-07-09' },
+    { sha: '9d3297cb', message: 'security(mcp): authenticate the loopback MCP HTTP server (HYP-956) (#643)', date: '2026-07-09' },
+    { sha: 'ea29e559', message: 'fix(mcp): self-healing MCP startup via ensureStarted() with retry + on-demand restart (HYP-954) (#644)', date: '2026-07-09' },
+    { sha: '3f6247ce', message: 'chore: bump hypercanvas-preview to v0.1.67 (MCP self-heal + loopback auth) (#646)', date: '2026-07-09' },
+    { sha: 'bde28938', message: 'fix(ci): decouple Open VSX from Marketplace in extension publish (#647)', date: '2026-07-09' },
+    { sha: 'bcde67f2', message: 'chore: bump hypercanvas-preview to v0.1.68 (re-ship MCP fixes blocked by publish bug, HYP-958) (#648)', date: '2026-07-09' },
+    { sha: 'a6b1c782', message: 'ci(publish): enforce both-registries publish with a final gate (HYP-959) (#649)', date: '2026-07-09' },
+    { sha: '4eaaa927', message: 'fix(security): close gh-api PR-merge bypass in block hook, kill false positives (HYP-960) (#651)', date: '2026-07-09' },
+    { sha: '24629265', message: 'docs(spec): ratify agent-ecosystem retrospective (HYP-858) (#652)', date: '2026-07-12' },
+    { sha: 'b2d943b8', message: 'chore(release): bump extension to 0.1.69 (HYP-934/HYP-945/HYP-962) (#656)', date: '2026-07-12' },
+    { sha: 'a5e358ff', message: 'fix(ci): harden Open VSX verify gate against indexing lag (HYP-958) (#657)', date: '2026-07-13' },
+    { sha: '0af7e988', message: 'fix(preview): map React-19 _debugStack call-site to source, not compiled position (HYP-970) (#658)', date: '2026-07-14' },
+    { sha: '56e888e4', message: 'fix(preview): never commit a React-19 compiled _debugStack LEAF seed (HYP-974/HYP-970 residual) (#660)', date: '2026-07-15' },
+    { sha: 'c3b2e05a', message: 'chore(release): bump extension to 0.1.71 (HYP-974) (#661)', date: '2026-07-16' },
+    { sha: 'c0965448', message: 'fix(style-write): verify-and-retry for non-forwarding custom components — M1 (HYP-987) (#623)', date: '2026-07-17' },
+    { sha: 'a33fb209', message: 'fix(style-write): floor surfaceless edits to the project Tailwind default in the extension (HYP-983) (#662)', date: '2026-07-17' },
+    { sha: '0163daf7', message: 'docs(plans): ext bug-blitz 2026-07 phased plan (HYP-1029) (#671)', date: '2026-07-18' },
+    { sha: '564bacbc', message: 'fix(inspector): stop HMR re-read clobbering focused numeric fields + label Layout mode icons (HYP-1001) (#664)', date: '2026-07-19' },
+    { sha: '70f7bfdd', message: 'fix(preview): resolve composed-root clicks to own editable source, not the child call-site (HYP-1006) (#668)', date: '2026-07-19' },
+    { sha: 'f263be1c', message: 'feat(inspector): extend HintTooltip to Border and Fill sections (HYP-1085) (#679)', date: '2026-07-19' }
+  ],
+
+  adrs: [
+    { title: 'ADR-1 — Source ownership by editability, not by rendered-file suffix match',
+      problem: 'Clicking an element inside an imported first-party child component collapsed the selection to the parent\'s call-site — one overlay covered the whole subtree and style writes silently no-opped, regardless of how many component layers separated the click from the previewed file.',
+      options: 'Keep the renderedFile suffix-match gate that decides whether to collapse to the call-site; walk up to the nearest call-site unconditionally whenever a component boundary is crossed; resolve to the clicked element\'s own source whenever that source is editable, independent of depth, and only walk up to a call-site when the element\'s own source is not editable (a node_modules primitive\'s internal host node).',
+      decision: 'Resolve depth-independently by editability: an editable first-party source always wins; the call-site walk-up fires only for non-editable internal nodes.',
+      rationale: 'The suffix-match gate was itself depth-dependent and was the actual bug — every element under a composed root collapsed to the same top-level call-site regardless of its own file. Editability is the real distinguishing signal a user cares about: "can I edit this file", not "how many layers deep is it". (HYP-1006, #668)' },
+    { title: 'ADR-2 — MCP loopback server requires Authorization even though it only binds to localhost',
+      problem: 'The MCP HTTP server bound to loopback only, which is a common justification to skip auth ("nothing outside the machine can reach it") — but any other local process on the same machine, including untrusted ones, could still reach it and drive AST mutations.',
+      options: 'Rely on the loopback bind as the sole boundary; add OS-level socket permissions; require a bearer token on every request regardless of bind address.',
+      decision: 'Require a bearer token (Authorization header, with a ?token= query fallback for URL-only clients) on every request.',
+      rationale: 'Loopback-only is a network-layer boundary, not a process-identity boundary — it says nothing about which local process is calling. A bearer token is a real capability check and costs nothing for the intended (single, cooperating) MCP clients. (HYP-956, #643)' },
+    { title: 'ADR-3 — Dev-server orphan reap keys on process-group liveness, not leader-pid liveness',
+      problem: 'Real orphaned dev servers observed in the wild have their wrapper-leader process (npm run dev) die before the nested dev-server child, which survives in the same process group and keeps the port. Gating reap eligibility on the leader pid alone made the reaper silently no-op in exactly the case it was built for.',
+      options: 'Keep gating on leader-pid liveness and accept the miss; record and track the child pid directly at spawn time; gate on process-group liveness (leader OR any group member alive) with a positive-identity recheck before killing.',
+      decision: 'Gate on process-group liveness with an identity recheck (groupMembersLookLikeRecordedTool) before killing a leader-dead group.',
+      rationale: 'Process-group membership is kernel-enforced ancestry — cheap to check and doesn\'t require tracking every spawned child pid separately. The identity recheck was added after a review pass caught that the new leader-dead path had no positive-identity check, unlike the pre-existing leader-alive path. (HYP-926, #634)' }
+  ]
+});
+</script>
+</body></html>
