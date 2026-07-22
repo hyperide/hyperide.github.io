@@ -1,0 +1,13 @@
+{
+  "name": "hyperide-github-io-ci",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CI validation tooling for hyperide.github.io reports (no site build step — this is a static Pages site).",
+  "type": "module",
+  "scripts": {
+    "ci:validate-reports": "node scripts/ci/validate-reports.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.0"
+  }
+}
