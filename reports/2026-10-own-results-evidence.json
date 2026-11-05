@@ -1,0 +1,518 @@
+{
+  "verifiedAt": "2026-11-05",
+  "authors": [
+    {
+      "account": "alex-mextner",
+      "displayName": "Alex Ultra",
+      "reportByline": "Ultra / Mextner"
+    }
+  ],
+  "reports": {
+    "hyper-2026-10": [
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 825,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-16T01:22:33Z",
+        "mergeSha": "b0c3a5123add28644d0da367c0e808c7b7e6dd3d",
+        "url": "https://github.com/hyperide/hyper-saas/pull/825"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 837,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T13:15:07Z",
+        "mergeSha": "ecd0b8f1b0bf8921f740e76b20337d1a0bc9faac",
+        "url": "https://github.com/hyperide/hyper-saas/pull/837"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 810,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-14T18:39:58Z",
+        "mergeSha": "da611247987cc6b2fbb955857e4cc6f9d1410f8e",
+        "url": "https://github.com/hyperide/hyper-saas/pull/810"
+      }
+    ],
+    "state-lib-2026-10": [
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 810,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-14T18:39:58Z",
+        "mergeSha": "da611247987cc6b2fbb955857e4cc6f9d1410f8e",
+        "url": "https://github.com/hyperide/hyper-saas/pull/810"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 803,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T17:49:58Z",
+        "mergeSha": "f862a797d98126315b4d52ee931d5a7dd4d7faf0",
+        "url": "https://github.com/hyperide/hyper-saas/pull/803"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 826,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T16:30:35Z",
+        "mergeSha": "5acccf194d17d4eaf746b3a1a72324853ac87eef",
+        "url": "https://github.com/hyperide/hyper-saas/pull/826"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 832,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T22:02:48Z",
+        "mergeSha": "b1723e89b082fc21eabc64434dccf4fc8b5bff09",
+        "url": "https://github.com/hyperide/hyper-saas/pull/832"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 834,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T23:32:15Z",
+        "mergeSha": "4568a6b3af2980be700da51977b6facd1d687cf2",
+        "url": "https://github.com/hyperide/hyper-saas/pull/834"
+      },
+      {
+        "repo": "hyperide/hyper-saas",
+        "pr": 807,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-30T15:27:35Z",
+        "mergeSha": "f32c4cf9aed3d1d5a62efbdd78877916bd63cfd9",
+        "url": "https://github.com/hyperide/hyper-saas/pull/807"
+      }
+    ],
+    "conloca-2026-10": [
+      {
+        "repo": "conloca/private",
+        "pr": 299,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T07:05:53Z",
+        "mergeSha": "2ac9cc7fbabd481334197b605bf72300e5d41ffb",
+        "url": "https://github.com/conloca/private/pull/299"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 306,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T14:37:34Z",
+        "mergeSha": "e781c6c705ec93471e168f14279f0d87a3cc7f2d",
+        "url": "https://github.com/conloca/private/pull/306"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 302,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T08:45:17Z",
+        "mergeSha": "5cdba99c7d858aa321e4bb64dddb62cd9cec7c14",
+        "url": "https://github.com/conloca/private/pull/302"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 296,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T06:40:54Z",
+        "mergeSha": "f3d6aea36b8eff2dc25e6863ab4686a660a8013e",
+        "url": "https://github.com/conloca/private/pull/296"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 307,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T14:52:40Z",
+        "mergeSha": "70a75505b5722461852713aa22aa5d7b2842bab4",
+        "url": "https://github.com/conloca/private/pull/307"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 288,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-22T15:59:57Z",
+        "mergeSha": "34fe714e90e054defc7b05c0e203dcea73e5d69a",
+        "url": "https://github.com/conloca/private/pull/288"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 289,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-22T22:15:44Z",
+        "mergeSha": "4c784903d79fce725a752b99c42c4f5b3cb00dfe",
+        "url": "https://github.com/conloca/private/pull/289"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 192,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-17T14:30:04Z",
+        "mergeSha": "c02858bf15b57020fecc968bd70866d9f6ddb7a4",
+        "url": "https://github.com/conloca/private/pull/192"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 224,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-17T15:11:05Z",
+        "mergeSha": "4fa3cd565e92d577f75a447e2b65c4c956a3ca5a",
+        "url": "https://github.com/conloca/private/pull/224"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 197,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-17T15:48:14Z",
+        "mergeSha": "c8940860effb75be5c2cae136108f12b2ebb6f83",
+        "url": "https://github.com/conloca/private/pull/197"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 243,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-15T20:13:55Z",
+        "mergeSha": "a7f6ba6ad6b220cb1d7f0f7cf886bb2105dc00fd",
+        "url": "https://github.com/conloca/private/pull/243"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 235,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-15T16:32:44Z",
+        "mergeSha": "51fba3c31dc867639763432c7f3a85d291aee9ee",
+        "url": "https://github.com/conloca/private/pull/235"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 342,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-27T15:46:16Z",
+        "mergeSha": "ce20346cf302a70229c8378c583062414994be5d",
+        "url": "https://github.com/conloca/private/pull/342"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 217,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-16T22:53:42Z",
+        "mergeSha": "13ce65e6d35309af48d0d639315482f58932521b",
+        "url": "https://github.com/conloca/private/pull/217"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 244,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-15T17:27:07Z",
+        "mergeSha": "f08bb34d1792ee2200d4426a4afc0c50295ddd10",
+        "url": "https://github.com/conloca/private/pull/244"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 226,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-15T17:08:27Z",
+        "mergeSha": "92729b031f3afac0d840739718c318ef4401c812",
+        "url": "https://github.com/conloca/private/pull/226"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 300,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T09:19:30Z",
+        "mergeSha": "1a9c773b28e1f39ff0b29dfe6488acfb6242eb60",
+        "url": "https://github.com/conloca/private/pull/300"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 304,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T09:14:51Z",
+        "mergeSha": "456e5c4ee2740be398bd20ce0614bb8eaedfe3f0",
+        "url": "https://github.com/conloca/private/pull/304"
+      },
+      {
+        "repo": "conloca/private",
+        "pr": 309,
+        "author": "alex-mextner",
+        "state": "MERGED",
+        "mergedAt": "2026-10-23T14:54:24Z",
+        "mergeSha": "8540d9b8616fe12ba72689cb63b3d2ede62ab959",
+        "url": "https://github.com/conloca/private/pull/309"
+      }
+    ]
+  },
+  "approvalPreview": {
+    "number": 489,
+    "url": "https://github.com/conloca/private/pull/489",
+    "headRefOid": "e3ec8ee55ba28030b81d808e2ec45b3d31b83f5c",
+    "state": "OPEN",
+    "isDraft": false,
+    "author": {
+      "id": "U_kgDOBqa7tg",
+      "is_bot": false,
+      "login": "alex-mextner",
+      "name": "Alex Ultra"
+    }
+  },
+  "images": [
+    {
+      "path": "reports/state-lib-2026-10/images/caption-before.png",
+      "sha256": "51a7726c59072f657e954bad98e57c2beb9a37be0acf0353e6c2cc85f18348f7",
+      "sourcePr": 810,
+      "repo": "hyperide/hyper-saas",
+      "capturedAt": "2026-10-14",
+      "captureTimePrecision": "date",
+      "width": 850,
+      "height": 450
+    },
+    {
+      "path": "reports/state-lib-2026-10/images/caption-after.png",
+      "sha256": "8ae9f19a967ee8d48db6f8446cd827a5425a44c5a2c48f65c704d7127b7e57c5",
+      "sourcePr": 810,
+      "repo": "hyperide/hyper-saas",
+      "capturedAt": "2026-10-14",
+      "captureTimePrecision": "date",
+      "width": 850,
+      "height": 450
+    },
+    {
+      "path": "reports/conloca-2026-10/images/theme-before.png",
+      "sha256": "c1772cffc7113284902e9af1c9c77847e7307f955b935894b2071a84615e018d",
+      "sourceUrl": "https://conloca.com/getting-started/",
+      "capturedAt": "2026-11-05T20:03:10.819Z",
+      "sourcePr": 489,
+      "repo": "conloca/private",
+      "captureKind": "viewport",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "reports/conloca-2026-10/images/theme-after.png",
+      "sha256": "b1a80d382d6b855bed76f13df4c90bd408c446749fdcc9bcd073acc9ea2125de",
+      "sourceUrl": "https://site.pr489.conloca.com/getting-started/",
+      "capturedAt": "2026-11-05T20:03:12.926Z",
+      "sourcePr": 489,
+      "repo": "conloca/private",
+      "captureKind": "viewport",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "storybookPreviews": {
+    "verifiedAt": "2026-11-05T22:16:30.758703+00:00",
+    "workflowStatus": "implemented-awaiting-merge-approval",
+    "pullRequests": [
+      {
+        "author": "alex-mextner",
+        "headRefOid": "018f52c31332dc3c1055eadfc6dde63be78b9e59",
+        "isDraft": false,
+        "number": 404,
+        "state": "OPEN",
+        "url": "https://github.com/conloca/private/pull/404"
+      },
+      {
+        "author": "alex-mextner",
+        "headRefOid": "591024553d91fb0aeaad8081f9c39064cb024846",
+        "isDraft": false,
+        "number": 509,
+        "state": "OPEN",
+        "url": "https://github.com/conloca/private/pull/509"
+      }
+    ],
+    "segments": [
+      {
+        "segment": "main",
+        "url": "https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/main/",
+        "sourceSha": "795967bd48a0f1d8f96d87a562b15922ef529775",
+        "publication": "operator-published",
+        "deployExit": 0,
+        "protectionProbeExit": 0
+      },
+      {
+        "segment": "pr-404",
+        "url": "https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/pr-404/",
+        "sourceSha": "018f52c31332dc3c1055eadfc6dde63be78b9e59",
+        "publication": "operator-published",
+        "deployExit": 0,
+        "protectionProbeExit": 0,
+        "commitStatus": "success"
+      },
+      {
+        "segment": "pr-489",
+        "url": "https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/pr-489/",
+        "sourceSha": "e3ec8ee55ba28030b81d808e2ec45b3d31b83f5c",
+        "publication": "operator-published",
+        "deployExit": 0,
+        "protectionProbeExit": 0,
+        "commitStatus": "success"
+      }
+    ],
+    "requiresForgeSignIn": true,
+    "authenticatedProductionBrowserVerified": false,
+    "verification": "Deployment receipts, exact-head GitHub statuses and anonymous access protection. The same archive was browser-tested on the real host binary locally; that is not production OAuth acceptance.",
+    "mainSandboxPathFix": "PR404 carries the prefixed sandbox-path fix; main contains the merged integration branch.",
+    "deployedE2E": "https://github.com/conloca/private/actions/runs/42052900149/job/127344610560"
+  },
+  "sourceScopes": {
+    "hyperide/hyper-saas#810": {
+      "title": "feat(state-lib): headless async toolkit and fail-closed export (HYP-1507)",
+      "author": "alex-mextner",
+      "mergeSha": "da611247987cc6b2fbb955857e4cc6f9d1410f8e",
+      "url": "https://github.com/hyperide/hyper-saas/pull/810",
+      "files": [
+        "server/routes/git.ts",
+        "server/routes/__tests__/git-push.security.test.ts",
+        "server/services/git-push-error.ts",
+        "server/services/__tests__/git-push-tls.test.ts",
+        "server/utils/git-credentials.ts",
+        "packages/state-lib/toolkit/src/async-resource.ts",
+        "packages/state-lib/site/src/lib/highlight.ts",
+        "packages/state-lib/site/tools/heading-caption.check.mts"
+      ],
+      "includedWork": [
+        "Headless async toolkit",
+        "Git push authority, transport policy and typed failure handling",
+        "Quoted attribute and comment parsing in diagram captions"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "CI",
+      "head_sha": "d4cca87cee086eead00392f1a662de7065a8019c",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-10-14T10:22:11Z",
+      "repo": "hyperide/hyper-saas",
+      "run": 38547360197,
+      "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
+    },
+    {
+      "name": "Security Scan",
+      "head_sha": "d4cca87cee086eead00392f1a662de7065a8019c",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-10-14T10:09:02Z",
+      "repo": "hyperide/hyper-saas",
+      "run": 38547359971,
+      "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547359971"
+    },
+    {
+      "name": "State docs reading and interactions",
+      "head_sha": "d4cca87cee086eead00392f1a662de7065a8019c",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-10-14T10:19:19Z",
+      "repo": "hyperide/hyper-saas",
+      "run": 38547360009,
+      "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547360009"
+    },
+    {
+      "name": "E2E Tests (Deployed Stage)",
+      "head_sha": "e3ec8ee55ba28030b81d808e2ec45b3d31b83f5c",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-03T11:37:48Z",
+      "completed_at": "2026-11-03T11:48:51Z",
+      "repo": "conloca/private",
+      "run": 41626469902,
+      "url": "https://github.com/conloca/private/actions/runs/41626469902/job/125893569803",
+      "job": 125893569803
+    },
+    {
+      "name": "E2E Tests (Deployed Stage)",
+      "head_sha": "018f52c31332dc3c1055eadfc6dde63be78b9e59",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-05T15:33:02Z",
+      "completed_at": "2026-11-05T15:42:55Z",
+      "repo": "conloca/private",
+      "run": 42052900149,
+      "url": "https://github.com/conloca/private/actions/runs/42052900149/job/127344610560",
+      "job": 127344610560
+    },
+    {
+      "name": "CI",
+      "head_sha": "ce20346cf302a70229c8378c583062414994be5d",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-10-27T16:04:21Z",
+      "repo": "conloca/private",
+      "run": 40534284367,
+      "url": "https://github.com/conloca/private/actions/runs/40534284367",
+      "jobs": [
+        {
+          "conclusion": "success",
+          "head_sha": "ce20346cf302a70229c8378c583062414994be5d",
+          "html_url": "https://github.com/conloca/private/actions/runs/40534284367/job/122295162949",
+          "id": 122295162949,
+          "name": "Validate",
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "ce20346cf302a70229c8378c583062414994be5d",
+          "html_url": "https://github.com/conloca/private/actions/runs/40534284367/job/122299074596",
+          "id": 122299074596,
+          "name": "E2E Tests (Deployed Stage)",
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "head_sha": "ce20346cf302a70229c8378c583062414994be5d",
+          "html_url": "https://github.com/conloca/private/actions/runs/40534284367/job/122303701660",
+          "id": 122303701660,
+          "name": "Deploy Production",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "e3ec8ee55ba28030b81d808e2ec45b3d31b83f5c",
+      "name": "CI",
+      "status": "completed",
+      "updated_at": "2026-11-03T11:48:52Z",
+      "url": "https://github.com/conloca/private/actions/runs/41626469902",
+      "repo": "conloca/private",
+      "run": 41626469902
+    }
+  ],
+  "designCredits": [
+    {
+      "name": "Saba",
+      "contribution": "Completed How it works design",
+      "source": "https://github.com/conloca/private/pull/342",
+      "sourceCommit": "https://github.com/conloca/landing/commit/9582b68455ae7b6b2d4987c7c93ee32303c76a3f",
+      "reportedWorkBy": "alex-mextner",
+      "reportedWork": "Integrated the completed design into the production website",
+      "includedInOwnerWork": false
+    }
+  ]
+}

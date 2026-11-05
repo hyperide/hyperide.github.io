@@ -1,107 +1,336 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conloca — October 2026 Result Report</title><link rel="stylesheet" href="../shared/styles.css"><style>
-.report-nav{display:flex;flex-wrap:wrap;gap:8px 20px;margin:24px 0;font-size:.85rem}
-.report-nav a{padding:5px 0}.kicker{text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;color:var(--accent2);font-weight:700}
-.note{font-size:.85rem;color:var(--text-dim);line-height:1.65;margin:12px 0}.note strong{color:var(--text)}
-.status-grid,.month-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.result-card{border:1px solid var(--border);border-radius:10px;background:var(--card);padding:20px;border-top:3px solid var(--accent1)}
-.result-card h3{font-size:1rem;margin:9px 0}.result-card p{color:var(--text-dim);font-size:.88rem;line-height:1.65}.result-card p+p{margin-top:10px}
-.result-card.verified{border-top-color:var(--green)}.result-card.open{border-top-color:var(--yellow)}
-.refs{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;margin-top:10px}.refs a{white-space:nowrap}
-section ul,section ol{padding-left:22px;color:var(--text-dim)}section li{margin:9px 0}
-.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.85rem}th,td{text-align:left;border-bottom:1px solid var(--border);padding:13px 14px;vertical-align:top}th{color:var(--text);font-size:.76rem;text-transform:uppercase;letter-spacing:.05em}td{color:var(--text-dim)}td:first-child{color:var(--text)}
-.phase{border-left:2px solid var(--border);padding:0 0 26px 22px;margin-left:5px}.phase h3{font-size:1rem;margin-bottom:8px}.phase p{color:var(--text-dim);font-size:.9rem}.phase:last-child{padding-bottom:0}
-.validation-line{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.status-pill{display:inline-block;font-size:.73rem;border:1px solid var(--border);border-radius:99px;padding:3px 9px;color:var(--text-dim)}.status-pill.ok{color:var(--green);border-color:#285c34}.status-pill.warn{color:var(--yellow);border-color:#665020}
-.file-item{flex-wrap:wrap;overflow-wrap:anywhere}.file-item a{max-width:100%}.file-group-header{flex-wrap:wrap}.timeline-sha{font-size:.65rem;overflow:hidden;max-width:76px;text-overflow:ellipsis}.timeline-msg{overflow-wrap:anywhere}.timeline-tooltip{max-width:420px;overflow-wrap:anywhere}
-.adr-header{gap:16px}.adr-header span{flex-shrink:0}.adr-body{font-size:.88rem}.footer{text-align:center;padding:35px 20px;color:var(--text-dim);font-size:.8rem;border-top:1px solid var(--border)}
-@media(max-width:650px){.status-grid,.month-grid{grid-template-columns:1fr}.container{padding:0 16px}.report-header h1{font-size:1.6rem}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.summary-card{padding:14px 10px}.summary-card .value{font-size:1.7rem}.adr-header{display:block}.adr-header span{display:block;margin-top:5px}th,td{padding:10px}.file-stat{margin-left:0}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}.fade-in{opacity:1;transform:none}}
-@media print{.fade-in{opacity:1!important;transform:none!important}.report-nav{display:none}.adr-body,.file-group-items{display:block!important}.timeline-tooltip{display:none}.result-card{break-inside:avoid}body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
-
-/* Monthly sections can exceed a viewport: never depend on an intersection ratio for readability. */
-.fade-in{opacity:1;transform:none}
-.adr-header:focus-visible,.timeline-item:focus-visible,.file-group-header:focus-visible{outline:2px solid var(--accent1);outline-offset:4px}
-@media print{
-.fade-in{opacity:1!important;transform:none!important}
-.adr-body,.file-group-items{display:block!important}
-.timeline-wrap{overflow:visible}.timeline{min-width:0;flex-wrap:wrap;gap:20px}.timeline::before,.timeline-tooltip{display:none}
-.timeline-item{break-inside:avoid}.timeline-msg{display:block;-webkit-line-clamp:unset}
-body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-}
-</style></head><body><main class="container"><div data-section="header"></div><div data-section="motivation"></div>
-<nav class="report-nav" aria-label="Report sections"><a href="#outcome">Outcome</a><a href="#product">Product changes</a><a href="#month">Month in sequence</a><a href="#proof">Proof &amp; open work</a><a href="#impact">File impact</a><a href="#next">Next priorities</a><a href="#coverage">Coverage</a></nav>
-<div class="summary-grid" aria-label="Observed October metrics">
-<div class="summary-card"><div class="value">183</div><div class="label">Merged PRs · private repo</div></div>
-<div class="summary-card"><div class="value">0.2.3</div><div class="label">Latest public release records</div></div>
-<div class="summary-card"><div class="value">7</div><div class="label">Package records at 0.2.3</div></div>
-<div class="summary-card green"><div class="value">3 / 3</div><div class="label">Final CI jobs successful</div></div>
-</div>
-<p class="note">Merged PR census: <strong>3 / 15 / 73 / 92</strong> across October 1–7 / 8–14 / 15–21 / 22–31. The count includes mirror, CI, tests and documentation—not 183 user-facing features or a measure of effort. Final CI jobs means Validate, deployed-stage E2E and Deploy Production in one exact build. No monthly line-churn total is asserted.</p>
-<section id="outcome"><h2>What the evidence supports</h2><div class="status-grid">
-<article class="result-card verified"><span class="kicker">Implemented &amp; deployed by pipeline</span><h3>A stronger default-branch build</h3><p>The final October merge, <code>ceffbf327</code>, completed CI at <strong>19:45:36 UTC on October 31</strong>. Validate, deployed-stage E2E and Deploy Production all succeeded. This supersedes the earlier pending #397 snapshot and the failed intermediate #369 run.</p><p>It proves those jobs ran successfully—not independent production browser acceptance, package installation, or owner approval.</p><div class="refs"><a href="https://github.com/conloca/private/actions/runs/41233873177">Final October run</a> · <a href="https://github.com/conloca/private/actions/runs/41214512218">#397 completed run</a></div></article>
-<article class="result-card"><span class="kicker">Released</span><h3>Public records stop at 0.2.3</h3><p>GitHub release records were observed for 0.2.0 and 0.2.1 on October 14, 0.2.2 on October 26 and 0.2.3 on October 29. Seven packages have 0.2.3 records.</p><p>Later merged conversion, upgrade and preview work must not be described as a verified new package release. No independent npm install was performed for this report.</p><div class="refs"><a href="https://github.com/conloca/conloca/releases/tag/cli%400.2.1">0.2.1</a><a href="https://github.com/conloca/conloca/releases/tag/cli%400.2.2">0.2.2</a><a href="https://github.com/conloca/conloca/releases/tag/cli%400.2.3">0.2.3</a><a href="https://github.com/conloca/private/pull/389">PR #389</a></div></article>
-<article class="result-card open"><span class="kicker">Acceptance not established</span><h3>Pipeline success is not complete product acceptance</h3><p>The repository evidence establishes specific builds and test outcomes, not completion of the entire connect → edit → save → preview → publish journey across all supported environments. The remaining open PRs and package rollout conditions must be assessed separately.</p><div class="refs"><a href="https://github.com/conloca/private/pull/362">Docs/gallery status</a><a href="https://github.com/conloca/private/pull/363">Publish summary status</a><a href="https://github.com/conloca/private/pull/377">Upgrade verification limits</a></div></article>
-<article class="result-card open"><span class="kicker">Open pull requests</span><h3>Docs/gallery and publish summary are not delivered</h3><p>#362 remained open with a new October 31 head: validation passed, but deployed-stage E2E failed. #363 remained an open draft despite successful exact-head CI. Neither is counted as a merged October result.</p><div class="refs"><a href="https://github.com/conloca/private/pull/362">PR #362</a><a href="https://github.com/conloca/private/actions/runs/41245145992">#362 latest October CI</a><a href="https://github.com/conloca/private/pull/363">PR #363</a><a href="https://github.com/conloca/private/actions/runs/40954312820">#363 exact-head CI</a></div></article>
-</div></section>
-<div id="product" data-section="product-changes"></div>
-<section id="month"><h2>How the month progressed</h2>
-<div class="phase"><h3>October 1–7 · Build a credible test surface</h3><p>Mirror workflow and test configuration were repaired; preview-session diagnostics were added without claiming a behavior fix. The separate landing integration supplied CMS blocks, routes and shared site data for a more representative editing surface.</p><div class="refs"><a href="https://github.com/conloca/private/pull/158">PR #158</a><a href="https://github.com/conloca/private/pull/175">PR #175</a><a href="https://github.com/conloca/private/pull/176">PR #176</a><a href="https://github.com/conloca/landing/commit/9582b68455ae7b6b2d4987c7c93ee32303c76a3f">Landing integration</a></div></div>
-<div class="phase"><h3>October 8–14 · Unblock a free launch, then repair released regressions</h3><p>Billing-off removed an unmet production dependency while retaining billing coverage in staging. Public cloud-astro packaging expanded what users could install. Two regression batches then repaired rich text, fragments, indexing and related behavior found in 0.2.0; #210’s validation and deployed-stage E2E were independently checked.</p><div class="refs"><a href="https://github.com/conloca/private/pull/179">PR #179</a><a href="https://github.com/conloca/private/pull/109">PR #109</a><a href="https://github.com/conloca/private/pull/209">PR #209</a><a href="https://github.com/conloca/private/pull/210">PR #210</a><a href="https://github.com/conloca/private/actions/runs/38611986696">Regression CI</a></div></div>
-<div class="phase"><h3>October 15–21 · Protect content and workspace boundaries</h3><p>The focus moved to writes: tab isolation, safe Git commits, non-overwriting media moves and correct MDX write-back. Refresh and workspace security received targeted fixes. Generated Typia contracts and repository commands through rig.yaml improved consistency, but did not finish the separate StateBus migration.</p><div class="refs"><a href="https://github.com/conloca/private/pull/192">PR #192</a><a href="https://github.com/conloca/private/pull/197">PR #197</a><a href="https://github.com/conloca/private/pull/224">PR #224</a><a href="https://github.com/conloca/private/pull/235">PR #235</a><a href="https://github.com/conloca/private/pull/240">PR #240</a><a href="https://github.com/conloca/private/pull/281">PR #281</a><a href="https://github.com/conloca/private/pull/251">PR #251</a><a href="https://github.com/conloca/private/pull/230">PR #230</a></div></div>
-<div class="phase"><h3>October 22–27 · Exercise the editor journey</h3><p>Invite routing, page state, block actions and undo gained corrections and regression coverage. GitHub authority was reconciled with existing workspaces, not just fresh previews. The How it works site update landed after browser proof; dependency-review and mirror workflows moved to a self-hosted pool.</p><div class="refs"><a href="https://github.com/conloca/private/pull/294">PR #294</a><a href="https://github.com/conloca/private/pull/304">PR #304</a><a href="https://github.com/conloca/private/pull/116">PR #116</a><a href="https://github.com/conloca/private/pull/325">PR #325</a><a href="https://github.com/conloca/private/pull/342">PR #342</a><a href="https://github.com/conloca/private/pull/311">PR #311</a><a href="https://github.com/conloca/private/pull/313">PR #313</a></div></div>
-<div class="phase"><h3>October 28–31 · Change onboarding, then harden the operational tail</h3><p>Keyless editing was followed by sharing, static-site previews, agent tooling and consistent media processing. GitHub reinstall recovery and large-push handling addressed operational failures. After 15:24 UTC, #398 added queued imports, #400 added a doctor warning and #401 fixed a DOM-test teardown race. The final default-branch CI and production job succeeded before the month closed.</p><div class="refs"><a href="https://github.com/conloca/private/pull/344">PR #344</a><a href="https://github.com/conloca/private/pull/365">PR #365</a><a href="https://github.com/conloca/private/pull/395">PR #395</a><a href="https://github.com/conloca/private/pull/398">PR #398</a><a href="https://github.com/conloca/private/pull/400">PR #400</a><a href="https://github.com/conloca/private/pull/401">PR #401</a><a href="https://github.com/conloca/private/actions/runs/41233873177">Final build</a></div></div>
-</section>
-<section id="proof"><h2>Proof, review and remaining work</h2><p class="note">Evidence is classified by what was actually read. Historical PR proof is useful, but it is not a new run of the product. No review-round counts or approval claims have been reconstructed from incomplete records.</p>
-<div class="table-wrap"><table><thead><tr><th>Area</th><th>Observed proof</th><th>Boundary / next check</th></tr></thead><tbody>
-<tr><td>Write isolation</td><td><a href="https://github.com/conloca/private/pull/224">PR #224</a>: exact-head Validate and deployed-stage E2E passed. <a href="https://github.com/conloca/private/actions/runs/39039673811">CI evidence</a>.</td><td>Confirms that tested snapshot, not every later build or all multi-tab environments.</td></tr>
-<tr><td>Content parsing</td><td><a href="https://github.com/conloca/private/pull/239">PR #239</a> reports red/green regressions; successful Validate and deployed-stage E2E were checked independently. <a href="https://github.com/conloca/private/actions/runs/38719286063">CI evidence</a>.</td><td>This verifies a specific hardening change, not closure of the entire security backlog.</td></tr>
-<tr><td>Keyless editor</td><td><a href="https://github.com/conloca/private/pull/344">PR #344</a> reports Chromium/Firefox/WebKit, static-output parity and draft-preview proof; exact-head validation/E2E passed. <a href="https://github.com/conloca/private/actions/runs/40604899776">CI evidence</a>.</td><td>Live Vercel was not exercised; reported cold-open time was 6–7 seconds against a three-second target.</td></tr>
-<tr><td>Docs/gallery #362</td><td>Head <code>aa056647</code>, committed October 31 at 21:46 UTC: Validate succeeded, deployed-stage E2E failed and production was skipped. The log shows an editor-page assertion timing out. <a href="https://github.com/conloca/private/actions/runs/41245145992/job/124678499970">Failed E2E job</a>.</td><td>Still open. The earlier lint/artifact failure is historical, not the current blocker. A fresh stage was deployed in this run; its current browser availability was not tested.</td></tr>
-<tr><td>Publish summary #363</td><td>Head <code>76bb09e</code>: Validate and deployed-stage E2E succeeded; production skipped. <a href="https://github.com/conloca/private/actions/runs/40954312820">Exact-head CI</a>. PR reports 52 Nx tasks, 226 Storybook tests and 162 real-Git-runtime tests.</td><td>Still an open draft. <a href="https://github.com/conloca/private/pull/363#issuecomment-6534717373">Preview expired October 30</a>; authenticated publication and team acceptance remain unestablished.</td></tr>
-<tr><td>Final pipeline</td><td><code>ceffbf327</code>: Validate, deployed-stage E2E and production deployment all succeeded. <a href="https://github.com/conloca/private/actions/runs/41233873177">Final October run</a>.</td><td>Do not infer owner acceptance, customer-site upgrades or new public package publication from CI success.</td></tr>
-</tbody></table></div>
-<div class="month-grid" style="margin-top:24px">
-<article class="result-card open"><h3>Release and operations</h3><p>The next coordinated package release and real-site upgrade checks remain necessary. Repository quotas were implemented without enabling a quota value in that PR. The affected repository’s recovery, preview-site updates and sender-domain readiness require operational confirmation.</p><div class="refs"><a href="https://github.com/conloca/private/pull/377">PR #377</a><a href="https://github.com/conloca/private/pull/389">PR #389</a><a href="https://github.com/conloca/private/pull/390">PR #390</a><a href="https://github.com/conloca/private/pull/395">PR #395</a><a href="https://github.com/conloca/private/pull/355">PR #355</a></div></article>
-<article class="result-card open"><h3>Architecture and evidence retention</h3><p>StateBus #84 remained an open draft in the collected evidence; full-page docs preview is still unavailable. Evidence retention also remains a separate issue: a path in a log or a green job is not proof that screenshots are retrievable now.</p><div class="refs"><a href="https://github.com/conloca/private/pull/84">PR #84</a><a href="https://github.com/conloca/private/pull/388">PR #388</a><a href="https://github.com/conloca/private/pull/320">PR #320</a></div></article>
-</div></section>
-<section id="impact"><h2>File impact — selected changes</h2><p class="note">The expandable rows below are a deliberately small, verified sample: two files from #197, one from #398 and one from #400. Counts are <strong>per-PR diffs</strong>, not month-wide unique-file totals. Links point to inspected lines at the final October default-branch commit. This avoids inventing a monthly diff from a PR census.</p></section>
-<div data-section="file-impact" id="selected-files"></div>
-<section><h2>Selected merge timeline</h2><p class="note">A navigable selection of real merge commits behind this narrative. Captions describe the associated PRs; this is not a complete commit log.</p><div data-section="timeline" id="selected-timeline"></div></section>
-<section><h2>Design decisions worth retaining</h2><p class="note">The following records summarize decisions evidenced by merged PRs. They are report summaries—not newly ratified project ADRs.</p><div data-section="adr" id="decisions"></div></section>
-<section><h2>Repository contributions</h2><p class="note">The verified merged-PR author counts are <strong>89 for <code>alex-mextner</code></strong>, <strong>80 for <code>NikoT2</code></strong> and <strong>14 for other authors</strong>. These are repository authorship counts—not sole-credit, personal activity or effort measurements. <a href="https://github.com/conloca/private/pulls?q=is%3Apr+is%3Amerged+merged%3A2026-10-01..2026-10-31">PR census</a>.</p><p class="note">The separate <a href="https://github.com/conloca/landing/commit/9582b68455ae7b6b2d4987c7c93ee32303c76a3f">October 6 landing/CMS integration</a> and <a href="https://github.com/conloca/private/pull/342">How it works website update</a> are credited through their repository records rather than private correspondence. No customer-acquisition, revenue or campaign result is asserted.</p></section>
-<section id="next"><h2>Next priorities</h2><p class="note">Recommendations from the evidence gaps—not new commitments assigned to the team.</p><ol>
-<li><strong>Close the real-user acceptance loop.</strong> Map findings to a PR and build SHA, then retest connect → edit page/fragment/data → save → preview → publish → view without authentication. Record expected/actual behavior and durable evidence.</li>
-<li><strong>Make #362 and #363 reviewable.</strong> Diagnose the current #362 deployed-stage E2E failure; restore a current #363 preview, run authenticated publication and obtain team review. Historical checks are not enough.</li>
-<li><strong>Finish the release sequence.</strong> Coordinate public packages, backend/app and customer sites; verify installed versions and perform real upgrade/conversion smoke tests. Confirm affected-repository recovery and configuration-dependent preview/email behavior.</li>
-<li><strong>Keep proof and approval separate from CI.</strong> Preserve scenario evidence and screenshots where available. Before any new production deployment, present the evidence for explicit owner approval rather than treating green CI as acceptance.</li>
-</ol><p class="note">Source context: <a href="https://github.com/conloca/private/pull/362">PR #362</a> · <a href="https://github.com/conloca/private/pull/363">PR #363</a> · <a href="https://github.com/conloca/private/pull/377">PR #377</a> · <a href="https://github.com/conloca/private/pull/395">PR #395</a> · <a href="https://github.com/conloca/private/pull/320">PR #320</a>.</p></section>
-<section id="coverage"><h2>Coverage and limitations</h2><p class="note">Reporting window: <strong>October 1–31, 2026 (UTC)</strong>. The original repository evidence ended at October 31, 15:24 UTC. A targeted November 1 read-only refresh covered all October 31 merged PR search results, selected exact-head/default-branch workflows and the latest public GitHub releases. It added three merges and replaced stale pending/failed-build descriptions with their terminal outcomes.</p><p class="note">Repository evidence includes the month’s PR census, 66 directly checked PR records in the original evidence set, selected jobs, public release records and the landing commit. This report is a selective technical synthesis, not an exhaustive audit of every branch, ticket, deployment or user scenario. No new product tests, npm installation, production browser audit, business-metric estimate or screenshot recapture was performed.</p><p class="note">Some repository evidence links are access-controlled and require permission to view. This public report contains no private correspondence, customer identifiers, credentials or detailed security exploit mechanisms. Merge, release, deployment and product acceptance remain distinct evidence levels.</p></section>
-</main><footer class="footer">Prepared November 1, 2026 · Conloca only · <a href="https://github.com/hyperide/hyperide.github.io">HyperIDE shared Result Report template</a></footer><script src="../shared/components.js"></script><script>
-var REPORT_DATA = {"repo": "https://github.com/conloca/private", "headSha": "ceffbf327eabe83d677bb8a59d8ea1ad4ab61205", "title": "Conloca — October 2026 Result Report", "subtitle": "A safer editing journey, a keyless editor, and a clearer boundary between merged work and accepted product.", "date": "October 1–31, 2026 · checked November 1, 2026", "badge": {"label": "Monthly result", "type": "docs"}, "branch": "private", "links": [{"label": "October merged PRs", "href": "https://github.com/conloca/private/pulls?q=is%3Apr+is%3Amerged+merged%3A2026-10-01..2026-10-31"}, {"label": "Public releases", "href": "https://github.com/conloca/conloca/releases"}, {"label": "Final October CI", "href": "https://github.com/conloca/private/actions/runs/41233873177"}], "motivation": "<strong>Why this month mattered.<\/strong> Conloca needed a trustworthy path from connecting a real site to editing, saving, previewing and publishing it—not just individually working components. October strengthened that path while changing how the editor is delivered. <strong>The result is substantial implementation and deployment progress, but not a completed product acceptance.<\/strong> The final October default-branch build has successful validation, deployed-stage E2E and production-deployment jobs; the latest public package records remain 0.2.3. Open work and rollout conditions remain separate from that pipeline result. <a href=\"https://github.com/conloca/private/actions/runs/41233873177\">Build evidence<\/a> · <a href=\"https://github.com/conloca/private/pull/377\">Upgrade verification limits<\/a>.", "productChanges": {"new": [{"title": "A site-hosted editor, without build tokens", "desc": "The largest architectural change moved the editor page into the customer site. Conloca frames that site-built page instead of hosting the customer component bundles itself. This removes a build-token setup step and makes the site build the source of its component vocabulary. Merged October 28; exact-head Validate and deployed-stage E2E passed. Live Vercel and the three-second cold-open target were not established.", "prs": [344], "files": [{"path": "packages/cloud-astro/src/editor-page/page.ts", "lines": "L8-L36", "label": "Editor page generation"}]}, {"title": "Draft previews and controlled sharing", "desc": "Expiring, revocable links, one-time codes, access checks and recipient sign-in were added, followed by preview support beside a static Cloudflare site and a setup checklist. The conloca.com integration merged October 31. Package compatibility, site upgrades and email-sender readiness remain separate rollout conditions; this is not a blanket claim that every sharing scenario was accepted.", "prs": [350, 352, 354, 355, 381, 385, 391, 392], "files": []}, {"title": "An agent can work with more than pages", "desc": "MCP gained fragment/data CRUD and schema reads. The CLI gained content commands, route/component discovery and before/after comparison for Astro conversion, plus an upgrade command with rollback. These merged features broaden the workflow, but a full skill-driven page conversion and real npm upgrade were still explicitly unproven in the PRs. The last observed public release remained 0.2.3.", "prs": [370, 371, 373, 377, 380], "files": []}], "improvements": [{"title": "Large repositories no longer depend on one request", "desc": "Push ingestion now stores commits first and fills content in bounded parts. First imports moved to the organization queue with resumable work and retry handling. The editor and connect page explain rejected pushes; doctor warns about tracked dependency/build folders. The code and a later production job are evidenced, but recovery of the specific affected repository was not independently confirmed.", "prs": [395, 397, 398, 400], "files": [{"path": "privpkgs/saas-org-tracker/src/repo-import.ts", "lines": "L111-L149", "label": "Queued import attempt"}, {"path": "packages/cli/src/commands/doctor.ts", "lines": "L256-L283", "label": "Doctor C16"}]}, {"title": "A realistic site and a clearer product explanation", "desc": "The October 6 landing/CMS integration supplied 17 Puck blocks, seven prerendered routes and shared navigation/footer data. The completed How it works design was later integrated into the main website. PR #342 reports 50 browser checks and responsive, no-JavaScript, reduced-motion and enlarged-text proof. The report does not treat those author-reported checks as a newly repeated acceptance run.", "prs": [342], "files": []}, {"title": "Public packages and a less fragile release path", "desc": "Public cloud-astro packaging was followed by 0.2.1, 0.2.2 and 0.2.3 GitHub release records. Seven package records exist for 0.2.3. The October 31 fixed-version release group makes a coordinated next release possible; its 0.3.0 dry run is not a published 0.3.0 release. Billing-off enables a free launch without asserting that payments are live.", "prs": [109, 179, 389], "files": []}], "fixes": [{"title": "Edits stay in the workspace the tab is showing", "desc": "Repository/branch and then site context became explicit mutation inputs, with mismatch handling instead of silently writing into another tab’s context. Related fixes preserve the primary MDX source path and make preview include content committed after a build. These address content integrity, not merely visual polish.", "prs": [192, 224, 235, 247], "files": []}, {"title": "Publishing does not absorb unrelated Git work", "desc": "CMS commits use a private index, preserve other staged files and protect against concurrent ref changes. Asset moves claim a destination without overwriting another file. The PR describes temporary-repository and race regression tests, making the failure conditions explicit.", "prs": [197], "files": [{"path": "packages/content-api/src/git-operations.ts", "lines": "L202-L220", "label": "Private-index commit"}, {"path": "packages/content-api/src/asset-operations.ts", "lines": "L915-L954", "label": "Non-overwriting media move"}]}, {"title": "Core editor actions behave more predictably", "desc": "Invite acceptance now lands in the invited workspace, including users who already have another workspace. New-page publication state, block dragging, Dashboard New Page and undo were corrected. Route/action smoke tests and deployed-stage scenarios added coverage around the real editor journey.", "prs": [288, 289, 294, 296, 299, 302, 304, 306, 309], "files": []}, {"title": "Sessions, access boundaries and media were hardened", "desc": "The month included session reliability and workspace access hardening, GitHub-backed membership handling and safer content processing. Late media work made repository images branch-specific and aligned upload/import processing rules. These are merged changes, not a declaration that every security or media lifecycle edge is closed.", "prs": [240, 281, 116, 239, 386, 387], "files": []}]}, "files": [{"path": "packages/content-api/src/git-operations.ts", "dir": "packages/content-api/src", "add": 188, "del": 41, "status": "modified", "pr": 197, "lines": "L202-L220"}, {"path": "packages/content-api/src/asset-operations.ts", "dir": "packages/content-api/src", "add": 152, "del": 22, "status": "modified", "pr": 197, "lines": "L915-L954"}, {"path": "privpkgs/saas-org-tracker/src/repo-import.ts", "dir": "privpkgs/saas-org-tracker/src", "add": 181, "del": 0, "status": "new", "pr": 398, "lines": "L111-L149"}, {"path": "packages/cli/src/commands/doctor.ts", "dir": "packages/cli/src/commands", "add": 52, "del": 0, "status": "modified", "pr": 400, "lines": "L256-L283"}], "commits": [{"sha": "ad7cc6005cb07ab4ae910652a884a8a95d7fe5ca", "message": "PR #158 — Improve mirror workflow reliability", "date": "2026-10-01"}, {"sha": "509faaf10c86de37a3dd9eede4d789ac85f40be1", "message": "PR #109 — feat: publish @conloca/cloud-astro as a public package, with a per-build version report", "date": "2026-10-14"}, {"sha": "d3a4924d7537b38b649a27350dc3e97fb8b39cf4", "message": "PR #239 — Harden content handling", "date": "2026-10-15"}, {"sha": "c8940860effb75be5c2cae136108f12b2ebb6f83", "message": "PR #197 — fix(content-api): keep CMS commits to content and never overwrite an asset on move", "date": "2026-10-17"}, {"sha": "32754538606c946a287925fa483d232aef6e05ec", "message": "PR #281 — Strengthen workspace access boundaries", "date": "2026-10-21"}, {"sha": "9ab7c3049deb7f1c00f4c578d71b8637379dceb1", "message": "PR #294 — test(conloca-e2e): prove an invitee who already has a workspace lands in the invited one on a deployed stage", "date": "2026-10-23"}, {"sha": "ce20346cf302a70229c8378c583062414994be5d", "message": "PR #342 — fix(website): restore the completed How it works design (Refs GL-486)", "date": "2026-10-27"}, {"sha": "51744ac2e547582c7dfc2983fe5dc21fce57f31e", "message": "PR #344 — feat: edit sites through an editor page their own build emits, framed by the workspace, and retire build keys", "date": "2026-10-28"}, {"sha": "1f35d8c372db979d38e710735576b880e22f6757", "message": "PR #365 — fix: recover workspaces after a GitHub App uninstall/reinstall and keep pushes syncing", "date": "2026-10-30"}, {"sha": "9b62efbbf249e6f4d09c610b4659d0eb54d407ac", "message": "PR #392 — feat(conloca-website): serve draft previews next to the static site", "date": "2026-10-31"}, {"sha": "e05ddb2a16ba4acb56be428a80ec49f91625df7e", "message": "PR #398 — feat: run a repository's first import from the organization's queue, resumable and in parts", "date": "2026-10-31"}, {"sha": "40c62c5ba2c2eb5f54e6194deda92185cfa0e430", "message": "PR #400 — feat(cli): warn when Git tracks dependency or build folders", "date": "2026-10-31"}, {"sha": "ceffbf327eabe83d677bb8a59d8ea1ad4ab61205", "message": "PR #401 — test(conloca-app): let React's scheduler finish before the DOM tests remove window", "date": "2026-10-31"}], "adrs": [{"title": "Site-hosted editor — simplify setup and separate responsibilities", "problem": "The earlier architecture required an additional build-token setup step and customer component bundles handled by Conloca.", "options": "The former bundled-component model versus a site-built editor page framed by the workspace. These are the before/after designs in PR #344, not an invented options review.", "decision": "Build the editor page on the customer site while the workspace retains authenticated operations and coordinates the editing session.", "rationale": "The customer build owns its component vocabulary, while the Conloca frame retains authenticated operations. Browser gates and static-output parity are reported; cold-open performance and live Vercel remain qualified.", "prs": [344]}, {"title": "First import — queued, resumable work rather than request-lifetime work", "problem": "A large initial import could outlive its initiating request, restart from nothing and only resume when someone reopened the branch list.", "options": "Continue the request-bound import, or use the organization queue with bounded, resumable import work.", "decision": "Queue first imports, distinguish permanent failures from retryable failures, reuse stored progress, and finish in bounded parts.", "rationale": "This addresses interruption and large-repository handling without assuming a whole repository fits one store call. PR #398 reports a real-Git node-lane test; the final October build supplies successful pipeline evidence.", "prs": [398]}, {"title": "Package upgrades — one coordinated version", "problem": "The new upgrade command requires installed @conloca packages to agree on one version; independent releases could make it roll back an otherwise intended upgrade.", "options": "Retain independent package release versions, or place the seven packages in a fixed-version release group.", "decision": "Configure a fixed-version group and verify the release process with a dry run.", "rationale": "The release configuration supports safe upgrades, but cannot itself prove that new packages were published or that existing customer sites were upgraded. Observed public records still end at 0.2.3.", "prs": [377, 389]}], "observedMetrics": {"mergedPrCount": 183, "weeklyMergedPrCounts": [3, 15, 73, 92], "authorPrCounts": {"alex-mextner": 89, "NikoT2": 80, "others": 14}, "latestPublicRelease": "0.2.3", "publicPackageReleaseRecordsAtLatestVersion": 7}, "reportPeriod": {"start": "2026-10-01T00:00:00Z", "endExclusive": "2026-11-01T00:00:00Z", "initialEvidenceCutoff": "2026-10-31T15:24:00Z", "targetedRefreshDate": "2026-11-01"}};
-Report.init(REPORT_DATA);
-// Local monthly-report additions. The upstream renderer and styles remain unchanged.
-var changes = [].concat(REPORT_DATA.productChanges.new,REPORT_DATA.productChanges.improvements,REPORT_DATA.productChanges.fixes);
-document.querySelectorAll('#product .change-item').forEach(function(el,i){
-  var links=document.createElement('div'); links.className='refs';
-  changes[i].prs.forEach(function(n){var a=document.createElement('a');a.href=REPORT_DATA.repo+'/pull/'+n;a.textContent='PR #'+n;links.appendChild(a);});
-  if(changes[i].title.indexOf('realistic site')>=0){var a=document.createElement('a');a.href='https://github.com/conloca/landing/commit/9582b68455ae7b6b2d4987c7c93ee32303c76a3f';a.textContent='Landing commit';links.appendChild(a);}
-  el.appendChild(links);
-});
-document.querySelector('#selected-files h2').remove();
-document.querySelector('#selected-timeline h2').remove();
-document.querySelector('#decisions h2').remove();
-document.querySelectorAll('#selected-files .file-item a').forEach(function(a){var p=decodeURIComponent(a.href.split('/blob/')[1].split('/').slice(1).join('/'));var f=REPORT_DATA.files.find(function(f){return f.path===p;});if(f){a.href+='#'+f.lines;a.title='PR #'+f.pr+' diff; source at final October commit';}});
-document.querySelectorAll('#decisions .adr-card').forEach(function(el,i){var links=document.createElement('div');links.className='refs';REPORT_DATA.adrs[i].prs.forEach(function(n){var a=document.createElement('a');a.href=REPORT_DATA.repo+'/pull/'+n;a.textContent='Decision source: PR #'+n;links.appendChild(a);});el.querySelector('.adr-body').appendChild(links);});
-// Preserve the shared interactions and make their headers keyboard-operable.
-document.querySelectorAll('.file-group-header,.adr-header,.timeline-item').forEach(function(el){el.tabIndex=0;el.setAttribute('role','button');el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});});
-// Expose the existing accordion state to assistive technology after each shared toggle.
-document.querySelectorAll('.file-group-header,.adr-header').forEach(function(el){
-  function updateExpanded(){
-    var body=el.nextElementSibling;
-    var expanded=el.classList.contains('file-group-header')?body.style.display==='block':body.classList.contains('open');
-    el.setAttribute('aria-expanded',String(expanded));
-  }
-  updateExpanded();el.addEventListener('click',updateExpanded);
-});
-document.querySelectorAll('a[target="_blank"]').forEach(function(a){a.rel='noopener noreferrer';});
-</script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conloca: October 2026</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../shared/styles.css" />
+    <link rel="stylesheet" href="../shared/october-own.css" />
+  </head>
+  <body>
+    <main class="container">
+      <nav class="report-nav" aria-label="October reports">
+        <a href="../hyper-2026-10/">HyperIDE</a
+        ><a href="../conloca-2026-10/" aria-current="page">Conloca</a
+        ><a href="../state-lib-2026-10/">StateLib</a
+        ><a href="../../index.html">All reports</a>
+      </nav>
+      <div data-section="header"></div>
+      <p class="byline">
+        Work by Ultra / Mextner. October 2026 results; status checked 5
+        November. Source links may require repository access.
+      </p>
+      <section class="report-section" id="results">
+        <h2>Merged</h2>
+        <div class="results">
+          <article class="result">
+            <h3>Editor actions</h3>
+            <p>
+              Restored block dragging and Undo after adding a block. Dashboard
+              New Page opens the create dialog. New unpublished pages display
+              Draft, including after translation edits.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/conloca/private/pull/299"
+                aria-label="Pull request 299"
+                >#299</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/306"
+                aria-label="Pull request 306"
+                >#306</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/302"
+                aria-label="Pull request 302"
+                >#302</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/296"
+                aria-label="Pull request 296"
+                >#296</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/307"
+                aria-label="Pull request 307"
+                >#307</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Correct workspace and branch</h3>
+            <p>
+              Invites open the workspace the user joined. Writes stay on the
+              repository, branch and site shown in their tab, even when another
+              tab changes workspace.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/conloca/private/pull/288"
+                aria-label="Pull request 288"
+                >#288</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/289"
+                aria-label="Pull request 289"
+                >#289</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/192"
+                aria-label="Pull request 192"
+                >#192</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/224"
+                aria-label="Pull request 224"
+                >#224</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Content and media safety</h3>
+            <p>
+              CMS commits preserve unrelated staged files. Asset moves do not
+              overwrite an existing file. Draft images render in the canvas, and
+              primary-root MDX saves return to the original file.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/conloca/private/pull/197"
+                aria-label="Pull request 197"
+                >#197</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/243"
+                aria-label="Pull request 243"
+                >#243</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/235"
+                aria-label="Pull request 235"
+                >#235</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>How it works page</h3>
+            <p>
+              Integrated Saba’s completed design into the production site. Added
+              responsive, enlarged-text and reduced-motion checks, and removed
+              the visible jump during delayed hydration.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/conloca/private/pull/342"
+                aria-label="Pull request 342"
+                >#342</a
+              >
+              · <a href="https://conloca.com/how-it-works/">Production</a>
+            </p>
+          </article>
+          <article class="result">
+            <h3>Storybook and browser coverage</h3>
+            <p>
+              Added standalone CMS and composed app catalogues, interactive
+              state stories, desktop/mobile captures, and deployed-stage checks
+              for editor routes and primary actions.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/conloca/private/pull/217"
+                aria-label="Pull request 217"
+                >#217</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/244"
+                aria-label="Pull request 244"
+                >#244</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/226"
+                aria-label="Pull request 226"
+                >#226</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/300"
+                aria-label="Pull request 300"
+                >#300</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/304"
+                aria-label="Pull request 304"
+                >#304</a
+              >
+              ·
+              <a
+                href="https://github.com/conloca/private/pull/309"
+                aria-label="Pull request 309"
+                >#309</a
+              >
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="report-section" id="approval">
+        <h2>Ready for approval</h2>
+        <p class="refs">
+          Current preview, 5 November. Separate from the October merges above.
+        </p>
+        <div class="result">
+          <span class="status-label">IMPLEMENTED · NOT MERGED</span>
+          <h3>Documentation theme picker</h3>
+          <p>
+            Added Light, Dark and System controls with visible selection,
+            keyboard navigation and touch targets. Current-head CI and
+            deployed-stage E2E passed; the implementation awaits team approval.
+          </p>
+          <p class="refs">
+            <a
+              href="https://github.com/conloca/private/pull/489"
+              aria-label="Pull request 489"
+              >#489</a
+            >
+            ·
+            <a href="https://site.pr489.conloca.com/getting-started/"
+              >Preview</a
+            >
+            ·
+            <a
+              href="https://github.com/conloca/private/actions/runs/41626469902/job/125893569803"
+              >Deployed E2E</a
+            >
+          </p>
+        </div>
+      </section>
+      <section class="report-section" id="screenshots">
+        <h2>Before / after</h2>
+        <p>
+          Theme control on production and PR #489, captured at the same 1440px
+          viewport on 5 November. The new control is on the preview only.
+        </p>
+        <div class="gallery">
+          <figure>
+            <a href="images/theme-before.png"
+              ><img
+                src="images/theme-before.png"
+                alt="Before: production documentation with the native Auto theme dropdown"
+                width="1440"
+                height="1000"
+                loading="lazy"
+            /></a>
+            <figcaption>
+              Before: native dropdown. Production, 5 November.
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="images/theme-after.png"
+              ><img
+                src="images/theme-after.png"
+                alt="After: PR preview documentation with Light, Dark and System controls"
+                width="1440"
+                height="1000"
+                loading="lazy"
+            /></a>
+            <figcaption>
+              After: Light, Dark and System choices. PR #489, 5 November.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section class="report-section" id="checks">
+        <h2>Checks and previews</h2>
+        <p>
+          <strong>Protected Storybook:</strong>
+          <a
+            href="https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/main/"
+            >Main</a
+          >
+          ·
+          <a
+            href="https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/pr-404/"
+            >Publisher preview #404</a
+          >
+          ·
+          <a
+            href="https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/pr-489/"
+            >Theme-picker preview #489</a
+          >. Forge sign-in is required.
+        </p>
+        <p>
+          Published these catalogue snapshots and added their links to PR
+          descriptions. The publisher and automatic link refresh are implemented
+          in
+          <a
+            href="https://github.com/conloca/private/pull/404"
+            aria-label="Pull request 404"
+            >#404</a
+          >
+          and
+          <a
+            href="https://github.com/conloca/private/pull/509"
+            aria-label="Pull request 509"
+            >#509</a
+          >; both await merge approval.
+        </p>
+        <p class="refs">
+          <a
+            href="https://github.com/conloca/private/actions/runs/42052900149/job/127344610560"
+            >Publisher deployed-stage E2E</a
+          >. PR #404 includes the sandbox-path fix for prefixed catalogues; Main
+          tracks the merged branch.
+        </p>
+        <p>
+          <a href="https://github.com/conloca/private/actions/runs/40534284367"
+            >How it works: production deployment and E2E</a
+          >
+          ·
+          <a
+            href="https://github.com/conloca/private/pull/244"
+            >Interactive Storybook scenarios and screenshot workflow</a
+          >
+          ·
+          <a
+            href="https://github.com/conloca/private/actions/runs/41626469902/job/125893569803"
+            >Theme-picker deployed-stage E2E</a
+          >.
+        </p>
+      </section>
+      <footer>
+        October 2026 · Ultra / Mextner · Updated 5 November 2026 ·
+        <a href="../2026-10-own-results-evidence.json">Source record</a>
+      </footer>
+    </main>
+    <script src="../shared/components.js"></script>
+    <script>
+      Report.init({
+        repo: "https://github.com/conloca/private",
+        headSha: "ce20346cf302a70229c8378c583062414994be5d",
+        title: "Conloca: October 2026",
+        subtitle:
+          "Editor fixes, safe writes, visual coverage and the production landing update",
+        date: "2026-11-05",
+        badge: { label: "October results", type: "feat" },
+        links: [
+          { label: "Merged changes", href: "#results" },
+          { label: "Ready for approval", href: "#approval" },
+          { label: "Checks and previews", href: "#checks" },
+        ],
+      });
+    </script>
+  </body>
+</html>
