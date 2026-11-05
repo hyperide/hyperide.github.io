@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StateLib: October 2026</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../shared/styles.css" />
+    <link rel="stylesheet" href="../shared/october-own.css" />
+  </head>
+  <body>
+    <main class="container">
+      <nav class="report-nav" aria-label="October reports">
+        <a href="../hyper-2026-10/">HyperIDE</a
+        ><a href="../conloca-2026-10/">Conloca</a
+        ><a href="../state-lib-2026-10/" aria-current="page">StateLib</a
+        ><a href="../../index.html">All reports</a>
+      </nav>
+      <div data-section="header"></div>
+      <p class="byline">
+        Work by Ultra / Mextner. October 2026 results; status checked 5
+        November. Source links may require repository access.
+      </p>
+      <section class="report-section" id="results">
+        <h2>Merged</h2>
+        <div class="results">
+          <article class="result">
+            <h3>Async toolkit and immutable records</h3>
+            <p>
+              Added framework-neutral async state and validated immutable
+              records on the existing Runtime. Production and testing exports
+              are separate.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/810"
+                aria-label="Pull request 810"
+                >#810</a
+              >
+              ·
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/803"
+                aria-label="Pull request 803"
+                >#803</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Operation ownership</h3>
+            <p>
+              Prevented superseded async work from publishing state or feedback
+              under a newer operation.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/826"
+                aria-label="Pull request 826"
+                >#826</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Complete application entries</h3>
+            <p>
+              Added fixed-entry compilation and output rollback. Immutable save
+              capture and keyed-row completion updates avoid redundant document
+              work.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/832"
+                aria-label="Pull request 832"
+                >#832</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>One less full-document copy</h3>
+            <p>
+              Certified a JSON field while importing it, then adopted that exact
+              root. The normal copying replace API keeps its existing behavior.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/834"
+                aria-label="Pull request 834"
+                >#834</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Documentation fixes</h3>
+            <p>
+              Preserved ordinary API names in generated docs and fixed quoted
+              attributes leaking into diagram captions.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/807"
+                aria-label="Pull request 807"
+                >#807</a
+              >
+              ·
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/810"
+                aria-label="Pull request 810"
+                >#810</a
+              >
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="report-section" id="screenshots">
+        <h2>Before / after</h2>
+        <p>
+          Diagram caption rendering, captured for #810. The same fixture now
+          displays the label without leaking attribute text.
+        </p>
+        <div class="gallery">
+          <figure>
+            <a href="images/caption-before.png"
+              ><img
+                src="images/caption-before.png"
+                alt="Before: attribute text appears before the diagram caption"
+                width="850"
+                height="450"
+                loading="lazy"
+            /></a>
+            <figcaption>
+              Before: <code>b&quot;&gt;</code> appears in the caption.
+            </figcaption>
+          </figure>
+          <figure>
+            <a href="images/caption-after.png"
+              ><img
+                src="images/caption-after.png"
+                alt="After: the diagram caption reads Safe label — diagram"
+                width="850"
+                height="450"
+                loading="lazy"
+            /></a>
+            <figcaption>After: only the intended label is rendered.</figcaption>
+          </figure>
+        </div>
+        <p class="refs">
+          Original browser captures from 14 October, retained with
+          <a
+            href="https://github.com/hyperide/hyper-saas/pull/810"
+            aria-label="Pull request 810"
+            >#810</a
+          >.
+        </p>
+      </section>
+      <section class="report-section" id="checks">
+        <h2>Checks</h2>
+        <p>
+          <a
+            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360009"
+            >Documentation browser tests</a
+          >
+          ·
+          <a
+            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
+            >Runtime, types and build checks</a
+          >. Source and test details for compilation and import are attached to
+          <a
+            href="https://github.com/hyperide/hyper-saas/pull/832"
+            aria-label="Pull request 832"
+            >#832</a
+          >
+          and
+          <a
+            href="https://github.com/hyperide/hyper-saas/pull/834"
+            aria-label="Pull request 834"
+            >#834</a
+          >.
+        </p>
+      </section>
+      <footer>
+        October 2026 · Ultra / Mextner · Updated 5 November 2026 ·
+        <a href="../2026-10-own-results-evidence.json">Source record</a>
+      </footer>
+    </main>
+    <script src="../shared/components.js"></script>
+    <script>
+      Report.init({
+        repo: "https://github.com/hyperide/hyper-saas",
+        headSha: "4568a6b3af2980be700da51977b6facd1d687cf2",
+        title: "StateLib: October 2026",
+        subtitle: "Async state, operation ownership and less document copying",
+        date: "2026-11-05",
+        badge: { label: "October results", type: "feat" },
+        links: [
+          { label: "Merged changes", href: "#results" },
+          { label: "Before / after", href: "#screenshots" },
+          { label: "Browser tests", href: "#checks" },
+        ],
+      });
+    </script>
+  </body>
+</html>

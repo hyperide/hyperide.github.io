@@ -1,113 +1,119 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Hyper — October 2026 Result Report</title><link rel="stylesheet" href="../shared/styles.css">
-<style>
-.source-note{padding:12px 16px;border:1px solid #6e5c2e;border-radius:8px;background:rgba(210,153,34,.08);color:#e4ca8a;font-size:.85rem;margin-bottom:26px}
-.result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:28px 0 38px}.result-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px}.result-card strong{display:block;font-size:1.8rem;color:var(--accent1);margin-bottom:7px}.result-card span{font-size:.85rem;color:var(--text-dim)}
-.report-section p,.report-section li{line-height:1.65}.report-section p{margin:10px 0;color:var(--text-dim)}.report-section strong{color:var(--text)}.report-section ul,.report-section ol{padding-left:24px}.report-section li{margin:9px 0;color:var(--text-dim)}
-.evidence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px}.evidence-card{padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--card)}.evidence-card h3{margin-bottom:10px;font-size:1.05rem;color:var(--text)}
-.status{display:inline-block;border-radius:5px;font-size:.7rem;font-weight:700;letter-spacing:.05em;padding:3px 7px;margin-bottom:10px}.status.open{color:#eac36a;background:#3a301b}.status.merged{color:#8bd89a;background:#163522}.status.caution{color:#ffb6b2;background:#3d2026}
-.table-wrap{overflow-x:auto;margin:18px 0}.report-table{width:100%;border-collapse:collapse;font-size:.86rem}.report-table th,.report-table td{padding:12px 14px;border:1px solid var(--border);text-align:left;vertical-align:top}.report-table th{background:var(--card);color:var(--text)}.report-table td{color:var(--text-dim)}.report-table code{white-space:nowrap}.report-table td:nth-child(1){white-space:nowrap}.small{font-size:.85rem;color:var(--text-dim)}.section-intro{max-width:90ch}.candidate{border-left:3px solid #d29922;padding-left:20px;margin:25px 0 30px}.candidate h3{font-size:1.1rem;color:var(--text);margin:5px 0}.candidate p{margin:9px 0}a{overflow-wrap:anywhere}footer{margin-top:45px;padding:28px 0 40px;border-top:1px solid var(--border);font-size:.8rem;color:var(--text-dim)}
-@media(max-width:650px){.result-grid{grid-template-columns:1fr}.result-card strong{font-size:1.5rem}.container{padding-left:16px;padding-right:16px}.report-table th,.report-table td{padding:9px}.candidate{padding-left:13px}}
-
-/* Monthly sections can exceed a viewport: never depend on an intersection ratio for readability. */
-.fade-in{opacity:1;transform:none}
-.adr-header:focus-visible,.timeline-item:focus-visible,.file-group-header:focus-visible{outline:2px solid var(--accent1);outline-offset:4px}
-@media print{
-.fade-in{opacity:1!important;transform:none!important}
-.adr-body,.file-group-items{display:block!important}
-.timeline-wrap{overflow:visible}.timeline{min-width:0;flex-wrap:wrap;gap:20px}.timeline::before,.timeline-tooltip{display:none}
-.timeline-item{break-inside:avoid}.timeline-msg{display:block;-webkit-line-clamp:unset}
-body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-}
-</style></head><body><main class="container">
-<div class="source-note"><strong>Source access:</strong> Linked repository evidence may require project access. This report distinguishes merged code, historical verification and product release acceptance.</div>
-<div data-section="header"></div><div data-section="motivation"></div>
-<div class="result-grid" aria-label="Verified month summary"><div class="result-card"><strong>11</strong><span>PRs merged into hyper-saas in October<br>Metadata-confirmed, not an ecosystem total</span></div><div class="result-card"><strong>0.1.75</strong><span>Extension version/changelog cut<br>Both-store publication not established</span></div><div class="result-card"><strong>Still open</strong><span>Canvas #823 and Inspector #831<br>Candidate evidence, not shipped features</span></div></div>
-<div data-section="product-changes"></div>
-<section class="report-section fade-in" id="merges"><h2>What actually reached main</h2><p>These eleven PRs have October <code>merged_at</code> timestamps. Merge metadata takes precedence over stale “not merged” wording in PR descriptions. Counts are limited to this repository and window; no file, line or commit totals are inferred by adding overlapping PR diffs.</p><div class="table-wrap"><table class="report-table"><thead><tr><th scope="col">UTC date</th><th scope="col">PR</th><th scope="col">Integrated result</th><th scope="col">Merge SHA</th></tr></thead><tbody><tr><td>10-14</td><td><a href="https://github.com/hyperide/hyper-saas/pull/810">#810</a></td><td>Headless async toolkit and bounded, fail-closed package export.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/da611247987cc6b2fbb955857e4cc6f9d1410f8e"><code>da611247</code></a></td></tr><tr><td>10-16</td><td><a href="https://github.com/hyperide/hyper-saas/pull/825">#825</a></td><td>Extension 0.1.75 version and changelog cut.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/b0c3a5123add28644d0da367c0e808c7b7e6dd3d"><code>b0c3a512</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/837">#837</a></td><td>Dependency updates and bounded MCP request handling.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/ecd0b8f1b0bf8921f740e76b20337d1a0bc9faac"><code>ecd0b8f1</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/807">#807</a></td><td>API docs preserve ordinary names that resemble compiler symbols.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/f32c4cf9aed3d1d5a62efbdd78877916bd63cfd9"><code>f32c4cf9</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/802">#802</a></td><td>Generated immutable commands, shared publication/history and full-entry budgets.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/659d9ef4932ca48de1f2d9e0810f2c1e72a320b7"><code>659d9ef4</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/826">#826</a></td><td>Operation authority prevents stale work from publishing another owner’s state or feedback.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/5acccf194d17d4eaf746b3a1a72324853ac87eef"><code>5acccf19</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/803">#803</a></td><td>Validated immutable record adapter using the existing Runtime.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/f862a797d98126315b4d52ee931d5a7dd4d7faf0"><code>f862a797</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/832">#832</a></td><td>Whole-entry specialization, immutable save capture and keyed-row completion updates.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/b1723e89b082fc21eabc64434dccf4fc8b5bff09"><code>b1723e89</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/833">#833</a></td><td>Checked keyed-row patch boundary for actual text edits.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/6002c63954a90815275eb088f3813680b0f0d189"><code>6002c639</code></a></td></tr><tr><td>10-30</td><td><a href="https://github.com/hyperide/hyper-saas/pull/834">#834</a></td><td>Certified cold JSON import without an extra whole-document clone.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/4568a6b3af2980be700da51977b6facd1d687cf2"><code>4568a6b3</code></a></td></tr><tr><td>10-31</td><td><a href="https://github.com/hyperide/hyper-saas/pull/809">#809</a></td><td>Multi-file live examples, browser compilation and traceable benchmark tooling.</td><td><a href="https://github.com/hyperide/hyper-saas/commit/7669cfbdc6ed84e4ffa7b09b0829715be19d4f5a"><code>7669cfbd</code></a></td></tr></tbody></table></div><p class="small">Author accounts in this verified set: <code>alex-mextner</code> on eight PRs and <code>smoothbricker</code> on three. Account names are not silently mapped to people or used as a complete contribution census.</p></section>
-<section class="report-section fade-in" id="candidates"><h2>Product candidates: useful progress, still open</h2>
-<article class="candidate"><span class="status open">OPEN · NOT MERGED</span><h3>Canvas: keep selection and manual edits intact</h3><p><a href="https://github.com/hyperide/hyper-saas/pull/823">#823</a> at <code>a4caec76</code> separates read-only selection observation from mutation authority, keeps newer selection from being overwritten by an earlier move, and preserves manual text around move/save. AI recovery remains read-only and starts only after an explicit <strong>Fix with AI</strong> click.</p><p>The source-bound <a href="https://github.com/hyperide/hyper-saas/blob/a4caec765169b97437efc8682f808ccaaffb7f2b/docs/notes/canvas-ownership-proof-20261016/results.json">result manifest</a> records byte-exact restore, selection retention and zero AI requests before the click versus one afterward. The PR records <strong>188 focused tests</strong>, <strong>13/13 native assertion sets</strong> and ten consecutive typing → move/write → typing → save scenarios. <a href="https://github.com/hyperide/hyper-saas/actions/runs/38942173036">CI run 38942173036</a> independently reports success for this head. These are historical proofs, not a fresh VS Code run in this reporting pass.</p><p><strong>Remaining:</strong> integrate the stacked branch, reassess its current release readiness, and complete real host/SaaS, Undo/Redo and overall product acceptance. The linked <a href="https://github.com/hyperide/hyper-saas/blob/a4caec765169b97437efc8682f808ccaaffb7f2b/docs/notes/canvas-ownership-proof-20261016/typing.png">typing/selection screenshot</a> is an existing artifact; it was not visually re-inspected for this report.</p></article>
-<article class="candidate"><span class="status open">OPEN · NOT MERGED</span><h3>Inspector: localize subscriptions, count the complete cost</h3><p><a href="https://github.com/hyperide/hyper-saas/pull/831">#831</a> moves 36 style values from root-panel state to section-local subscriptions. Its <a href="https://github.com/hyperide/hyper-saas/blob/e8dd27e444298d4b839daa0c79269f318ba265ff/docs/reports/2026-10-17-state-field-subscriptions.md">17 October source-bound report</a> measures the same controlled Inspector workflow at source <code>e8dd27e4</code>.</p><div class="table-wrap"><table class="report-table"><thead><tr><th scope="col">Metric</th><th scope="col">Parent</th><th scope="col">Field-local candidate</th></tr></thead><tbody><tr><td>Root-panel calls per 1,000 edits</td><td>1,013</td><td>13</td></tr><tr><td>Whole-layout calls per 1,000 edits</td><td>1,001</td><td>2</td></tr><tr><td>Main-thread work per 1,000 edits, CPU ×1</td><td>1,314.97 ms</td><td>799.52 ms</td></tr><tr><td>Application + added library code</td><td>3,282 lines</td><td>3,191 lines</td></tr><tr><td>Actual right-webview gzip</td><td>373,130 B</td><td>375,534 B</td></tr></tbody></table></div><p><strong>Interpretation:</strong> the tested stress workflow does less broad UI work, but total code savings are small and the bundle grows. An equally localized native control is comparable; the equal-eight-write comparison does not establish a CPU advantage. This is not measured physical typing latency, developer productivity or live AST/HMR acceptance.</p></article>
-<article class="candidate"><span class="status open">OPEN · NOT MERGED</span><h3>Live examples: actual completion controls and keyboard continuity</h3><p><a href="https://github.com/hyperide/hyper-saas/pull/822">#822</a> adds real issue-completion checkboxes, separate selection, focus restoration and duplicate-action protection. The PR describes Chromium/WebKit coverage, but its final full gate and deployed-lab acceptance are not established here. The latest metadata shows it still open at <code>20ef733c</code>, now targeting main after #809 merged; older stacked-branch wording is not used as current status.</p></article></section>
-<section class="report-section fade-in" id="measurements"><h2>State-lib: a bounded application result</h2><p><a href="https://github.com/hyperide/hyper-saas/pull/832">#832</a> integrates complete-entry specialization and work elimination. Its <a href="https://github.com/hyperide/hyper-saas/blob/e07dd723cf5f5a7333963def8ddde072c3e38662/packages/state-lib/docs/research/2026-10-16-work-elimination.md">research report</a> reports completion-handler medians at 1,200 visible Boards rows of <strong>63.2 → 1.0 ms in Chromium</strong> and <strong>93 → 1 ms in WebKit</strong>. The comparison uses pinned application artifacts and a synthetic API. It does not cover the entire edit/move/Undo/Redo workflow or production traffic.</p><p>The cost is retained: the complete state-lib entry is <strong>42,166 gzip bytes versus 37,132</strong> for the equally optimized baseline; small fixtures retain extra heap. Handler and next-frame timings are not field INP or completed paint. The historical measurements <strong>were not rerun after the 30 October replay</strong>. Its replay note lists focused compiler/Node/site checks and explicitly says eight Wasm contracts were not run.</p><p><strong>Engineering approach:</strong> preserve one Runtime; make operation ownership explicit; compare complete application entries and retain adverse results. Upstream library integration does not close the separate application-adoption and staging tasks.</p></section>
-<section class="report-section fade-in" id="evidence"><h2>Verification and release ledger</h2><p class="section-intro">Evidence is separated into repository state, historical test execution and delivery acceptance. No product test suite or benchmark was newly executed to prepare this report.</p><div class="evidence-grid">
-<article class="evidence-card"><span class="status merged">HISTORICAL HOSTED PASS</span><h3>#810: integrated toolkit evidence</h3><p><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197">CI</a> and <a href="https://github.com/hyperide/hyper-saas/actions/runs/38547359971">Security Scan</a> passed. The actual <a href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197/job/115796608184">Tests job log</a> was read in the prior evidence pass: <strong>7,834 app passed, 7 skipped, 0 failed; 1,040 native passed; all 79 site gates passed.</strong></p><p>Those counts belong to tested merge-ref <code>1d526fb9</code> (head <code>d4cca87</code> plus base <code>81d0b05</code>), not all later main revisions. The PR records explicit owner acceptance for its bounded reviewed tree; it is not blanket acceptance of the month’s work.</p></article>
-<article class="evidence-card"><span class="status caution">HOSTED FAILURES VISIBLE</span><h3>#837 and late-October #809</h3><p>The refresh confirms <a href="https://github.com/hyperide/hyper-saas/actions/runs/41059658812">CI run 41059658812</a> and six other returned workflows failed at #837 head <code>539fe4c</code>. <a href="https://github.com/hyperide/hyper-saas/actions/runs/41236201667">CI run 41236201667</a> and six other returned workflows also failed at #809 head <code>ecd65533</code>.</p><p>#837 describes a local verification fallback. The precise hosted failure cause was not independently established from job annotations here. A merged branch or a PR’s local verification narrative is not labeled as passing hosted CI.</p></article>
-<article class="evidence-card"><span class="status caution">RELEASE CUT ≠ STORE PROOF</span><h3>0.1.75: matrix and publication limits</h3><p><a href="https://github.com/hyperide/hyper-saas/pull/825">#825</a> is merged. Its reported E2E matrix is <strong>1,815 passed, 26 failed, 33 flaky, 1,228 skipped</strong>; this is not a fully green matrix. The PR attributes failures to pre-existing issues or flakes, and documents false-positive multi-select checks in the older version.</p><p>Registry APIs/pages in the prior check did not yield usable proof of both stores’ actual 0.1.75 versions. Publish run, release SHA and both registry versions remain to be reconciled.</p></article>
-<article class="evidence-card"><span class="status open">SEPARATE ADMISSION WORK</span><h3>Canvas, Inspector and application rollout</h3><p>Canvas #823 and Inspector #831 are open, even where saved tests or CI are green. Companion <a href="https://github.com/hyperide/hyper-ext-e2e/pull/169">harness #169</a> also remained an independent open PR in the previous evidence snapshot.</p><p>Fresh tree-specific readiness checks and human acceptance remain required before a new production release of the product. The report does not establish that those gates have been completed.</p></article></div></section>
-<section class="report-section fade-in" id="next"><h2>Next steps</h2><ol><li><strong>Establish the delivery baseline.</strong> Match 0.1.75’s release SHA, publish workflow and actual versions in both stores. Diagnose late-October hosted failures and tie any accepted local fallback to the exact final tree.</li><li><strong>Finish Canvas acceptance.</strong> Integrate and recheck the candidate, then demonstrate typing/selection/Undo/Redo and shared SaaS behavior against the intended release tree. Present evidence for owner acceptance before deployment.</li><li><strong>Complete state-lib admission.</strong> Resolve remaining whole-entry, adoption and staging criteria; repeat source-bound measurements after integration. Retain the native comparison and the bundle/heap regressions rather than claiming universal superiority.</li><li><strong>Close lab and E2E gaps.</strong> Verify #822’s final source and deployed-lab behavior, then address multi-select false positives and the separate ownership-safe E2E harness.</li></ol></section>
-<section class="report-section fade-in" id="coverage"><h2>Coverage and boundaries</h2><p>Core evidence: GitHub PR metadata, selected source-bound reports/manifests and historical CI results from <code>hyperide/hyper-saas</code>. The 1 November refresh confirmed all eleven October merges and the highlighted candidate states. An October-updated-PR search for <code>alex-mextner/hyper-canvas-draft</code> returned no matches; this is not a claim of no commits or no work there.</p><p>No unrelated bot projects, rig results or conloca results are included. No total LOC, file count, review count, productivity percentage or universal completion claim is invented. Evidence links may require repository access. The findings do not establish a new product deployment or blanket product acceptance.</p></section>
-<footer>Prepared 1 November 2026 · Reporting period: October 2026 UTC · Built with the HyperIDE Reports shared renderer</footer></main><script src="../shared/components.js"></script><script>Report.init({
-  "repo": "https://github.com/hyperide/hyper-saas",
-  "headSha": "7669cfbdc6ed84e4ffa7b09b0829715be19d4f5a",
-  "title": "Hyper — October 2026 Result Report",
-  "subtitle": "State-lib integration, a verified Canvas candidate, and the remaining release gates",
-  "date": "2026-11-01",
-  "badge": {
-    "label": "monthly report",
-    "type": "feat"
-  },
-  "branch": "main + explicitly labeled open candidates",
-  "links": [
-    {
-      "label": "Evidence ledger",
-      "href": "#evidence"
-    },
-    {
-      "label": "October merges",
-      "href": "#merges"
-    },
-    {
-      "label": "Next steps",
-      "href": "#next"
-    },
-    {
-      "label": "October reports",
-      "href": "../../index.html"
-    }
-  ],
-  "motivation": "<p><strong>October’s result:</strong> eleven pull requests were integrated into <code>hyper-saas</code>, including state-lib’s async, immutable-command and application-entry work; extension <strong>0.1.75</strong> received a version/changelog cut. Canvas move/selection reliability and a lower-work Inspector were demonstrated on specific candidate trees, but their PRs remain open.</p><p>The work addresses concrete costs: manual edits lost around a Canvas move/save, excessive Inspector-wide updates, redundant document copying, and stale async operations publishing after ownership has changed. The engineering direction is one shared Runtime, explicit ownership and complete-application accounting rather than isolated microbenchmarks.</p><p><strong>Scope:</strong> 1–31 October 2026 UTC, Hyper only, including relevant Canvas and state-lib work. September-started work counts here when integrated in October; older measurements retain their original attribution. PR metadata was refreshed on 1 November at 11:37 UTC, adding the late-October <a href=\"https://github.com/hyperide/hyper-saas/pull/809\">#809</a> merge. Production deployment, store publication and owner acceptance are reported separately from merge and CI.</p>",
-  "productChanges": {
-    "new": [
-      {
-        "title": "Merged: headless async toolkit and validated records",
-        "desc": "#810 adds an unpublished, framework-neutral async toolkit with a bounded export contract. #803 adds validated immutable records over the same Runtime, without introducing another state engine.",
-        "files": []
-      },
-      {
-        "title": "Merged: executable state-lib examples and browser compiler",
-        "desc": "#809 joined main on 31 October. Multi-file board/issue examples expose generated commands, whole-entry output and benchmark traceability. This integrates a September-started branch; hosted sharing and broader application adoption are not established as delivered.",
-        "files": []
-      }
-    ],
-    "improvements": [
-      {
-        "title": "Merged: complete-entry compilation and measured work reduction",
-        "desc": "#802 and #832 integrate immutable command generation, shared publication/history, whole-entry specialization and immutable save capture. Boards serves as a bounded application experiment; its measured completion gains do not prove universal editing or production performance.",
-        "files": []
-      },
-      {
-        "title": "Merged: extension 0.1.75 release cut",
-        "desc": "#825 updates the extension version and changelog. Availability of 0.1.75 in both VS Code Marketplace and Open VSX was not independently established in the inspected evidence.",
-        "files": []
-      }
-    ],
-    "fixes": [
-      {
-        "title": "Merged: stale-operation ownership and safe publication",
-        "desc": "#826 makes publication and feedback authority explicit, so superseded operations cannot commit under a newer owner. This is library evidence, not end-to-end Inspector acceptance.",
-        "files": []
-      },
-      {
-        "title": "Merged: avoid unnecessary copies and unrelated row updates",
-        "desc": "#834 removes one whole-document clone from the bounded cold-import path while retaining certification. #833 adds a checked keyed-row text-edit boundary; callback failure still requires caller recovery.",
-        "files": []
-      },
-      {
-        "title": "Merged: documentation correctness and dependency hardening",
-        "desc": "#807 preserves source-declared names in generated API docs. #837 integrates dependency updates and bounded MCP input handling. Its hosted workflow failures remain visible in the evidence ledger.",
-        "files": []
-      }
-    ]
-  }
-});</script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HyperIDE: October 2026</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../shared/styles.css" />
+    <link rel="stylesheet" href="../shared/october-own.css" />
+  </head>
+  <body>
+    <main class="container">
+      <nav class="report-nav" aria-label="October reports">
+        <a href="../hyper-2026-10/" aria-current="page">HyperIDE</a
+        ><a href="../conloca-2026-10/">Conloca</a
+        ><a href="../state-lib-2026-10/">StateLib</a
+        ><a href="../../index.html">All reports</a>
+      </nav>
+      <div data-section="header"></div>
+      <p class="byline">
+        Work by Ultra / Mextner. October 2026 results; status checked 5
+        November. Source links may require repository access.
+      </p>
+      <section class="report-section" id="results">
+        <h2>Merged</h2>
+        <div class="results">
+          <article class="result">
+            <h3>Extension 0.1.75 release cut</h3>
+            <p>
+              Updated the extension version and changelog. The release
+              preparation is merged into main.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/825"
+                aria-label="Pull request 825"
+                >#825</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Dependency fixes</h3>
+            <p>
+              Updated the extension and root dependencies, added dependency
+              regression tests, and bounded MCP request handling.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/837"
+                aria-label="Pull request 837"
+                >#837</a
+              >
+            </p>
+          </article>
+          <article class="result">
+            <h3>Safer Git push</h3>
+            <p>
+              Bound push credentials to the checked project, preserved its
+              transport settings, and kept authentication failures out of raw
+              logs. This was part of #810, alongside the toolkit and docs
+              changes in the StateLib report.
+            </p>
+            <p class="refs">
+              <a
+                href="https://github.com/hyperide/hyper-saas/pull/810"
+                aria-label="Pull request 810"
+                >#810</a
+              >
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="report-section" id="state">
+        <h2>StateLib</h2>
+        <p>
+          The async toolkit, immutable records, operation ownership,
+          complete-entry compiler and cold-import changes are covered in the
+          <a href="../state-lib-2026-10/">separate StateLib report</a>.
+        </p>
+      </section>
+      <section class="report-section" id="checks">
+        <h2>Checks</h2>
+        <p>
+          The
+          <a
+            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
+            >tests, types and extension build</a
+          >
+          and
+          <a
+            href="https://github.com/hyperide/hyper-saas/actions/runs/38547359971"
+            >security scan</a
+          >
+          passed for the merged #810 change.
+        </p>
+      </section>
+      <footer>
+        October 2026 · Ultra / Mextner · Updated 5 November 2026 ·
+        <a href="../2026-10-own-results-evidence.json">Source record</a>
+      </footer>
+    </main>
+    <script src="../shared/components.js"></script>
+    <script>
+      Report.init({
+        repo: "https://github.com/hyperide/hyper-saas",
+        headSha: "ecd0b8f1b0bf8921f740e76b20337d1a0bc9faac",
+        title: "HyperIDE: October 2026",
+        subtitle:
+          "Extension release preparation, dependency fixes and safer Git push",
+        date: "2026-11-05",
+        badge: { label: "October results", type: "feat" },
+        links: [
+          { label: "Merged changes", href: "#results" },
+          { label: "StateLib report", href: "../state-lib-2026-10/" },
+        ],
+      });
+    </script>
+  </body>
+</html>
