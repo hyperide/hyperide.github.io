@@ -16,6 +16,39 @@ class Links(HTMLParser):
             self.urls.append(dict(attrs).get("href", ""))
 
 
+class VisibleText(HTMLParser):
+    def __init__(self, text):
+        super().__init__()
+        self.parts = []
+        self.skip = 0
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.skip += 1
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self.skip -= 1
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.parts.append(data)
+
+    @property
+    def text(self):
+        return " ".join(" ".join(self.parts).split()).casefold()
+
+
+REJECTED_CLAIMS = [
+    "protected storybook",
+    "ready for approval",
+    "catalogue snapshots",
+    "publisher deployed-stage e2e",
+    "automatic link refresh",
+]
+
+
 class ReportContract(unittest.TestCase):
     def setUp(self):
         self.data = json.loads(
@@ -38,16 +71,10 @@ class ReportContract(unittest.TestCase):
     def test_rejected_catalogue_links_and_claims_are_absent(self):
         for slug in self.data["reports"]:
             text = (ROOT / "reports" / slug / "index.html").read_text(encoding="utf-8")
-            for url in Links(text).urls:
-                self.assertNotIn("pages.hyperide.ai", url)
-            for phrase in [
-                "Protected Storybook",
-                "Ready for approval",
-                "catalogue snapshots",
-                "Publisher deployed-stage E2E",
-                "automatic link refresh",
-            ]:
-                self.assertNotIn(phrase, text)
+            self.assertNotIn("pages.hyperide.ai", text.casefold())
+            visible = VisibleText(text).text
+            for phrase in REJECTED_CLAIMS:
+                self.assertNotIn(phrase, visible)
 
     def test_conloca_keeps_tested_preview_attribution_and_images(self):
         text = (ROOT / "reports/conloca-2026-10/index.html").read_text(encoding="utf-8")
