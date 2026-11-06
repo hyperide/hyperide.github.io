@@ -33,3 +33,6 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: npm run ci:validate-reports
+
+      - name: Check October reports render without JavaScript and on phones
+        run: npm run ci:render-october

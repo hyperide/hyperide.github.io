@@ -5,7 +5,8 @@
   "description": "CI validation tooling for hyperide.github.io reports (no site build step — this is a static Pages site).",
   "type": "module",
   "scripts": {
-    "ci:validate-reports": "node scripts/ci/validate-reports.mjs"
+    "ci:validate-reports": "node scripts/ci/validate-reports.mjs",
+    "ci:render-october": "node scripts/ci/check-october-render.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.0"

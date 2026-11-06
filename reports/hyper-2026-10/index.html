@@ -6,98 +6,11 @@
     <title>HyperIDE: October 2026</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="../shared/styles.css" />
-    <link rel="stylesheet" href="../shared/october-own.css" />
+    <link rel="stylesheet" href="../shared/october-own-20261106.css" />
   </head>
   <body>
     <main class="container">
-      <nav class="report-nav" aria-label="October reports">
-        <a href="../hyper-2026-10/" aria-current="page">HyperIDE</a
-        ><a href="../conloca-2026-10/">Conloca</a
-        ><a href="../state-lib-2026-10/">StateLib</a
-        ><a href="../../index.html">All reports</a>
-      </nav>
-      <div data-section="header"></div>
-      <p class="byline">
-        Work by Ultra / Mextner. October 2026 results; status checked 5
-        November. Source links may require repository access.
-      </p>
-      <section class="report-section" id="results">
-        <h2>Merged</h2>
-        <div class="results">
-          <article class="result">
-            <h3>Extension 0.1.75 release cut</h3>
-            <p>
-              Updated the extension version and changelog. The release
-              preparation is merged into main.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/825"
-                aria-label="Pull request 825"
-                >#825</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>Dependency fixes</h3>
-            <p>
-              Updated the extension and root dependencies, added dependency
-              regression tests, and bounded MCP request handling.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/837"
-                aria-label="Pull request 837"
-                >#837</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>Safer Git push</h3>
-            <p>
-              Bound push credentials to the checked project, preserved its
-              transport settings, and kept authentication failures out of raw
-              logs. This was part of #810, alongside the toolkit and docs
-              changes in the StateLib report.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/810"
-                aria-label="Pull request 810"
-                >#810</a
-              >
-            </p>
-          </article>
-        </div>
-      </section>
-      <section class="report-section" id="state">
-        <h2>StateLib</h2>
-        <p>
-          The async toolkit, immutable records, operation ownership,
-          complete-entry compiler and cold-import changes are covered in the
-          <a href="../state-lib-2026-10/">separate StateLib report</a>.
-        </p>
-      </section>
-      <section class="report-section" id="checks">
-        <h2>Checks</h2>
-        <p>
-          The
-          <a
-            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
-            >tests, types and extension build</a
-          >
-          and
-          <a
-            href="https://github.com/hyperide/hyper-saas/actions/runs/38547359971"
-            >security scan</a
-          >
-          passed for the merged #810 change.
-        </p>
-      </section>
-      <footer>
-        October 2026 · Ultra / Mextner · Updated 5 November 2026 ·
-        <a href="../2026-10-own-results-evidence.json">Source record</a>
-      </footer>
+<nav class="report-nav" aria-label="October reports"><a href="../hyper-2026-10/" aria-current="page">HyperIDE</a><a href="../conloca-2026-10/">Conloca</a><a href="../state-lib-2026-10/">StateLib</a><a href="../../index.html">All reports</a></nav><div data-section="header" class="report-header"><h1>HyperIDE: October 2026</h1><p class="subtitle">Extension 0.1.75, Git push hardening, dependency audits</p><div class="meta"><span>2026-11-06</span><span class="badge badge-feat">October results</span><a href="#overview">Overview</a><a href="#outcomes">What we delivered</a><a href="#figures">Before and after</a><a href="#proof">Proof</a><a href="../state-lib-2026-10/">StateLib report</a></div></div><p class="byline">Ultra / Mextner · October 2026</p><section class="report-section overview" id="overview"><h2>Overview</h2><p>Published extension 0.1.75 to the VS Code Marketplace and Open VSX. Git push now isolates credentials and keeps a project’s transport settings. The extension and root dependency audits pass at high severity as recorded in #837, and the local pre-commit checks run on a stock Ubuntu shell.</p><p>The async state toolkit from the same pull request is in the <a href="../state-lib-2026-10/">StateLib report</a>.</p><div class="summary-grid"><div class="summary-card"><div class="value">0.1.75</div><div class="label">extension published to the VS Code Marketplace and Open VSX on 16 October</div></div><div class="summary-card"><div class="value">4 MiB</div><div class="label">cap on one MCP request body; larger requests get a 413 (#837)</div></div><div class="summary-card"><div class="value">8 of 8</div><div class="label">Lefthook jobs passed on native Ubuntu in 15.41 s at the #810 revision</div></div><div class="summary-card"><div class="value">0 findings</div><div class="label">Semgrep, 177 rules over 2,820 targets, at the 14 October revision of #810</div></div></div></section><section class="report-section" id="outcomes"><h2>What we delivered</h2><div class="outcomes"><article class="outcome" id="extension-release" data-claim="hyper-extension-release"><h3>Extension 0.1.75 is published</h3><p class="what">We cut 0.1.75, tagged it <code>ext-v0.1.75</code> and published it to Open VSX and the VS Code Marketplace on 16 October. The publish run validated the version, built the VSIX and confirmed that both registries list the tag. The release carries the changes the team had merged since 0.1.74; the release cut and its publication are ours.</p><details><summary>Technical detail</summary><ul><li>Version and lockfile set to 0.1.75 with a 24-line <code>[0.1.75]</code> changelog entry dated 15 October.</li><li>The <a href="https://github.com/hyperide/hyper-saas/actions/runs/38834833575">Publish VS Code Extension run</a> started 16 October 01:23 UTC on the tag, and every step succeeded, including "Verify both registries have the tagged version".</li><li>The pull request’s own <a href="https://github.com/hyperide/hyper-saas/actions/runs/38738722190">CI run</a> passed lint, types, tests and the extension production build on its final commit.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/825" aria-label="Pull request 825">#825</a></p></article><article class="outcome" id="git-push" data-claim="hyper-git-push"><h3>Git push isolates credentials and preserves transport settings</h3><p class="what">Push credentials now come only from the checked project, the project’s TLS and transport settings are kept, and Git configuration inherited from the environment is refused. Credential helpers are reset for each operation and temporary credentials are removed afterwards. Failures come back as a clear authentication or pull-needed response instead of raw Git output.</p><details><summary>Technical detail</summary><ul><li>Push authority comes from <code>checkedProject</code>; both push paths run without interactive prompts (<code>server/utils/git-credentials.ts</code>, <code>server/services/git.ts</code>).</li><li>Typed failures keep the 401 <code>needsAuth</code> and 409 <code>needsPull</code> responses without exposing raw diagnostics (<code>server/services/git-push-error.ts</code>).</li><li>Tests include <code>git-push-tls.test.ts</code>, <code>git-credential-policy.test.ts</code>, <code>git-credentials-security.test.ts</code> and <code>git-push.security.test.ts</code>. Two cases: a file-transport restriction that a credentialed push does not weaken, and a trusted Perl pre-push hook that does not load credential-capturing code through inherited configuration.</li><li>At the recorded 14 October revision the pull request lists 137 focused Git, Hono and CI tests passing, and 7,831 application tests passing on the parent commit.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a></p></article><article class="outcome" id="dependencies" data-claim="hyper-dependencies"><h3>Dependency audits and MCP request limits</h3><p class="what">The pull request records the extension’s high-severity npm audit and the root application’s high-severity bun audit both passing. The extension’s MCP endpoint now rejects request bodies over 4 MiB with a 413 before it builds a server, because the SDK’s own limits do not apply to bodies the extension parses itself.</p><details><summary>Technical detail</summary><ul><li>Extension: <code>@modelcontextprotocol/sdk</code> moved to 1.32 and the <code>markdown-it</code> advisory was cleared with a non-force <code>npm audit fix</code>; the <code>@hono/node-server</code> override stays within its major version (#837).</li><li>Root: <code>zod</code>, <code>happy-dom</code>, <code>dompurify</code> and <code>undici</code> were updated for advisories in the MCP SDK, DOMPurify, happy-dom, undici, zod and body-parser (#837).</li><li><code>HyperMcpServer.ts</code> counts streamed bodies as well as declared lengths. <code>MAX_MCP_BODY_BYTES</code> is 4 MiB and <code>maxToolInputElements</code> is 50,000. New tests send a 4 MiB padded body, a 16 MiB declared body and eight 1 MiB chunks.</li><li>#810 added a Security Scan workflow with a dependency audit and Semgrep; it passed on the 14 October revision, where the pull request records Semgrep running 177 rules over 2,820 targets with no findings.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/837" aria-label="Pull request 837">#837</a> · <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a></p></article><article class="outcome" id="local-checks" data-claim="hyper-local-checks"><h3>Local pre-commit checks run on a stock Ubuntu shell</h3><p class="what">The staged-content conflict-marker check now works under dash, the default shell on Ubuntu. All eight Lefthook jobs passed on native Ubuntu in 15.41 seconds, so the checks that guard each commit run there.</p><details><summary>Technical detail</summary><ul><li>Fixes are in <code>ci/local-checks.sh</code> and <code>lefthook.yml</code>, covered by <code>scripts/__tests__/conflict-markers.test.ts</code> and <code>ci/local-checks.test.cjs</code>.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a></p></article></div></section><section class="report-section" id="figures"><h2>Before and after in numbers</h2><p>Each row compares the state before the change with the state after it, at the revision recorded in the pull request named in the last column.</p><table class="figures"><thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Source</th></tr></thead><tbody><tr><td data-label="Measure">Extension high-severity npm audit, exit status (not an issue count)</td><td data-label="Before">7, gate failing</td><td data-label="After">0</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/837">#837 body</a></td></tr><tr><td data-label="Measure">Root bun audit at high severity</td><td data-label="Before">Six advisories: MCP SDK, dompurify, happy-dom, undici, zod, body-parser</td><td data-label="After">No vulnerabilities reported</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/837">#837 body</a></td></tr><tr><td data-label="Measure">MCP request body limit</td><td data-label="Before">SDK limits did not apply to bodies the extension parsed itself</td><td data-label="After">4 MiB cap, 413 before any server is built</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/837">#837 changelog entry and tests</a></td></tr><tr><td data-label="Measure">Extension release</td><td data-label="Before">0.1.74</td><td data-label="After">0.1.75, tag pushed 16 Oct 2026 01:23 UTC</td><td data-label="Source">Publish run 38834833575</td></tr></tbody></table></section><section class="report-section" id="proof"><h2>Proof</h2><p>Hosted CI runs for the final commit of each pull request, or for the merge commit where noted.</p><ul><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38738722190">Extension release pull request: lint, types, tests and extension build</a> (<a href="https://github.com/hyperide/hyper-saas/pull/825" aria-label="Pull request 825">#825</a>)</li><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38834833575">Publish VS Code Extension on tag ext-v0.1.75</a> (<a href="https://github.com/hyperide/hyper-saas/pull/825" aria-label="Pull request 825">#825</a>)</li><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197">Pull request #810: tests, types and extension build</a> (<a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>)</li><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547359971">Pull request #810: security scan</a> (<a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>)</li></ul><p class="refs">Work by Ultra / Mextner (GitHub alex-mextner, Alex Ultra). Pull requests merged 1 to 31 October 2026 are credited by commit authorship. Status checked 6 November. Source links may require repository access.</p><p class="refs">All merged pull requests counted here are listed with their authors and merge commits in the <a href="../2026-10-own-results-evidence.json">source record</a>.</p></section><footer>October 2026 · Ultra / Mextner · Updated 6 November 2026 · <a href="../2026-10-own-results-evidence.json">Source record</a></footer>
     </main>
     <script src="../shared/components.js"></script>
     <script>
@@ -105,14 +18,10 @@
         repo: "https://github.com/hyperide/hyper-saas",
         headSha: "ecd0b8f1b0bf8921f740e76b20337d1a0bc9faac",
         title: "HyperIDE: October 2026",
-        subtitle:
-          "Extension release preparation, dependency fixes and safer Git push",
-        date: "2026-11-05",
+        subtitle: "Extension 0.1.75, Git push hardening, dependency audits",
+        date: "2026-11-06",
         badge: { label: "October results", type: "feat" },
-        links: [
-          { label: "Merged changes", href: "#results" },
-          { label: "StateLib report", href: "../state-lib-2026-10/" },
-        ],
+        links: [{ label: "Overview", href: "#overview" }, { label: "What we delivered", href: "#outcomes" }, { label: "Before and after", href: "#figures" }, { label: "Proof", href: "#proof" }, { label: "StateLib report", href: "../state-lib-2026-10/" }],
       });
     </script>
   </body>
