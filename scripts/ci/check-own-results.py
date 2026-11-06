@@ -73,8 +73,10 @@ class ReportContract(unittest.TestCase):
             text = (ROOT / "reports" / slug / "index.html").read_text(encoding="utf-8")
             self.assertNotIn("pages.hyperide.ai", text.casefold())
             visible = VisibleText(text).text
+            raw = " ".join(text.split()).casefold()
             for phrase in REJECTED_CLAIMS:
                 self.assertNotIn(phrase, visible)
+                self.assertNotIn(phrase, raw)
 
     def test_conloca_keeps_tested_preview_attribution_and_images(self):
         text = (ROOT / "reports/conloca-2026-10/index.html").read_text(encoding="utf-8")
