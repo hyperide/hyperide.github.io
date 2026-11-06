@@ -1,43 +1,10 @@
 from pathlib import Path
-from html.parser import HTMLParser
-import hashlib, html, json, re, unittest
+import hashlib, html, json, re, sys, unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report_html import Links, VisibleText  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-
-
-class Links(HTMLParser):
-    def __init__(self, text):
-        super().__init__()
-        self.urls = []
-        self.feed(text)
-
-    def handle_starttag(self, tag, attrs):
-        if tag == "a":
-            self.urls.append(dict(attrs).get("href", ""))
-
-
-class VisibleText(HTMLParser):
-    def __init__(self, text):
-        super().__init__()
-        self.parts = []
-        self.skip = 0
-        self.feed(text)
-
-    def handle_starttag(self, tag, attrs):
-        if tag in ("script", "style"):
-            self.skip += 1
-
-    def handle_endtag(self, tag):
-        if tag in ("script", "style"):
-            self.skip -= 1
-
-    def handle_data(self, data):
-        if not self.skip:
-            self.parts.append(data)
-
-    @property
-    def text(self):
-        return " ".join(" ".join(self.parts).split()).casefold()
 
 
 REJECTED_CLAIMS = [
@@ -252,7 +219,6 @@ class ReportContract(unittest.TestCase):
     def test_static_header_summary_and_outcomes_survive_blocked_js(self):
         # Everything below is checked on the raw HTML, with scripts removed.
         for slug, minimum in (
-            ("hyper-2026-10", 4),
             ("state-lib-2026-10", 7),
             ("conloca-2026-10", 7),
         ):
@@ -316,7 +282,7 @@ class ReportContract(unittest.TestCase):
             self.assertLessEqual(counts, {len(rows)}, slug)
         con = self.data["reports"]["conloca-2026-10"]
         self.assertEqual(len(con), self.data["inventory"]["credited"]["conloca/private"])
-        self.assertIn(f"in {len(con)} merged pull requests", VisibleText(self._page("conloca-2026-10")).text)
+        self.assertIn(f"{len(con)} merged pull requests are counted", VisibleText(self._page("conloca-2026-10")).text)
         # The top byline stays short; the method and login caveats live in the proof section.
         for slug in self.data["reports"]:
             text = self._page(slug)
@@ -349,9 +315,8 @@ class ReportContract(unittest.TestCase):
         self.assertIn("not claims about the whole editor", text)
         for tile in re.findall(r'class="summary-card">\s*<div class="value">(.*?)</div>\s*<div class="label">(.*?)</div>', self._page("state-lib-2026-10")):
             self.assertRegex(tile[1], r"fixture|rows|\(#\d+\)")
-        hyper = self._page("hyper-2026-10")
-        self.assertIn("exit status (not an issue count)", hyper)
-        self.assertNotIn("0 high or critical", hyper)
+        # The editor on main does not use state-lib, and the page says so.
+        self.assertIn("does not import state-lib on main", text)
 
     def test_outcome_references_are_bounded(self):
         for slug in self.data["reports"]:
@@ -465,15 +430,48 @@ class ReportContract(unittest.TestCase):
             for row in self.data["reports"][slug]:
                 if row["author"] == "smoothbricker":
                     self.assertIn(f"#{row['pr']}", text.split('Attribution:', 1)[1].split("</p>", 1)[0])
-        self.assertNotIn("smoothbricker", self._page("hyper-2026-10"))
+
+    def test_conloca_leads_with_product_results_not_counts_or_infrastructure(self):
+        page = self._page("conloca-2026-10")
+        con = VisibleText(page).text
+        overview = VisibleText(page.split('id="overview"', 1)[1].split("</section>", 1)[0]).text
+        self.assertGreater(len(overview), 200)
+        self.assertNotIn("merged pull requests", overview)
+        self.assertNotIn("160 files", con)
+        for phrase in ("dependency review", "dompurify", "devenv", "pre-push", "anti-slop", "mirror sync", "hosted jobs"):
+            self.assertNotIn(phrase, con, phrase)
+        self.assertIn("typed project validation", con)
+        measures = [f["measure"] for f in self.data["figures"] if f["report"] == "conloca-2026-10"]
+        self.assertFalse([m for m in measures if "Anti-slop" in m or "test time" in m])
+
+    def test_opener_or_squash_author_does_not_override_commit_ownership(self):
+        # Credit follows the original pull request commits (complete pagination), not who opened
+        # the pull request or whose name the squash commit carries.
+        hyper_rows = [r for r in self._all_rows() if r["repo"] == "hyperide/hyper-saas"]
+        for r in hyper_rows:
+            if r["author"] != "alex-mextner":
+                proof = r["commitProof"]
+                self.assertRegex(proof["firstCommit"], r"^[0-9a-f]{40}$")
+                self.assertEqual(proof["firstCommitLogin"], "alex-mextner")
+                self.assertEqual(proof["allCommitLogins"], ["alex-mextner"])
+                self.assertEqual(proof["commits"], sum(r["commitAuthors"].values()))
+                self.assertEqual(r["attribution"], "commit-author")
+        by_pr = {r["pr"]: r for r in hyper_rows}
+        for pr in (802, 809, 833):
+            self.assertEqual(by_pr[pr]["author"], "smoothbricker")
+            self.assertEqual(set(by_pr[pr]["commitAuthors"]), {"alex-mextner"})
+        # Pull requests whose implementation is not ours stay out; mixed #792 is not claimed whole.
+        self.assertFalse({789, 792} & set(by_pr))
+
+    def test_state_lib_credits_the_keyed_row_boundary_by_original_commit(self):
+        state = VisibleText(self._page("state-lib-2026-10")).text
+        self.assertIn("keyed-row patch boundary", state)
+        self.assertIn("#802, #809 and #833 were opened from the smoothbricker account", state)
+        self.assertIn("/pull/833", self._page("state-lib-2026-10"))
 
     def test_published_claims_stay_inside_proof(self):
-        # No release or publication claims without matching proof in the record.
-        hyper = VisibleText(self._page("hyper-2026-10")).text
-        self.assertIn("marketplace", hyper)
-        runs = {c["run"] for c in self.data["checks"]}
-        self.assertIn(38834833575, runs)
-        for slug in ("state-lib-2026-10", "conloca-2026-10", "hyper-2026-10"):
+        # No publication claims without matching proof in the record.
+        for slug in ("state-lib-2026-10", "conloca-2026-10"):
             text = VisibleText(self._page(slug)).text
             self.assertNotIn("published to npm", text.replace("is not published to npm", ""))
 

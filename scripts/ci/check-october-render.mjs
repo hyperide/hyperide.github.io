@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Rendered contract for the three October 2026 reports.
+ * Rendered contract for the three reports (HyperIDE product report, StateLib and Conloca October 2026).
  *
  * Complements validate-reports.mjs (structure, assets, smoke render) with what a reader sees:
  *   - the title, summary tiles and outcome sections are present with JavaScript blocked;
@@ -27,8 +27,17 @@ const ROOT = resolve(opt('--root') ?? join(dirname(fileURLToPath(import.meta.url
 const OUT = opt('--out');
 if (OUT) mkdirSync(OUT, { recursive: true });
 
+// The product report's counts come from its own source record, so the page and this check cannot drift apart.
+const productRecord = join(ROOT, 'reports', 'hyper-2026-10', 'evidence.json');
+let product;
+try {
+  product = JSON.parse(readFileSync(productRecord, 'utf8'));
+} catch (error) {
+  throw new Error(`cannot read the product report source record ${productRecord}: ${error.message}`);
+}
+
 const REPORTS = [
-  { slug: 'hyper-2026-10', title: 'HyperIDE: October 2026', outcomes: 4, images: 0 },
+  { slug: 'hyper-2026-10', title: product.title, outcomes: product.outcomes.length, images: product.images.length },
   { slug: 'state-lib-2026-10', title: 'StateLib: October 2026', outcomes: 7, images: 2 },
   { slug: 'conloca-2026-10', title: 'Conloca: October 2026', outcomes: 7, images: 2 },
 ];
@@ -80,7 +89,9 @@ try {
         const h1 = document.querySelector('h1');
         const overview = document.querySelector('#overview p');
         const ids = ['overview', 'outcomes', 'figures', 'proof'].map((id) => document.getElementById(id));
-        const opaque = [...document.querySelectorAll('.outcome, .summary-card, .figures tbody tr, .report-section')].filter(
+        // The collapsed audit appendix is closed on purpose, so its content has no height until opened.
+        const shown = (el) => !el.closest('details.appendix');
+        const opaque = [...document.querySelectorAll('.outcome, .summary-card, .figures tbody tr, .report-section')].filter(shown).filter(
           (el) => Number(getComputedStyle(el).opacity) < 1 || getComputedStyle(el).visibility !== 'visible' || box(el).height === 0,
         ).length;
         const rowsStacked = [...document.querySelectorAll('.figures tbody tr')].every((tr) => getComputedStyle(tr.firstElementChild).display === 'block' || innerWidth > 650);
@@ -99,7 +110,7 @@ try {
           rowsStacked,
           figureRows: document.querySelectorAll('.figures tbody tr').length,
           details: [...document.querySelectorAll('.outcome details')].every((d) => !d.open && d.querySelector('summary')),
-          whatVisible: [...document.querySelectorAll('.outcome .what')].every((p) => p.getBoundingClientRect().height > 40 && getComputedStyle(p).visibility === 'visible'),
+          whatVisible: [...document.querySelectorAll('.outcome .what')].filter(shown).every((p) => p.getBoundingClientRect().height > 40 && getComputedStyle(p).visibility === 'visible'),
           imgs,
         };
       });

@@ -1,0 +1,266 @@
+/* Product report layout, loaded after october-own-20261106.css. The earlier files stay unchanged. */
+.outcomes-index .family-nav {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.outcomes-index .family-nav li {
+  margin: 0;
+}
+.report-section > .outcomes,
+.report-section > .figure-pair {
+  margin-top: 18px;
+}
+.report-section h3 {
+  margin-top: 22px;
+}
+.outcome {
+  border-left: 4px solid var(--border);
+}
+.outcome h3 {
+  margin-top: 4px;
+}
+.kind-merged {
+  border-left-color: var(--green);
+}
+.kind-merged-library {
+  border-left-color: rgba(63, 185, 80, 0.55);
+}
+.kind-implemented-branch {
+  border-left-color: var(--yellow);
+}
+.kind-pilot {
+  border-left-color: var(--orange);
+}
+.kind-open-gap {
+  border-left-color: var(--red);
+}
+.kind-task-only {
+  border-left-color: var(--accent2);
+}
+.kind-info {
+  border-left-color: var(--text-dim);
+}
+.outcome .what {
+  margin: 8px 0;
+}
+.outcome .what strong {
+  color: var(--text);
+}
+figure.requirement {
+  margin: 14px 0;
+  padding: 12px 16px;
+  background: rgba(88, 166, 255, 0.05);
+  border: 1px solid rgba(88, 166, 255, 0.18);
+  border-radius: 8px;
+}
+figure.requirement blockquote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid rgba(88, 166, 255, 0.5);
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+figure.requirement .translation {
+  margin: 8px 0 0;
+  max-width: none;
+  font-size: 0.95rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+figure.requirement .tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  border: 1px solid rgba(188, 140, 255, 0.4);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 6px;
+}
+figure.requirement figcaption {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+figure.requirement .role {
+  color: var(--text);
+  font-weight: 600;
+}
+figure.requirement .note,
+.outcome .note {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin: 6px 0 0;
+}
+.outcome li .note {
+  margin: 0;
+}
+.outcome .refs {
+  margin-top: 10px;
+}
+.outcome .boundary {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.outcome .boundary strong {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+details.appendix {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  background: var(--card);
+}
+details.appendix > summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+details.appendix > p {
+  margin-top: 12px;
+}
+.appendix-group {
+  margin-top: 22px;
+}
+.appendix-group h3 {
+  margin-top: 0;
+}
+.outcome details.evidence {
+  margin-top: 14px;
+}
+.outcome details.evidence h4 {
+  margin: 16px 0 6px;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.outcome details.evidence ul {
+  margin: 6px 0 0 20px;
+}
+.outcome .scope {
+  margin-top: 14px;
+}
+.outcome .state {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 8px;
+  color: var(--text-dim);
+}
+.outcome .state-done {
+  color: var(--green);
+  border-color: rgba(63, 185, 80, 0.5);
+}
+.outcome .state-review {
+  color: var(--accent1);
+  border-color: rgba(88, 166, 255, 0.5);
+}
+.outcome .state-progress {
+  color: var(--yellow);
+  border-color: rgba(210, 153, 34, 0.5);
+}
+.outcome .state-todo {
+  color: var(--text-dim);
+}
+ul.plain {
+  margin: 8px 0 0 20px;
+}
+ul.plain li {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.figures blockquote {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.report-table td:first-child {
+  min-width: 9em;
+}
+ul.plain blockquote {
+  margin: 6px 0 4px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.figure-pair {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 18px 0;
+}
+.figure-pair.kind-merged {
+  border-left-color: var(--green);
+}
+.figure-pair.kind-pilot {
+  border-left-color: var(--orange);
+}
+.figure-pair.kind-implemented-branch {
+  border-left-color: var(--yellow);
+}
+.figure-pair .refs {
+  margin-top: 12px;
+}
+@media (max-width: 650px) {
+  .figure-pair {
+    padding: 16px 14px;
+  }
+  figure.requirement {
+    padding: 10px 12px;
+  }
+  /* Phone crops magnify one region of a real capture. Each offset is tuned to its PNG:
+     crop-explorer shows the Explorer panel of the 2400x1536 capture (top-left 30% x 26%);
+     crop-inspector shows the inspector width field of the 1440x835 capture (right 28%).
+     Re-tune both if an image is replaced. */
+  .crop.crop-explorer img {
+    left: 0;
+    top: -11.4%;
+    width: 333%;
+  }
+  .crop.crop-inspector {
+    aspect-ratio: 5 / 4;
+  }
+  .crop.crop-inspector img {
+    left: -257.1%;
+    top: -72.5%;
+    width: 357.1%;
+  }
+  .outcome details.evidence ul {
+    margin-left: 16px;
+  }
+  .report-table caption {
+    display: block;
+    margin-bottom: 8px;
+  }
+  .report-table td:first-child {
+    min-width: 0;
+  }
+  .report-table td::before {
+    display: block;
+    font-weight: 600;
+  }
+  .report-table td:first-child::before {
+    display: none;
+  }
+}

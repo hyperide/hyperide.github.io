@@ -22,6 +22,9 @@ jobs:
       - name: Verify report attribution and evidence
         run: python3 scripts/ci/check-own-results.py
 
+      - name: Verify the HyperIDE product report against its evidence record
+        run: python3 scripts/ci/check-product-report.py
+
       - name: Install dependencies
         run: npm ci
 
