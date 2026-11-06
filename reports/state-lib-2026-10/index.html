@@ -6,180 +6,11 @@
     <title>StateLib: October 2026</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="../shared/styles.css" />
-    <link rel="stylesheet" href="../shared/october-own.css" />
+    <link rel="stylesheet" href="../shared/october-own-20261106.css" />
   </head>
   <body>
     <main class="container">
-      <nav class="report-nav" aria-label="October reports">
-        <a href="../hyper-2026-10/">HyperIDE</a
-        ><a href="../conloca-2026-10/">Conloca</a
-        ><a href="../state-lib-2026-10/" aria-current="page">StateLib</a
-        ><a href="../../index.html">All reports</a>
-      </nav>
-      <div data-section="header"></div>
-      <p class="byline">
-        Work by Ultra / Mextner. October 2026 results; status checked 5
-        November. Source links may require repository access.
-      </p>
-      <section class="report-section" id="results">
-        <h2>Merged</h2>
-        <div class="results">
-          <article class="result">
-            <h3>Async toolkit and immutable records</h3>
-            <p>
-              Added framework-neutral async state and validated immutable
-              records on the existing Runtime. Production and testing exports
-              are separate.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/810"
-                aria-label="Pull request 810"
-                >#810</a
-              >
-              ·
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/803"
-                aria-label="Pull request 803"
-                >#803</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>Operation ownership</h3>
-            <p>
-              Prevented superseded async work from publishing state or feedback
-              under a newer operation.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/826"
-                aria-label="Pull request 826"
-                >#826</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>Complete application entries</h3>
-            <p>
-              Added fixed-entry compilation and output rollback. Immutable save
-              capture and keyed-row completion updates avoid redundant document
-              work.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/832"
-                aria-label="Pull request 832"
-                >#832</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>One less full-document copy</h3>
-            <p>
-              Certified a JSON field while importing it, then adopted that exact
-              root. The normal copying replace API keeps its existing behavior.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/834"
-                aria-label="Pull request 834"
-                >#834</a
-              >
-            </p>
-          </article>
-          <article class="result">
-            <h3>Documentation fixes</h3>
-            <p>
-              Preserved ordinary API names in generated docs and fixed quoted
-              attributes leaking into diagram captions.
-            </p>
-            <p class="refs">
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/807"
-                aria-label="Pull request 807"
-                >#807</a
-              >
-              ·
-              <a
-                href="https://github.com/hyperide/hyper-saas/pull/810"
-                aria-label="Pull request 810"
-                >#810</a
-              >
-            </p>
-          </article>
-        </div>
-      </section>
-      <section class="report-section" id="screenshots">
-        <h2>Before / after</h2>
-        <p>
-          Diagram caption rendering, captured for #810. The same fixture now
-          displays the label without leaking attribute text.
-        </p>
-        <div class="gallery">
-          <figure>
-            <a href="images/caption-before.png"
-              ><img
-                src="images/caption-before.png"
-                alt="Before: attribute text appears before the diagram caption"
-                width="850"
-                height="450"
-                loading="lazy"
-            /></a>
-            <figcaption>
-              Before: <code>b&quot;&gt;</code> appears in the caption.
-            </figcaption>
-          </figure>
-          <figure>
-            <a href="images/caption-after.png"
-              ><img
-                src="images/caption-after.png"
-                alt="After: the diagram caption reads Safe label — diagram"
-                width="850"
-                height="450"
-                loading="lazy"
-            /></a>
-            <figcaption>After: only the intended label is rendered.</figcaption>
-          </figure>
-        </div>
-        <p class="refs">
-          Original browser captures from 14 October, retained with
-          <a
-            href="https://github.com/hyperide/hyper-saas/pull/810"
-            aria-label="Pull request 810"
-            >#810</a
-          >.
-        </p>
-      </section>
-      <section class="report-section" id="checks">
-        <h2>Checks</h2>
-        <p>
-          <a
-            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360009"
-            >Documentation browser tests</a
-          >
-          ·
-          <a
-            href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
-            >Runtime, types and build checks</a
-          >. Source and test details for compilation and import are attached to
-          <a
-            href="https://github.com/hyperide/hyper-saas/pull/832"
-            aria-label="Pull request 832"
-            >#832</a
-          >
-          and
-          <a
-            href="https://github.com/hyperide/hyper-saas/pull/834"
-            aria-label="Pull request 834"
-            >#834</a
-          >.
-        </p>
-      </section>
-      <footer>
-        October 2026 · Ultra / Mextner · Updated 5 November 2026 ·
-        <a href="../2026-10-own-results-evidence.json">Source record</a>
-      </footer>
+<nav class="report-nav" aria-label="October reports"><a href="../hyper-2026-10/">HyperIDE</a><a href="../conloca-2026-10/">Conloca</a><a href="../state-lib-2026-10/" aria-current="page">StateLib</a><a href="../../index.html">All reports</a></nav><div data-section="header" class="report-header"><h1>StateLib: October 2026</h1><p class="subtitle">Async state, immutable records, operation ownership, compiled entries</p><div class="meta"><span>2026-11-06</span><span class="badge badge-feat">October results</span><a href="#overview">Overview</a><a href="#outcomes">What we delivered</a><a href="#figures">Before and after</a><a href="#screenshots">Screenshots</a><a href="#proof">Proof</a></div></div><p class="byline">Ultra / Mextner · October 2026</p><section class="report-section overview" id="overview"><h2>Overview</h2><p>StateLib, in <code>packages/state-lib</code> of the HyperIDE repository, is a synchronous state Runtime with a Rust compiler for application entries and a documentation site with live examples. In October Ultra / Mextner added async state and immutable records to the Runtime, stopped stale async work from publishing, compiled whole entries with rollback, removed a document copy from cold import, and added live examples that compile in the browser.</p><p>The numbers on this page are historical local measurements on benchmark fixtures, each tied to the pull request that recorded it. They are not claims about the whole editor.</p><div class="summary-grid"><div class="summary-card"><div class="value">4.15 → 0.006 ms</div><div class="label">point edit on a 10,000-item benchmark fixture, Node median (#802)</div></div><div class="summary-card"><div class="value">63 → 1 ms</div><div class="label">completion handler, 1,200 visible rows, Chromium median (#832)</div></div><div class="summary-card"><div class="value">15.6 → 4.7 MB</div><div class="label">Chromium retained heap, 10,000 rows with 1,200 visible (#832)</div></div></div></section><section class="report-section" id="outcomes"><h2>What we delivered</h2><div class="outcomes"><article class="outcome" id="async-toolkit" data-claim="state-async-toolkit"><h3>One tested async toolkit instead of per-framework glue</h3><p class="what">A framework-neutral async toolkit now sits on the Runtime, with an async resource, <code>matchAsyncState</code> and a conformance suite. Production and testing entry points are separate, and an import-boundary test checks the split. One implementation means an async-state bug is fixed once instead of once per framework.</p><details><summary>Technical detail</summary><ul><li>Package <code>@ultrabricks/state-toolkit-async@0.0.0-pilot.0</code> under <code>packages/state-lib/toolkit</code>, with a peer on <code>@ultrabricks/state-lib@0.1.0-pilot.1</code>. The <code>.</code> and <code>./testing</code> exports are checked by <code>import-boundary.test.ts</code> and <code>package-contract.test.ts</code>.</li><li>Tests: <code>async-conformance.test.ts</code>, <code>async-ownership.test.ts</code>, <code>async-resource.test.ts</code>, <code>async-thenable-once.test.ts</code> and <code>match-async-state.test.ts</code>.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a></p></article><article class="outcome" id="records" data-claim="state-records"><h3>Validated immutable records on the existing Runtime</h3><p class="what"><code>createRecord</code> adds validated, deeply frozen records on the Runtime for small plain objects such as editor workspace preferences. Callers cannot change a committed snapshot, and a nested update that re-enters the same record now throws instead of letting a stale draft overwrite it. It reuses the Runtime’s transactions, so there is no second state engine to maintain.</p><details><summary>Technical detail</summary><ul><li>A regression test written first reproduced the re-entrancy bug. The error is <code>STATE_RECORD_REENTRANT</code>, thrown before the inner mutation, and async recipes are rejected.</li><li><code>record.test.ts</code> runs under a strict <code>tsconfig.record.json</code>; the pull request records 75 tests passing across core, regression, follow-up and adapter cases.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/803" aria-label="Pull request 803">#803</a></p></article><article class="outcome" id="ownership" data-claim="state-ownership"><h3>Stale async work cannot publish</h3><p class="what"><code>createOperationScope</code> gives each lane of async work a context generation. Once a lane is replaced, its context changes or it is disposed, the old write or feedback cannot publish, and an old finish or cancel cannot release a newer lease. It is library code; the pull request does not turn it on in the inspector.</p><details><summary>Technical detail</summary><ul><li>Independent lanes, synchronous commit and notify gates, callback binding checked at invocation, and bounded metadata-only diagnostics.</li><li>Tests: <code>operation-scope.test.ts</code>, <code>operation-scope-async.test.ts</code> and a type fixture. A real-Chromium check runs the emitted package pair through nine scenarios, and with the stale-publication guard removed, five of seven checks fail.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/826" aria-label="Pull request 826">#826</a></p></article><article class="outcome" id="export" data-claim="state-export"><h3>Package export fails closed and records provenance</h3><p class="what">The package exporter assembles in an owner-only staging directory on the destination filesystem and publishes by rename. It refuses to overwrite existing files, directories or dangling symlinks and refuses an output directory inside the source trees. Each export records source and output hashes and tool versions, so a package can be traced to its source.</p><details><summary>Technical detail</summary><ul><li><code>export-package.mjs</code> keeps the original cause on errors and reports both failures if export and cleanup fail. <code>export-filesystem.test.ts</code> covers it, and #826 added cases. The pull request states the limits: the publish is not atomic no-replace and not crash-durable.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a></p></article><article class="outcome" id="compiled-entries" data-claim="state-compiled-entries"><h3>Generated commands and complete entries with rollback</h3><p class="what">The compiler generates immutable commands for declared edits such as assign, toggle, row assign and move, so on the benchmark fixture those edits no longer copy the whole document. <code>state build</code> compiles complete fixed application entries and publishes each output with rollback, and size budgets reject an oversized entry and keep the previous output. The figures below carry their fixtures and comparators; they are not a general speed or size claim.</p><details><summary>Technical detail</summary><ul><li>Native Rust compiler: <code>packages/state-lib/compiler/src/command.rs</code> and <code>lib.rs</code>. Median improved in all 42 Node measurements; 26 of 42 also pass the stricter max-versus-min cell test (#802).</li><li>One ownership-aware publication and history module runs on a single dedicated Runtime. Entry budgets are <code>maxRawBytes</code>, <code>maxGzipBytes</code> and <code>maxBrotliBytes</code> plus a relative-growth limit (#802).</li><li>Fingerprint walks went from three to two and path resolution is cached within a build. A lock-cleanup failure after a successful install is only a warning (#832). A hole that let an alias into authored <code>src/node_modules</code> bypass the browser-root check was closed, with nine regression tests; the pull request says this is not a sandbox for third-party code.</li><li>An optional immutable-row adapter updates completion on existing rows in the board view and falls back to the full renderer for unsupported changes (#832). On the small fixtures the same pull request records about 32 to 38 KB more retained heap, and an entry of 42,166 gzip bytes against 37,132 for the equally optimized original.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/802" aria-label="Pull request 802">#802</a> · <a href="https://github.com/hyperide/hyper-saas/pull/832" aria-label="Pull request 832">#832</a></p></article><article class="outcome" id="cold-import" data-claim="state-cold-import"><h3>Cold import skips a full-document copy</h3><p class="what"><code>importJsonField</code> certifies a JSON field while importing it, and <code>replaceImported</code> adopts that exact root. A cold load skips one whole-document <code>structuredClone</code>, while the normal <code>replace()</code> still copies and behaves as before.</p><details><summary>Technical detail</summary><ul><li><code>replaceImported</code> throws <code>TypeError</code> for anything not produced by <code>importJsonField</code>, so the shortcut cannot be used with an uncertified value. Certification, freezing, history reset and the save payload contract are unchanged.</li><li><code>owned-import.test.ts</code> was written red first and has 11 passing tests. The pull request records whole-call <code>structuredClone</code> uses during load going from 3 to 2 and makes no timing claim.</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/834" aria-label="Pull request 834">#834</a></p></article><article class="outcome" id="live-docs" data-claim="state-live-docs"><h3>Live examples, a keyed-row patch boundary and correct docs</h3><p class="what">The documentation site has two live examples, <code>/repl/board-commands</code> and <code>/repl/issue-triage</code>. Visitors edit multi-file source, compile it with the real Rust compiler in WebAssembly, and see generated commands, readable and minified output, sizes, live state, Undo and Redo, and browser benchmarks. A checked keyed-row patch boundary lets an app update real text edits without rebuilding the list, and the generated API docs keep ordinary member names.</p><details><summary>Technical detail</summary><ul><li>Edited code runs in a disposable worker inside an opaque-origin, network-denied frame. Cancellation, latest-request authority, timeout and keeping the last good build after a failed build are tested (#809).</li><li><code>patchKeyedRows</code> locates every target before the first row write and rejects a null or invalid plan without applying rows; the pull request documents that a throwing callback leaves a view to rebuild (#833). 14 planner and boundary tests pass.</li><li><code>apiSymbolName()</code> used to throw on a real member named like <code>__@iterator@999</code> and abort API-doc generation. It now accepts such a name only when a declaration’s string literal is exactly that name, and the regenerated docs are unchanged at 119 entries (#807).</li><li>Diagram captions no longer show quoted attribute text, and docs-site readiness waits for exactly three lazy editors. SVG comparison in the gallery tolerates only narrowly parsed coordinate roundoff (#810).</li></ul></details><p class="refs">Key pull requests: <a href="https://github.com/hyperide/hyper-saas/pull/809" aria-label="Pull request 809">#809</a> · <a href="https://github.com/hyperide/hyper-saas/pull/833" aria-label="Pull request 833">#833</a> · <a href="https://github.com/hyperide/hyper-saas/pull/807" aria-label="Pull request 807">#807</a></p></article></div></section><section class="report-section" id="figures"><h2>Before and after in numbers</h2><p>Historical local measurements, recorded in the pull requests named in the last column; the first column gives the fixture. #802 improves the median in all 42 Node measurements and passes its stricter cell test in 26 of 42. #832 records about 32 to 38 KB more retained heap on small fixtures.</p><table class="figures"><thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Source</th></tr></thead><tbody><tr><td data-label="Measure">Point edit, 10,000-item benchmark fixture, Node median</td><td data-label="Before">4.148 ms</td><td data-label="After">0.006 ms</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/802">#802 body</a></td></tr><tr><td data-label="Measure">Move, 10,000-item benchmark fixture, Node median</td><td data-label="Before">4.175 ms</td><td data-label="After">0.008 ms</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/802">#802 body</a></td></tr><tr><td data-label="Measure">Entry size, 512-command fixture: raw / gzip / Brotli</td><td data-label="Before">71,069 / 9,525 / 6,596 bytes</td><td data-label="After">42,284 / 8,619 / 5,779 bytes</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/802">#802 body</a></td></tr><tr><td data-label="Measure">Task-completion handler, 1,200 visible rows, median</td><td data-label="Before">63.2 ms Chromium, 93 ms WebKit</td><td data-label="After">1.0 ms Chromium, 1 ms WebKit</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/832">#832 body</a></td></tr><tr><td data-label="Measure">Next animation frame, 1,200 visible rows</td><td data-label="Before">311 ms Chromium, 546 ms WebKit</td><td data-label="After">13.8 ms Chromium, 7 ms WebKit</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/832">#832 body</a></td></tr><tr><td data-label="Measure">Chromium retained heap, 10,000 rows, 1,200 visible</td><td data-label="Before">15.58 MB</td><td data-label="After">4.73 MB</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/832">#832 body</a></td></tr><tr><td data-label="Measure">Whole-document copies during cold load</td><td data-label="Before">3</td><td data-label="After">2</td><td data-label="Source"><a href="https://github.com/hyperide/hyper-saas/pull/834">#834 body</a></td></tr><tr><td data-label="Measure">Diagram caption in the docs site</td><td data-label="Before">Quoted attribute text shown before the label</td><td data-label="After">Only the intended label</td><td data-label="Source">Screenshots below</td></tr></tbody></table></section><section class="report-section" id="screenshots"><h2>Screenshots</h2><p>Diagram caption in the StateLib documentation site, captured for #810 on 14 October. The same fixture is shown before and after the fix. Tap an image to open it full size.</p><div class="gallery"><figure><a class="crop crop-tl" href="images/caption-before.png"><img src="images/caption-before.png" alt="Before: attribute text b&quot;&gt; appears before the diagram caption" width="850" height="450" loading="lazy"></a><figcaption>Before: <code>b&quot;&gt;</code> leaks into the caption.</figcaption></figure><figure><a class="crop crop-tl" href="images/caption-after.png"><img src="images/caption-after.png" alt="After: the diagram caption reads Safe label, then diagram" width="850" height="450" loading="lazy"></a><figcaption>After: only the intended label is rendered.</figcaption></figure></div><p class="refs">Original browser captures from 14 October, retained with <a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>.</p></section><section class="report-section" id="proof"><h2>Proof</h2><p>Hosted CI runs for the final commit of each pull request, or for the merge commit where noted.</p><ul><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547360197">Pull request #810: tests, types and extension build</a> (<a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>)</li><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547360009">Pull request #810: documentation reading and interaction tests</a> (<a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>)</li><li><a href="https://github.com/hyperide/hyper-saas/actions/runs/38547359971">Pull request #810: security scan</a> (<a href="https://github.com/hyperide/hyper-saas/pull/810" aria-label="Pull request 810">#810</a>)</li></ul><p class="refs">Work by Ultra / Mextner (GitHub alex-mextner, Alex Ultra). Pull requests merged 1 to 31 October 2026 are credited by commit authorship. Status checked 6 November. Source links may require repository access.</p><p class="refs">Attribution: every commit in these pull requests is by Ultra. #802, #809 and #833 were opened from the smoothbricker account and merged by alex-mextner.</p><p class="refs">All merged pull requests counted here are listed with their authors and merge commits in the <a href="../2026-10-own-results-evidence.json">source record</a>.</p></section><footer>October 2026 · Ultra / Mextner · Updated 6 November 2026 · <a href="../2026-10-own-results-evidence.json">Source record</a></footer>
     </main>
     <script src="../shared/components.js"></script>
     <script>
@@ -187,14 +18,10 @@
         repo: "https://github.com/hyperide/hyper-saas",
         headSha: "4568a6b3af2980be700da51977b6facd1d687cf2",
         title: "StateLib: October 2026",
-        subtitle: "Async state, operation ownership and less document copying",
-        date: "2026-11-05",
+        subtitle: "Async state, immutable records, operation ownership, compiled entries",
+        date: "2026-11-06",
         badge: { label: "October results", type: "feat" },
-        links: [
-          { label: "Merged changes", href: "#results" },
-          { label: "Before / after", href: "#screenshots" },
-          { label: "Browser tests", href: "#checks" },
-        ],
+        links: [{ label: "Overview", href: "#overview" }, { label: "What we delivered", href: "#outcomes" }, { label: "Before and after", href: "#figures" }, { label: "Screenshots", href: "#screenshots" }, { label: "Proof", href: "#proof" }],
       });
     </script>
   </body>
