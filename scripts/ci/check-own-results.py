@@ -16,6 +16,39 @@ class Links(HTMLParser):
             self.urls.append(dict(attrs).get("href", ""))
 
 
+class VisibleText(HTMLParser):
+    def __init__(self, text):
+        super().__init__()
+        self.parts = []
+        self.skip = 0
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.skip += 1
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self.skip -= 1
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.parts.append(data)
+
+    @property
+    def text(self):
+        return " ".join(" ".join(self.parts).split()).casefold()
+
+
+REJECTED_CLAIMS = [
+    "protected storybook",
+    "ready for approval",
+    "catalogue snapshots",
+    "publisher deployed-stage e2e",
+    "automatic link refresh",
+]
+
+
 class ReportContract(unittest.TestCase):
     def setUp(self):
         self.data = json.loads(
@@ -35,11 +68,31 @@ class ReportContract(unittest.TestCase):
             self.assertEqual(b[:8], b"\x89PNG\r\n\x1a\n")
             self.assertEqual(hashlib.sha256(b).hexdigest(), r["sha256"])
 
-    def test_live_catalogue_links_not_just_pr_links(self):
-        urls = Links((ROOT / "reports/conloca-2026-10/index.html").read_text()).urls
-        base = "https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/"
-        for segment in ["main", "pr-404", "pr-489"]:
-            self.assertIn(base + segment + "/", urls)
+    def test_rejected_catalogue_links_and_claims_are_absent(self):
+        for slug in self.data["reports"]:
+            text = (ROOT / "reports" / slug / "index.html").read_text(encoding="utf-8")
+            self.assertNotIn("pages.hyperide.ai", text.casefold())
+            visible = VisibleText(text).text
+            raw = " ".join(text.split()).casefold()
+            for phrase in REJECTED_CLAIMS:
+                self.assertNotIn(phrase, visible)
+                self.assertNotIn(phrase, raw)
+
+    def test_conloca_keeps_tested_preview_attribution_and_images(self):
+        text = (ROOT / "reports/conloca-2026-10/index.html").read_text(encoding="utf-8")
+        urls = Links(text).urls
+        for url in [
+            "https://site.pr489.conloca.com/getting-started/",
+            "https://github.com/conloca/private/actions/runs/41626469902/job/125893569803",
+            "https://github.com/conloca/private/actions/runs/40534284367",
+            "images/theme-before.png",
+            "images/theme-after.png",
+        ]:
+            self.assertIn(url, urls)
+        self.assertIn("Work by Ultra / Mextner", text)
+
+    def test_catalogue_receipts_are_historical_only(self):
+        self.assertEqual(self.data["storybookPreviews"]["status"], "historical")
 
     def test_new_workflows_not_presented_as_merged(self):
         data = self.data["storybookPreviews"]
