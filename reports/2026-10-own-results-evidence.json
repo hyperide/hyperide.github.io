@@ -10,59 +10,6 @@
     }
   ],
   "reports": {
-    "hyper-2026-10": [
-      {
-        "repo": "hyperide/hyper-saas",
-        "pr": 810,
-        "author": "alex-mextner",
-        "commitAuthors": {
-          "alex-mextner": 7
-        },
-        "attribution": "pr-author",
-        "state": "MERGED",
-        "mergedAt": "2026-10-14T18:39:58Z",
-        "mergeSha": "da611247987cc6b2fbb955857e4cc6f9d1410f8e",
-        "url": "https://github.com/hyperide/hyper-saas/pull/810",
-        "changedFiles": 68,
-        "additions": 16876,
-        "deletions": 215,
-        "group": "git-push"
-      },
-      {
-        "repo": "hyperide/hyper-saas",
-        "pr": 825,
-        "author": "alex-mextner",
-        "commitAuthors": {
-          "alex-mextner": 1
-        },
-        "attribution": "pr-author",
-        "state": "MERGED",
-        "mergedAt": "2026-10-16T01:22:33Z",
-        "mergeSha": "b0c3a5123add28644d0da367c0e808c7b7e6dd3d",
-        "url": "https://github.com/hyperide/hyper-saas/pull/825",
-        "changedFiles": 3,
-        "additions": 27,
-        "deletions": 3,
-        "group": "extension-release"
-      },
-      {
-        "repo": "hyperide/hyper-saas",
-        "pr": 837,
-        "author": "alex-mextner",
-        "commitAuthors": {
-          "alex-mextner": 5
-        },
-        "attribution": "pr-author",
-        "state": "MERGED",
-        "mergedAt": "2026-10-30T13:15:07Z",
-        "mergeSha": "ecd0b8f1b0bf8921f740e76b20337d1a0bc9faac",
-        "url": "https://github.com/hyperide/hyper-saas/pull/837",
-        "changedFiles": 10,
-        "additions": 252,
-        "deletions": 126,
-        "group": "dependencies"
-      }
-    ],
     "state-lib-2026-10": [
       {
         "repo": "hyperide/hyper-saas",
@@ -80,7 +27,16 @@
         "additions": 21928,
         "deletions": 0,
         "group": "compiled-entries",
-        "mergedBy": "alex-mextner"
+        "mergedBy": "alex-mextner",
+        "commitProof": {
+          "method": "pull request commits API, complete pagination",
+          "firstCommit": "77066361fb2f98f1913a4ac181a20478b3e492d2",
+          "firstCommitLogin": "alex-mextner",
+          "allCommitLogins": [
+            "alex-mextner"
+          ],
+          "commits": 15
+        }
       },
       {
         "repo": "hyperide/hyper-saas",
@@ -132,7 +88,16 @@
         "additions": 9124,
         "deletions": 255,
         "group": "live-docs",
-        "mergedBy": "alex-mextner"
+        "mergedBy": "alex-mextner",
+        "commitProof": {
+          "method": "pull request commits API, complete pagination",
+          "firstCommit": "62bfd3c0a9d016d3bc9e2b68a2716beab017134c",
+          "firstCommitLogin": "alex-mextner",
+          "allCommitLogins": [
+            "alex-mextner"
+          ],
+          "commits": 18
+        }
       },
       {
         "repo": "hyperide/hyper-saas",
@@ -201,7 +166,16 @@
         "additions": 272,
         "deletions": 1,
         "group": "live-docs",
-        "mergedBy": "alex-mextner"
+        "mergedBy": "alex-mextner",
+        "commitProof": {
+          "method": "pull request commits API, complete pagination",
+          "firstCommit": "cfb0830bf64a4824fb983e82b069d64cf135433b",
+          "firstCommitLogin": "alex-mextner",
+          "allCommitLogins": [
+            "alex-mextner"
+          ],
+          "commits": 1
+        }
       },
       {
         "repo": "hyperide/hyper-saas",
@@ -2052,34 +2026,6 @@
     },
     {
       "name": "CI",
-      "head_sha": "ff519a9864093f1c7b130425077fb99d4bb7951b",
-      "status": "completed",
-      "conclusion": "success",
-      "updated_at": "2026-10-15T13:10:44Z",
-      "repo": "hyperide/hyper-saas",
-      "run": 38738722190,
-      "url": "https://github.com/hyperide/hyper-saas/actions/runs/38738722190",
-      "event": "pull_request",
-      "pr": 825,
-      "prHead": "ff519a9864093f1c7b130425077fb99d4bb7951b",
-      "mergeSha": "b0c3a5123add28644d0da367c0e808c7b7e6dd3d"
-    },
-    {
-      "name": "Publish VS Code Extension",
-      "head_sha": "b0c3a5123add28644d0da367c0e808c7b7e6dd3d",
-      "status": "completed",
-      "conclusion": "success",
-      "updated_at": "2026-10-16T01:27:05Z",
-      "repo": "hyperide/hyper-saas",
-      "run": 38834833575,
-      "url": "https://github.com/hyperide/hyper-saas/actions/runs/38834833575",
-      "event": "push",
-      "pr": 825,
-      "prHead": "ff519a9864093f1c7b130425077fb99d4bb7951b",
-      "mergeSha": "b0c3a5123add28644d0da367c0e808c7b7e6dd3d"
-    },
-    {
-      "name": "CI",
       "head_sha": "49f981635b1b59af680fe9f81e1c9c0d6ae4e986",
       "status": "completed",
       "conclusion": "success",
@@ -2323,143 +2269,26 @@
       "conloca/private": 183
     },
     "credited": {
-      "hyperide/hyper-saas": 11,
+      "hyperide/hyper-saas": 9,
       "conloca/private": 92
     },
     "excludedSummary": {
-      "total": 91,
+      "total": 93,
       "byRepository": {
-        "hyperide/hyper-saas": 0,
+        "hyperide/hyper-saas": 2,
         "conloca/private": 91
       },
       "byReason": {
         "all commits by other contributors": 79,
         "automated mirror-sync pull request": 11,
-        "mixed authorship, own contribution not counted": 1
+        "mixed authorship, own contribution not counted": 1,
+        "maintenance outside the product report scope": 2
       },
       "localAuditSha256": "fa336d9ba3fa7cefe55a92529fc8fc3d5d0dc19f2e4b0b2f2f68afc59e5e8f73",
       "note": "Pull requests that are not ours are counted only in aggregate. The per-pull-request audit is kept locally and is not published."
     }
   },
   "claims": [
-    {
-      "id": "hyper-extension-release",
-      "group": "extension-release",
-      "report": "hyper-2026-10",
-      "prs": [
-        825
-      ],
-      "coveredPrs": [
-        825
-      ],
-      "evidence": [
-        {
-          "type": "ci-run",
-          "run": 38834833575,
-          "url": "https://github.com/hyperide/hyper-saas/actions/runs/38834833575"
-        },
-        {
-          "type": "ci-run",
-          "run": 38738722190,
-          "url": "https://github.com/hyperide/hyper-saas/actions/runs/38738722190"
-        },
-        {
-          "type": "diff",
-          "path": "CHANGELOG.md",
-          "pr": 825,
-          "url": "https://github.com/hyperide/hyper-saas/pull/825/files"
-        }
-      ]
-    },
-    {
-      "id": "hyper-git-push",
-      "group": "git-push",
-      "report": "hyper-2026-10",
-      "prs": [
-        810
-      ],
-      "coveredPrs": [
-        810
-      ],
-      "evidence": [
-        {
-          "type": "pr-body",
-          "pr": 810,
-          "url": "https://github.com/hyperide/hyper-saas/pull/810"
-        },
-        {
-          "type": "tests",
-          "path": "server/services/__tests__/git-push-tls.test.ts",
-          "pr": 810,
-          "url": "https://github.com/hyperide/hyper-saas/pull/810/files"
-        },
-        {
-          "type": "ci-run",
-          "run": 38547360197,
-          "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547360197"
-        },
-        {
-          "type": "ci-run",
-          "run": 38547359971,
-          "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547359971"
-        }
-      ]
-    },
-    {
-      "id": "hyper-dependencies",
-      "group": "dependencies",
-      "report": "hyper-2026-10",
-      "prs": [
-        837,
-        810
-      ],
-      "coveredPrs": [
-        837,
-        810
-      ],
-      "evidence": [
-        {
-          "type": "pr-body",
-          "pr": 837,
-          "url": "https://github.com/hyperide/hyper-saas/pull/837"
-        },
-        {
-          "type": "tests",
-          "path": "vscode-extension/hypercanvas-preview/src/__tests__/HyperMcpServer.test.ts",
-          "pr": 837,
-          "url": "https://github.com/hyperide/hyper-saas/pull/837/files"
-        },
-        {
-          "type": "ci-run",
-          "run": 38547359971,
-          "url": "https://github.com/hyperide/hyper-saas/actions/runs/38547359971"
-        }
-      ]
-    },
-    {
-      "id": "hyper-local-checks",
-      "group": "local-checks",
-      "report": "hyper-2026-10",
-      "prs": [
-        810
-      ],
-      "coveredPrs": [
-        810
-      ],
-      "evidence": [
-        {
-          "type": "pr-body",
-          "pr": 810,
-          "url": "https://github.com/hyperide/hyper-saas/pull/810"
-        },
-        {
-          "type": "tests",
-          "path": "scripts/__tests__/conflict-markers.test.ts",
-          "pr": 810,
-          "url": "https://github.com/hyperide/hyper-saas/pull/810/files"
-        }
-      ]
-    },
     {
       "id": "state-async-toolkit",
       "group": "async-toolkit",
@@ -2939,13 +2768,7 @@
       "group": "gates",
       "report": "conloca-2026-10",
       "prs": [
-        251,
-        166,
-        263,
-        303,
-        311,
-        255,
-        315
+        251
       ],
       "coveredPrs": [
         251,
@@ -3007,42 +2830,6 @@
     }
   ],
   "figures": [
-    {
-      "report": "hyper-2026-10",
-      "measure": "Extension high-severity npm audit, exit status (not an issue count)",
-      "before": "7, gate failing",
-      "after": "0",
-      "pr": 837,
-      "source": "#837 body",
-      "repo": "hyperide/hyper-saas"
-    },
-    {
-      "report": "hyper-2026-10",
-      "measure": "Root bun audit at high severity",
-      "before": "Six advisories: MCP SDK, dompurify, happy-dom, undici, zod, body-parser",
-      "after": "No vulnerabilities reported",
-      "pr": 837,
-      "source": "#837 body",
-      "repo": "hyperide/hyper-saas"
-    },
-    {
-      "report": "hyper-2026-10",
-      "measure": "MCP request body limit",
-      "before": "SDK limits did not apply to bodies the extension parsed itself",
-      "after": "4 MiB cap, 413 before any server is built",
-      "pr": 837,
-      "source": "#837 changelog entry and tests",
-      "repo": "hyperide/hyper-saas"
-    },
-    {
-      "report": "hyper-2026-10",
-      "measure": "Extension release",
-      "before": "0.1.74",
-      "after": "0.1.75, tag pushed 16 Oct 2026 01:23 UTC",
-      "pr": 825,
-      "source": "Publish run 38834833575",
-      "repo": "hyperide/hyper-saas"
-    },
     {
       "report": "state-lib-2026-10",
       "measure": "Point edit, 10,000-item benchmark fixture, Node median",
@@ -3153,29 +2940,11 @@
     },
     {
       "report": "conloca-2026-10",
-      "measure": "Anti-slop findings on one rebased pull request",
-      "before": "141, of which 116 on untouched lines",
-      "after": "Only changed lines counted",
-      "pr": 263,
-      "source": "#263 body",
-      "repo": "conloca/private"
-    },
-    {
-      "report": "conloca-2026-10",
       "measure": "Resize events during a story play",
       "before": "30 and 11",
       "after": "0 and 0",
       "pr": 257,
       "source": "#257 body",
-      "repo": "conloca/private"
-    },
-    {
-      "report": "conloca-2026-10",
-      "measure": "Summed test time over 141 tasks",
-      "before": "1,164 s",
-      "after": "1,079 s and 1,097 s",
-      "pr": 194,
-      "source": "#194 body",
       "repo": "conloca/private"
     }
   ]
