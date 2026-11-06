@@ -35,11 +35,35 @@ class ReportContract(unittest.TestCase):
             self.assertEqual(b[:8], b"\x89PNG\r\n\x1a\n")
             self.assertEqual(hashlib.sha256(b).hexdigest(), r["sha256"])
 
-    def test_live_catalogue_links_not_just_pr_links(self):
-        urls = Links((ROOT / "reports/conloca-2026-10/index.html").read_text()).urls
-        base = "https://pages.hyperide.ai/alex-mextner/conloca-storybook-previews/"
-        for segment in ["main", "pr-404", "pr-489"]:
-            self.assertIn(base + segment + "/", urls)
+    def test_rejected_catalogue_links_and_claims_are_absent(self):
+        for slug in self.data["reports"]:
+            text = (ROOT / "reports" / slug / "index.html").read_text(encoding="utf-8")
+            for url in Links(text).urls:
+                self.assertNotIn("pages.hyperide.ai", url)
+            for phrase in [
+                "Protected Storybook",
+                "Ready for approval",
+                "catalogue snapshots",
+                "Publisher deployed-stage E2E",
+                "automatic link refresh",
+            ]:
+                self.assertNotIn(phrase, text)
+
+    def test_conloca_keeps_tested_preview_attribution_and_images(self):
+        text = (ROOT / "reports/conloca-2026-10/index.html").read_text(encoding="utf-8")
+        urls = Links(text).urls
+        for url in [
+            "https://site.pr489.conloca.com/getting-started/",
+            "https://github.com/conloca/private/actions/runs/41626469902/job/125893569803",
+            "https://github.com/conloca/private/actions/runs/40534284367",
+            "images/theme-before.png",
+            "images/theme-after.png",
+        ]:
+            self.assertIn(url, urls)
+        self.assertIn("Work by Ultra / Mextner", text)
+
+    def test_catalogue_receipts_are_historical_only(self):
+        self.assertEqual(self.data["storybookPreviews"]["status"], "historical")
 
     def test_new_workflows_not_presented_as_merged(self):
         data = self.data["storybookPreviews"]
