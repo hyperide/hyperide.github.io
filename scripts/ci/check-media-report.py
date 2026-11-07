@@ -37,7 +37,7 @@ GOLDEN_TRANSLATIONS = {
     "req-hyp990-details-and-ai-context": "And think about how to reveal the long text with details. Either expand it right in the toast, or show more in a banner when Details is clicked, and in any case the AI must receive all the details.",
     "req-hyp1372-old-bug-back": "And another thing: an old bug has come back. When I click a component in Hyper Explorer, a split is not created.",
     "req-hyp1372-first-click": "By the way, the second click in a row does open the split, but the first click never opens the split for me. I tried several times.",
-    "req-state-lib-compare": "Okay, let's continue. But I have not quite understood what substantial improvements we got with the updated library. We need to compare with it and without it by different criteria, in more detail. Make benchmark tests.",
+    "req-state-lib-compare": "We need to compare with and without it in more detail, using different criteria.",
     "req-state-lib-numbers": "All right, let's go. Also it would be good for it to give better results in numbers: to run faster and for the bundle to weigh less.",
 }
 # Requests the research could not recover: the report must not show a quote for them.
@@ -105,7 +105,7 @@ class MediaReport(unittest.TestCase):
             page = self.pages[key]
             self.assertEqual(len(re.findall(r'class="owner-request"', page)), len(ev["originalRequests"]), key)
             for r in ev["originalRequests"]:
-                block = re.search(r'<div class="owner-request" id="%s".*?<p class="request-link">.*?</p>' % re.escape(r["id"]), page, re.S)
+                block = re.search(r'<div class="owner-request" id="%s".*?<p class="request-link">.*?</p>(?:<p class="request-note">.*?</p>)?' % re.escape(r["id"]), page, re.S)
                 self.assertIsNotNone(block, r["id"])
                 b = block.group(0)
                 self.assertIn('<p class="request-label">Original request (RU)</p>', b)
@@ -115,6 +115,18 @@ class MediaReport(unittest.TestCase):
                 self.assertEqual(norm(html.unescape(re.sub(r"<br>", "\n", ru))), norm(r["ru"]), r["id"])
                 self.assertEqual(norm(html.unescape(en)), norm(r["en"]), r["id"])
                 self.assertIn(f'<strong>{RELATION[r["relationKind"]]}.</strong>', b)
+                head = re.search(r'<h[45] id="%s-h">(.*?)</h[45]>' % re.escape(r["id"]), b).group(1)
+                self.assertEqual("(excerpt)" in head, not r["excerptIsWholeMessage"], r["id"])
+                note = re.search(r'<p class="request-note">(.*?)</p>', b, re.S)
+                shown_window = r["windowNote"] and ("window" in r["windowNote"] or "period" in r["windowNote"])
+                if shown_window:
+                    self.assertIsNotNone(note, r["id"])
+                    self.assertIn(r["windowNote"][0].upper() + r["windowNote"][1:] + ".", html.unescape(note.group(1)), r["id"])
+                if not (r["omitted"] or shown_window):
+                    self.assertIsNone(note, r["id"])
+                if r["omitted"]:
+                    self.assertIsNotNone(note, r["id"])
+                    self.assertIn(r["omitted"], html.unescape(note.group(1)), r["id"])
                 self.assertIn(r["messageSha256"], b)
                 self.assertIn(r["messageIdentity"], html.unescape(b))
                 d = datetime.fromisoformat(r["dateUtc"].replace("Z", "+00:00"))
