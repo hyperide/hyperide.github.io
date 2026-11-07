@@ -1,0 +1,37 @@
+{
+  "purpose": "Verification record for the 7 November native-stage proof block of the Conloca October report; a private temporary artifact, not a public rehost.",
+  "verifiedAt": "2026-11-07T13:45:00Z",
+  "head": "9d469170dbe5504704dae7b6a32d4825cdb11765",
+  "build": "ce4948f9558870dce11f07102a643e2807c73395",
+  "stageUrls": [
+    "https://site.pr404.conloca.com/",
+    "https://app.pr404.conloca.com/",
+    "https://storybook.pr404.conloca.com/"
+  ],
+  "runUrl": "https://github.com/conloca/private/actions/runs/42375596312",
+  "runId": 42375596312,
+  "artifactId": 13576130686,
+  "artifactUrl": "https://github.com/conloca/private/actions/runs/42375596312/artifacts/13576130686",
+  "artifactSha256": "85cef4edb76cfb7f3292c93c060e57e1e9cdb6625ea5738be4cc5d5ce1859cf5",
+  "artifactSize": 519359,
+  "artifactExpiresAt": "2026-11-21T13:18:03Z",
+  "videos": [
+    {
+      "id": "cms",
+      "width": 1280,
+      "height": 800,
+      "durationSeconds": 5.6,
+      "frames": 140,
+      "sha256": "7c7739c6526730c3ea906b852e7f2ce7a0d7df39d218a6147954b6cea2257f2a"
+    },
+    {
+      "id": "app",
+      "width": 390,
+      "height": 844,
+      "durationSeconds": 4.88,
+      "frames": 122,
+      "sha256": "1fcf67580aec5acd7bd74c70b20d565b229f5d1f9c9f92ea53e2baa181105e00"
+    }
+  ],
+  "kind": "private-temporary-ci-artifact-not-embedded"
+}

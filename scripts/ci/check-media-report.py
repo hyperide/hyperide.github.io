@@ -429,7 +429,7 @@ class MediaReport(unittest.TestCase):
                 self.assertNotIn(b, blob, b)
 
     def test_links_on_the_pages_stay_on_allowed_origins(self):
-        allowed = ("https://github.com/", "https://tasks.glide.vc/", "https://conloca.com", "https://site.pr489.conloca.com/", "https://linear.app/")
+        allowed = ("https://github.com/", "https://tasks.glide.vc/", "https://conloca.com", "https://site.pr489.conloca.com/", "https://site.pr404.conloca.com/", "https://app.pr404.conloca.com/", "https://storybook.pr404.conloca.com/", "https://linear.app/")
         for key, page in self.pages.items():
             for url in Links(page).urls:
                 if url.startswith("http"):
