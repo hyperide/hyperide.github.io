@@ -1,0 +1,270 @@
+{
+  "report": "statelib",
+  "generatedAt": "2026-11-06",
+  "note": "Public-safe subset: hashes, crop coordinates and source labels. Private chat text outside the quoted excerpts, raw message dumps, local file paths and protected originals are not included.",
+  "originalRequests": [
+    {
+      "id": "req-state-lib-extract",
+      "outcome": "statelib-requests",
+      "report": "statelib",
+      "sourceRecord": "F1",
+      "language": "ru",
+      "ru": "Хм кажется state-lib живет в GitHub hyper-saas \nДавай вынесем оттуда \nИ консолидируй все ворктри по state-lib, доделай и влей все через gh ship",
+      "en": "Hm, it seems state-lib lives in the hyper-saas GitHub repository. Let's move it out of there. And consolidate all the worktrees on state-lib, finish them and merge everything through gh ship.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "eba04f1a240a15249c1810017ef295947c2d60a0eeb31948db135633622e90ff",
+      "messageSha256": "eba04f1a240a15249c1810017ef295947c2d60a0eeb31948db135633622e90ff",
+      "dateUtc": "2026-10-22T17:57:09Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#23556, bot-side message id 23556",
+      "ids": {
+        "tg": "tg#23556",
+        "botMessageId": 23556
+      },
+      "relationKind": "inferred",
+      "relation": "A request about the library's location and its open work. This report describes code in packages/state-lib of the HyperIDE repository and makes no claim that the library was moved out.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-state-lib-private-dep",
+      "outcome": "statelib-requests",
+      "report": "statelib",
+      "sourceRecord": "F2",
+      "language": "ru",
+      "ru": "Ага над hsw продолжай параллельно работать используй пока state-lib как приватную зависимость или вендоренную",
+      "en": "Aha, keep working on hsw in parallel, and use state-lib for now as a private dependency or vendored.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "5ae64db0c5f19e8742df805c23c4e09f762e86b0c6c17a9ec373cf7058241a13",
+      "messageSha256": "5ae64db0c5f19e8742df805c23c4e09f762e86b0c6c17a9ec373cf7058241a13",
+      "dateUtc": "2026-10-22T17:59:42Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#23559, bot-side message id 23559",
+      "ids": {
+        "tg": "tg#23559",
+        "botMessageId": 23559
+      },
+      "relationKind": "inferred",
+      "relation": "The follow-up two minutes later. The same limit applies, because it is a request only and what shipped is stated in the results.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-state-lib-no-useeffect",
+      "outcome": "statelib-requests",
+      "report": "statelib",
+      "sourceRecord": "F3",
+      "language": "ru",
+      "ru": "еще мы с денни обсудили что хотим в нашем state lint запретить useEffect и подобные паттерны и сделать продвинутые миграции, надо изучить типичные паттерны и как они будут декларативно решаться в сторе",
+      "en": "Also, Denni and I discussed that we want to forbid useEffect and similar patterns in our state lint and to build advanced migrations; we need to study the typical patterns and how they will be solved declaratively in the store.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "699195e29c111b3c883bdfe53c5075ca59c1eb35ac56af7d756556d0b2458ed3",
+      "messageSha256": "699195e29c111b3c883bdfe53c5075ca59c1eb35ac56af7d756556d0b2458ed3",
+      "dateUtc": "2026-09-04T13:56:54Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "A statement of library goals. The report does not claim that a lint rule or migrations shipped.",
+      "windowNote": "4 September 2026, before the October period of this report; kept because it states the library's goals",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-state-lib-regions",
+      "outcome": "statelib-requests",
+      "report": "statelib",
+      "sourceRecord": "F4",
+      "language": "ru",
+      "ru": "еще интересно как мы реализуем описанную ранее идею разделения разных смысловых регионов стейта: busines, automations, ui state, и чтото еще вроде стоит выделить",
+      "en": "Also, I wonder how we will implement the idea described earlier of separating different semantic regions of state: business, automations, ui state, and maybe something else should be separated.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "3908f1e37cc4a46e13de2aa876b071026a6c00e629c582f0b06c779b011ece42",
+      "messageSha256": "d3afe37f08950cf6323fbb3b27e65f896a9652f41f6ca2770cea5fd5fc5a3908",
+      "dateUtc": "2026-09-04T12:14:43Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "A statement of library goals; no claim that this separation shipped.",
+      "windowNote": "4 September 2026, before the October period of this report; kept because it states the library's goals",
+      "omitted": "Only the first sentence of a longer multi-paragraph message is quoted.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-state-lib-compare",
+      "outcome": "statelib-numbers",
+      "report": "statelib",
+      "sourceRecord": "CG1",
+      "language": "ru",
+      "ru": "Надо сравнивать с ней и без нее по разным критериям более детально",
+      "en": "We need to compare with and without it in more detail, using different criteria.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "370086710e66d5787cf30e745af375e9ffd3861156b1d378ada36d2cb32723bf",
+      "messageSha256": "8a4cf35e61141626bd5cf3164a66def49f813d75e1f7e5df0bedc366b0988296",
+      "dateUtc": "2026-10-16T13:33:01Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's archived ChatGPT conversation about StateLib and the Style Editor",
+      "senderBasis": "user message retrieved from the archived conversation and re-read against it on 7 November 2026; no message link was recovered",
+      "messageIdentity": "no message id recovered",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "The request behind the benchmark comparisons. It asks for measurement; the figures below are fixture measurements, not an editor speedup.",
+      "windowNote": "16 October 2026",
+      "omitted": "The rest of the message, including its first sentences and the request to write benchmark tests, is not quoted. The full message was re-read from the archived conversation on 7 November 2026; an earlier retrieved copy had added full stops, so its hash is not used.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-state-lib-numbers",
+      "outcome": "statelib-numbers",
+      "report": "statelib",
+      "sourceRecord": "CG2",
+      "language": "ru",
+      "ru": "Добро погнали. А также желательно чтобы оно давала и в цифрах более хорошей результаты работала быстрее бандл бы весил меньше",
+      "en": "All right, let's go. Also it would be good for it to give better results in numbers: to run faster and for the bundle to weigh less.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "2c95bb365d37e75dbe0d3a50c6459febef805e388034a4bd7ddaeb9a5ecb8c59",
+      "messageSha256": "2c95bb365d37e75dbe0d3a50c6459febef805e388034a4bd7ddaeb9a5ecb8c59",
+      "dateUtc": "2026-10-16T16:32:19Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's archived ChatGPT conversation about StateLib and the Style Editor",
+      "senderBasis": "user message retrieved from the archived conversation and re-read against it on 7 November 2026; no message link was recovered",
+      "messageIdentity": "no message id recovered",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "Same conversation. It states the wish for faster runs and a smaller bundle; the numbers below show what was measured, on fixtures.",
+      "windowNote": "16 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    }
+  ],
+  "images": [
+    {
+      "id": "statelib-caption-before",
+      "path": "media/statelib-caption-before.png",
+      "sha256": "daae5e7300849ef6290ee45559cce9dcdf00a4f60bd847c235d086883ac17a0a",
+      "width": 720,
+      "height": 570,
+      "bytes": 83821,
+      "role": "before",
+      "pair": "statelib-caption",
+      "outcome": "live-docs",
+      "chip": "Before",
+      "alt": "StateLib docs diagram before the fix: the caption under the State diagram starts with b, a quote mark and a greater-than sign, then reads Safe label and diagram",
+      "caption": "Docs-site diagram caption before the fix.",
+      "roi": [
+        60,
+        40,
+        300,
+        230
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            76,
+            179,
+            268,
+            202
+          ],
+          "crop_xyxy": [
+            48,
+            417,
+            624,
+            486
+          ],
+          "note": "The caption starts with the stray characters b\"> before the words Safe label."
+        }
+      ],
+      "original": {
+        "path": "images/caption-before.png",
+        "sha256": "51a7726c59072f657e954bad98e57c2beb9a37be0acf0353e6c2cc85f18348f7",
+        "width": 850,
+        "height": 450,
+        "bytes": 8337,
+        "source": "docs-site capture for #810 (earlier report image, unchanged)"
+      }
+    },
+    {
+      "id": "statelib-caption-after",
+      "path": "media/statelib-caption-after.png",
+      "sha256": "541f07cef6345ae8d06dd434cb9681845a09d2727c42106d2e1f3c03d3c2daeb",
+      "width": 720,
+      "height": 570,
+      "bytes": 81572,
+      "role": "after",
+      "pair": "statelib-caption",
+      "outcome": "live-docs",
+      "chip": "After",
+      "alt": "Same docs diagram after the fix: the caption reads Safe label, then diagram",
+      "caption": "Same fixture and crop after the fix.",
+      "roi": [
+        60,
+        40,
+        300,
+        230
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            76,
+            179,
+            243,
+            202
+          ],
+          "crop_xyxy": [
+            48,
+            417,
+            549,
+            486
+          ],
+          "note": "The caption reads Safe label, then diagram."
+        }
+      ],
+      "original": {
+        "path": "images/caption-after.png",
+        "sha256": "8ae9f19a967ee8d48db6f8446cd827a5425a44c5a2c48f65c704d7127b7e57c5",
+        "width": 850,
+        "height": 450,
+        "bytes": 8199,
+        "source": "docs-site capture for #810 (earlier report image, unchanged)"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "statelib-caption",
+      "kind": "pair",
+      "crops": [
+        "statelib-caption-before",
+        "statelib-caption-after"
+      ]
+    }
+  ],
+  "videos": []
+}

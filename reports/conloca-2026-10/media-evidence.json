@@ -1,0 +1,490 @@
+{
+  "report": "conloca",
+  "generatedAt": "2026-11-06",
+  "note": "Public-safe subset: hashes, crop coordinates and source labels. Private chat text outside the quoted excerpts, raw message dumps, local file paths and protected originals are not included.",
+  "originalRequests": [
+    {
+      "id": "req-priority-e2e-screenshots",
+      "outcome": "proof",
+      "report": "conloca",
+      "sourceRecord": "D5",
+      "language": "ru",
+      "ru": "Полностью рабочая конлока в нашем продукте, подтвержденная е2е тестами и скриншотами",
+      "en": "A fully working Conloca in our product, confirmed by e2e tests and screenshots.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "7fa4c4f83ca05defba4f5505420e5af87bb6d86132a73450bbc3b72712d78ee5",
+      "messageSha256": "d65be6db2be49447aa7b6467294c830b9bbc2c0007f3f48de41a7a4d7ccf4618",
+      "dateUtc": "2026-08-18T17:54:34Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "Telegram message id 180834",
+      "ids": {
+        "telegramMessageId": 180834
+      },
+      "relationKind": "inferred",
+      "relation": "Context for the proof below, not for one outcome: the owner's standing priority for Conloca as stated in a message about the day's work.",
+      "windowNote": "18 August 2026, before the October period of this report; kept because it states the owner's standing priority",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-bug-list",
+      "outcome": "editor",
+      "report": "conloca",
+      "sourceRecord": "G1",
+      "language": "ru",
+      "ru": "все баги которые никто не делает  и почини по tdd в параллельных ворктри и влей через gh ship\nВажны максимально реалистичные е2е тесты\nВ задачи поставь меня исполнителем\nПриложи пруфами скриншоты до и после",
+      "en": "all the bugs nobody is working on, and fix them with TDD in parallel worktrees and merge through gh ship. Maximally realistic e2e tests are important. Put me as the assignee in the tasks. Attach screenshots from before and after as proof.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "e111585116b61c5e503e00a07eeb43a43425e076683b40d590bac116b398c9bc",
+      "messageSha256": "1ea5051957cda4839152034111af4c51789e7761deb61386ab53bc2627c82c4d",
+      "dateUtc": "2026-10-22T10:39:47Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "The instruction under which the October editor bugs were taken from the team's bug database. It names no single pull request.",
+      "windowNote": "22 October 2026",
+      "omitted": "The opening words of the message and the link to the private bug database are left out.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-new-page",
+      "outcome": "editor",
+      "report": "conloca",
+      "sourceRecord": "G3",
+      "language": "ru",
+      "ru": "И параллельно в новом вт почини",
+      "en": "And in parallel, in a new worktree, fix [the linked bug-database entry “Dashboard New page button bug”].",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "529585b37012021b153ee472c3176a058decdfc6747eab5332a31012cd3cd5f8",
+      "messageSha256": "7669ba062bc44797708bedd3cc4b6cbc332f79d389145bf379003cdf2ee20979",
+      "dateUtc": "2026-10-22T18:09:16Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By the title in the link's address (the Dashboard New Page fix, #302). The link itself is not republished.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-empty-page-drag",
+      "outcome": "editor",
+      "report": "conloca",
+      "sourceRecord": "G4",
+      "language": "ru",
+      "ru": "еще задача: Cannot drag blocks onto an empty page. no block is added and the canvas remains empty. No error messages or guidance is displayed.",
+      "en": "one more task: [English bug text, as pasted from the bug database:] Cannot drag blocks onto an empty page. no block is added and the canvas remains empty. No error messages or guidance is displayed.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "e615398b11c0d8ed040eae08468052cc7a94b6c92fc0c2364faaf89437717134",
+      "messageSha256": "e3869c29e076499fd4a50480adf8214b79b44f05f6143248f2f1db6ae57f3d9f",
+      "dateUtc": "2026-10-22T23:45:37Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (the empty-page drag fix, #299). Only «еще задача:» is the owner's wording; the English after it is bug text pasted from the bug database.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": true,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-draft-badges",
+      "outcome": "editor",
+      "report": "conloca",
+      "sourceRecord": "G5",
+      "language": "ru",
+      "ru": "и еще одна: Pages - Status badges don’t reflect real status. All pages are always showing published. Even when I just created one.",
+      "en": "and one more: [English bug text, as pasted from the bug database:] Pages - Status badges don’t reflect real status. All pages are always showing published. Even when I just created one.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "3031e5679657da78dccd0768a6dd434cc1ef8d7c2764e5740e479287999bdea4",
+      "messageSha256": "f2437f51dc49ba9358e730e76d4e740c178b5d078d72d5653d554744d4a7d06c",
+      "dateUtc": "2026-10-22T23:46:24Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (the Draft status fix, #296 and #307). Only «и еще одна:» is the owner's wording; the English after it is pasted bug text.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": true,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-branch-name",
+      "outcome": "editor",
+      "report": "conloca",
+      "sourceRecord": "G6",
+      "language": "ru",
+      "ru": "и вот эту возьми: New branch - Branch name formatting problem. Problem:\n\nSPACE can’t be used in a branch name, but we still allow users to type it and then show error.\n\nSolution:\n\nWe need to automatically format the user inputed text like following: enforce lowercase, automatically type - when user uses SPACE.",
+      "en": "and take this one too: [English bug text, as pasted from the bug database:] New branch - Branch name formatting problem. Problem: SPACE can’t be used in a branch name, but we still allow users to type it and then show error. Solution: We need to automatically format the user inputed text like following: enforce lowercase, automatically type - when user uses SPACE.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "4dd7871056300990ea9656b14fd8c9c86cbd1fc383d2e79718aa94c6ff40436d",
+      "messageSha256": "fdf731854e8a0dd58796a4e33ebfdc825f582d5f60d945a7fed1d64f4b204e3a",
+      "dateUtc": "2026-10-22T23:51:18Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (the branch-name formatting fix, #297 and #316). Only «и вот эту возьми:» is the owner's wording; the English after it is pasted bug text. A screenshot attached to the message was not recovered.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": true,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-conloca-invite",
+      "outcome": "workspace",
+      "report": "conloca",
+      "sourceRecord": "G2",
+      "language": "ru",
+      "ru": "Задача: When inviting someone to a workspace, they don't always get redirected to the invited workspace when clicking accept invite in a received mail",
+      "en": "Task: [English bug text, as pasted from the bug database:] When inviting someone to a workspace, they don't always get redirected to the invited workspace when clicking accept invite in a received mail",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "59a3431d16bdddc2b358f19a80548dfcf20b9e974aeed17282ce6a3d534902aa",
+      "messageSha256": "59a3431d16bdddc2b358f19a80548dfcf20b9e974aeed17282ce6a3d534902aa",
+      "dateUtc": "2026-10-22T13:27:55Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's omp prompt history, project conloca",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (the invite-landing fixes, #288, #289 and #305). Only «Задача:» is the owner's wording; the English after it is pasted bug text.",
+      "windowNote": "22 October 2026",
+      "omitted": null,
+      "pastedEnglishBugText": true,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    }
+  ],
+  "images": [
+    {
+      "id": "conloca-theme-before",
+      "path": "media/conloca-theme-before.png",
+      "sha256": "ed578ab82797703a9bbc272dac0517805aebaa67e190d065df56fc6c33f9af2e",
+      "width": 780,
+      "height": 210,
+      "bytes": 24232,
+      "role": "before",
+      "pair": "theme-picker",
+      "outcome": "theme-picker",
+      "chip": "Before · production",
+      "alt": "Header of conloca.com getting started on production: the theme control is a native select reading Auto",
+      "caption": "Production conloca.com, captured 5 November 2026: the theme control is a native select.",
+      "roi": [
+        1180,
+        0,
+        1440,
+        70
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1306,
+            14,
+            1404,
+            52
+          ],
+          "crop_xyxy": [
+            378,
+            42,
+            672,
+            156
+          ],
+          "note": "It is a native select that opens an operating-system menu."
+        }
+      ],
+      "original": {
+        "path": "images/theme-before.png",
+        "sha256": "c1772cffc7113284902e9af1c9c77847e7307f955b935894b2071a84615e018d",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 194455,
+        "source": "production conloca.com/getting-started, captured 2026-11-05T20:03Z"
+      }
+    },
+    {
+      "id": "conloca-theme-after",
+      "path": "media/conloca-theme-after.png",
+      "sha256": "ea4e064dfd112fa3a4ad4db1d98a56369a1b3c41b212d7a8ffd2388f62d306ac",
+      "width": 780,
+      "height": 210,
+      "bytes": 31382,
+      "role": "after",
+      "pair": "theme-picker",
+      "outcome": "theme-picker",
+      "chip": "After · PR preview",
+      "alt": "Same header on the pull request 489 preview stage: the theme control is a segmented control with Light, Dark and System, and System is highlighted",
+      "caption": "Pull request #489 preview stage, same page, viewport and crop: Light, Dark and System as a visible control.",
+      "roi": [
+        1180,
+        0,
+        1440,
+        70
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1254,
+            10,
+            1404,
+            56
+          ],
+          "crop_xyxy": [
+            222,
+            30,
+            672,
+            168
+          ],
+          "note": "Three visible choices; the active one, System, is highlighted."
+        }
+      ],
+      "original": {
+        "path": "images/theme-after.png",
+        "sha256": "b1a80d382d6b855bed76f13df4c90bd408c446749fdcc9bcd073acc9ea2125de",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 195931,
+        "source": "PR #489 preview stage site.pr489.conloca.com/getting-started, captured 2026-11-05T20:03Z"
+      }
+    },
+    {
+      "id": "conloca-pr220-dark-divider",
+      "path": "media/conloca-pr220-dark-divider.png",
+      "sha256": "0090d8f154be565ffe73b6a91bb14cd860a38c4c3a2116014cd6b5a9c309b069",
+      "width": 782,
+      "height": 115,
+      "bytes": 6086,
+      "role": "single-after",
+      "pair": null,
+      "outcome": "editor",
+      "chip": "Frame of the recording",
+      "alt": "Sign-in divider in dark theme: the lines and the word or are visible against the dark card",
+      "caption": "Frame at 3.9 s of the production recording below: the sign-in divider in the dark theme.",
+      "roi": [
+        470,
+        420,
+        810,
+        470
+      ],
+      "scale": 2.3,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            478,
+            436,
+            802,
+            456
+          ],
+          "crop_xyxy": [
+            18,
+            37,
+            764,
+            83
+          ],
+          "note": "The divider lines and the word “or” are visible against the dark card."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr220-dark-frame.png",
+        "sha256": "bcaef061fe7e0a3ce350a7a07c1bcf3df0c10017b1d06a5fbe7bb5a9f5445214",
+        "width": 1280,
+        "height": 800,
+        "bytes": 47767,
+        "source": "frame at 3.9 s of the PR #220 production recording (desktop)"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "conloca-theme-picker",
+      "kind": "pair",
+      "crops": [
+        "conloca-theme-before",
+        "conloca-theme-after"
+      ]
+    },
+    {
+      "id": "conloca-pr220-frame",
+      "kind": "single",
+      "crops": [
+        "conloca-pr220-dark-divider"
+      ]
+    }
+  ],
+  "videos": [
+    {
+      "id": "conloca-pr342-how-it-works",
+      "mp4": {
+        "path": "media/video/conloca-pr342-how-it-works.mp4",
+        "sha256": "5628cd2e6f68945643b61506d45eafa00a8ff45e68ef9796e6199fc04857af7c",
+        "bytes": 1146068,
+        "mime": "video/mp4",
+        "codec": "h264",
+        "width": 1364,
+        "height": 936,
+        "frames": 165,
+        "durationSeconds": 16.939
+      },
+      "webm": {
+        "path": "media/video/conloca-pr342-how-it-works.webm",
+        "sha256": "7fc70c7839e6a94e60afb3731601f153f81acfb919f4a0db993d6f3291ce76f2",
+        "bytes": 520128,
+        "mime": "video/webm",
+        "codec": "vp9",
+        "width": 1364,
+        "height": 936,
+        "frames": 165,
+        "durationSeconds": 16.92,
+        "note": "VP9 transcode of the mp4 for browsers without H.264; same footage"
+      },
+      "poster": {
+        "path": "media/video/conloca-pr342-how-it-works-poster.jpg",
+        "sha256": "c6ec6ea9dd7f5c8d3a03da80f7c9c8df8563f673dec9c5be147728d94a5ccf0c",
+        "bytes": 157703,
+        "frameSecond": 12,
+        "note": "real frame of this clip"
+      }
+    },
+    {
+      "id": "conloca-pr220-signin-divider-desktop",
+      "mp4": {
+        "path": "media/video/conloca-pr220-signin-divider-desktop.mp4",
+        "sha256": "330c04b0fbeaef98ad798bbf28e8d1da629bf2361b991f2fb8cb398bcb6fa486",
+        "bytes": 58682,
+        "mime": "video/mp4",
+        "codec": "h264",
+        "width": 1280,
+        "height": 800,
+        "frames": 41,
+        "durationSeconds": 4.1
+      },
+      "webm": {
+        "path": "media/video/conloca-pr220-signin-divider-desktop.webm",
+        "sha256": "757c84c56eb00c37b637d52b7b098391a008aba6102266a50eb7ca31f2b4b37d",
+        "bytes": 20069,
+        "mime": "video/webm",
+        "codec": "vp9",
+        "width": 1280,
+        "height": 800,
+        "frames": 41,
+        "durationSeconds": 4.1,
+        "note": "VP9 transcode of the mp4 for browsers without H.264; same footage"
+      },
+      "poster": {
+        "path": "media/video/conloca-pr220-signin-divider-desktop-poster.jpg",
+        "sha256": "580ff8804ff9dbdb85c8b783278b99042f0dfa9c97cac7877d41d278eeb57854",
+        "bytes": 23096,
+        "frameSecond": 3.9,
+        "note": "real frame of this clip"
+      }
+    },
+    {
+      "id": "conloca-pr220-signin-divider-mobile",
+      "mp4": {
+        "path": "media/video/conloca-pr220-signin-divider-mobile.mp4",
+        "sha256": "da4c5ba19643cd24c82add4cf54016982a0ceb5c220de52909a15f09a6ade046",
+        "bytes": 80546,
+        "mime": "video/mp4",
+        "codec": "h264",
+        "width": 390,
+        "height": 844,
+        "frames": 41,
+        "durationSeconds": 4.1
+      },
+      "webm": {
+        "path": "media/video/conloca-pr220-signin-divider-mobile.webm",
+        "sha256": "d6a59fe733578ce1962f2ec756aa2f0b655585a465922deb9b1743c841e7c491",
+        "bytes": 23003,
+        "mime": "video/webm",
+        "codec": "vp9",
+        "width": 390,
+        "height": 844,
+        "frames": 41,
+        "durationSeconds": 4.1,
+        "note": "VP9 transcode of the mp4 for browsers without H.264; same footage"
+      },
+      "poster": {
+        "path": "media/video/conloca-pr220-signin-divider-mobile-poster.jpg",
+        "sha256": "50205cb48fc3246e5a1ee8cdb69329166c9ab3ed6505f6ccbfeed9b7c47904f5",
+        "bytes": 15024,
+        "frameSecond": 3.9,
+        "note": "real frame of this clip"
+      }
+    },
+    {
+      "id": "conloca-pr316-new-branch-field",
+      "mp4": {
+        "path": "media/video/conloca-pr316-new-branch-field.mp4",
+        "sha256": "175ed0005255fa6b785d89339335211cda5760fd74ba0f45ecd38630a0455a8d",
+        "bytes": 29841,
+        "mime": "video/mp4",
+        "codec": "h264",
+        "width": 600,
+        "height": 460,
+        "frames": 100,
+        "durationSeconds": 10.05
+      },
+      "webm": {
+        "path": "media/video/conloca-pr316-new-branch-field.webm",
+        "sha256": "8f160203355c2076ac9eedc6b893fc30effaf35460d3a51e2aa58565ccffae71",
+        "bytes": 21050,
+        "mime": "video/webm",
+        "codec": "vp9",
+        "width": 600,
+        "height": 460,
+        "frames": 100,
+        "durationSeconds": 10.05,
+        "note": "VP9 transcode of the mp4 for browsers without H.264; same footage"
+      },
+      "poster": {
+        "path": "media/video/conloca-pr316-new-branch-field-poster.jpg",
+        "sha256": "19a36f8333aacdf3485dbe6f8cc7a9bb95b31a7915badea35ca99ca199aff878",
+        "bytes": 23539,
+        "frameSecond": 4.0,
+        "note": "real frame of this clip"
+      },
+      "derived": {
+        "source": "original production recording (access-protected, not republished)",
+        "sourceSha256": "ce25011c07367aff2de27d53927b8212f55af2815cf55b72c731146268f84c86",
+        "cropXYWH": [
+          182,
+          40,
+          300,
+          230
+        ],
+        "scale": 2,
+        "tool": "ffmpeg crop+scale (lanczos), libx264 crf 20, no audio"
+      }
+    }
+  ]
+}

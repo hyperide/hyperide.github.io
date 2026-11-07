@@ -56,7 +56,10 @@
     "task-only": [
       "t1-click-resolves-real-source",
       "t2-elements-tree-component-name",
-      "t3-layout-panel-pixel-size"
+      "t3-layout-panel-pixel-size",
+      "t-explorer-empty-state",
+      "t-new-component-dialog",
+      "t-split-first-click"
     ],
     "canvas-contract": [
       "c1-stale-context-cancellation",
@@ -320,7 +323,7 @@
       "scope": "One consumer of A1. The stylability ladder in the write path is not part of this result.",
       "verification": [
         "24 tests added, including a StrictMode regression the pull request says fails when the fix is reverted.",
-        "The pull request body embeds a screenshot of the toast from a real VS Code extension build. It is a single state with no before image, so it is not reproduced here."
+        "The pull request body embeds a screenshot of the toast from a real VS Code extension build. Two annotated crops of it are shown above. It is a single capture with no before image."
       ],
       "caveats": [
         "A click on a native child of a same-file wrapper resolves to the child, so the warning rarely fires in that shape (stated in the pull request)."
@@ -396,7 +399,7 @@
       "scope": "Extension-side verified write and a shared pre-write check. Not the shared B1 foundation.",
       "verification": [
         "Tests added: #730 21, #665 64 (counted from added test lines). The pull requests record green suites; they were not rerun for this report.",
-        "#665 shows a native VS Code warning on a non-forwarding `<Badge>` (border-radius edit), a single state, hosted on Linear and not re-fetched here. The HYP-995 attachment shows code before and after, rendered from a real run; it is not an editor screenshot."
+        "#665 shows a native VS Code warning on a non-forwarding `<Badge>` (border-radius edit). It is a single capture, shown above as an annotated crop of the image in the pull request body. The HYP-995 attachment shows code before and after, rendered from a real run; it is not an editor screenshot."
       ],
       "caveats": [
         "The shared both-realm runtime-verify foundation is still missing. The SaaS inspector surface for the warning, the alias map and the batch route are open follow-ups (HYP-1017, HYP-1310).",
@@ -904,6 +907,141 @@
       ]
     },
     {
+      "id": "t-explorer-empty-state",
+      "family": "task-only",
+      "status": "task-only",
+      "statusLabel": "Task-only · no spec claim · merged to main · 14 August 2026",
+      "title": "With no folder open, Explorer says what to do instead of spinning forever",
+      "before": "With no folder open, the HyperIDE Explorer views never finished loading, and the task describes a spinner that never stopped. The pull request's before capture shows the panel body empty, with no message and no action.",
+      "now": "Every Hyper view resolves to an Open Folder empty state. The panel says “No folder opened”, explains that opening a folder closes all current editors, offers an add a folder link and shows an Open Folder button.",
+      "scope": "The no-folder state of the Explorer views.",
+      "verification": [
+        "Tests with a drift guard against the extension's view list. The before and after crops above come from the pull request's own screenshots of one window."
+      ],
+      "caveats": [
+        "The pull request's first after capture used interim wording that a follow-up commit replaced; the crop shown is the follow-up capture."
+      ],
+      "requirementTask": "HYP-1237",
+      "quotes": [],
+      "tasks": [
+        {
+          "key": "HYP-1237",
+          "title": "Hyper Explorer shows infinite loading spinner when no folder is open (single file, no workspace)",
+          "state": "done",
+          "url": "https://tasks.glide.vc/issues/bd4938b2-371f-5ef7-acbe-528fe86879e5",
+          "uuid": "bd4938b2-371f-5ef7-acbe-528fe86879e5",
+          "note": ""
+        }
+      ],
+      "pullRequests": [
+        {
+          "number": 721,
+          "role": "resolve HyperIDE webview views when no folder is open",
+          "url": "https://github.com/hyperide/hyper-saas/pull/721",
+          "state": "merged",
+          "title": "fix(ext): resolve HyperIDE webview views when no folder is open (HYP-1237)",
+          "base": "main",
+          "mergedAt": "2026-08-14T21:19:27Z",
+          "mergeSha": "89d73f4afd7ec5ac980941af5cee069802817c42",
+          "credit": {
+            "kind": "whole",
+            "commits": 5
+          },
+          "openedFromAnotherAccount": false
+        }
+      ]
+    },
+    {
+      "id": "t-new-component-dialog",
+      "family": "task-only",
+      "status": "task-only",
+      "statusLabel": "Task-only · no spec claim · merged to main · 7 August 2026",
+      "title": "A guided New component dialog replaces AI-chat stand-ins",
+      "before": "Creating a component went through AI-chat stand-ins. The extension and SaaS had no shared guided dialog for a building block, a section or a page.",
+      "now": "A guided dialog with a type picker for building block, section or page, live name validation with collision detection and an automatically chosen folder, shared by the extension and SaaS. It opens from the Components + button and opens the new file after Create.",
+      "scope": "The VS Code dialog and the shared creation logic.",
+      "verification": [
+        "Tests for the dialog and shared logic. The two committed screenshots are steps of one run, dialog then result, not a before and after."
+      ],
+      "caveats": [
+        "The old creation flow was not captured, so no before image exists."
+      ],
+      "requirementTask": "HYP-1184",
+      "quotes": [],
+      "tasks": [
+        {
+          "key": "HYP-1184",
+          "title": "New-component creation (atom/composite/page) for ext + SaaS parity, friendly to non-programmers",
+          "state": "done",
+          "url": "https://tasks.glide.vc/issues/aa543505-1800-5146-a42b-8ba594b40757",
+          "uuid": "aa543505-1800-5146-a42b-8ba594b40757",
+          "note": ""
+        }
+      ],
+      "pullRequests": [
+        {
+          "number": 705,
+          "role": "guided New-component dialog with shared extension and SaaS logic",
+          "url": "https://github.com/hyperide/hyper-saas/pull/705",
+          "state": "merged",
+          "title": "feat(component-create): guided New-component dialog with shared ext+SaaS logic (HYP-1184)",
+          "base": "main",
+          "mergedAt": "2026-08-07T01:21:07Z",
+          "mergeSha": "b901fb76f227b373b94eef3c0b4683bcbb014471",
+          "credit": {
+            "kind": "whole",
+            "commits": 4
+          },
+          "openedFromAnotherAccount": false
+        }
+      ]
+    },
+    {
+      "id": "t-split-first-click",
+      "family": "task-only",
+      "status": "task-only",
+      "statusLabel": "Task-only · no spec claim · merged to main · 28 August 2026",
+      "title": "The first Explorer click opens the component beside the preview",
+      "before": "A first Explorer click opened the component file in the same group as the canvas, so there was no side-by-side view. The second click in a row did open the split.",
+      "now": "The file opens before the preview panel, which restores the split on a fresh window. The first click now gives the side-by-side view.",
+      "scope": "The first click on a fresh window.",
+      "verification": [
+        "Tests, and a live reproduction with the Playwright harness cited in the commit message. No screenshot was recovered."
+      ],
+      "caveats": [
+        "The owner's Telegram screenshot of the bug was not recovered."
+      ],
+      "requirementTask": "HYP-1372",
+      "quotes": [],
+      "tasks": [
+        {
+          "key": "HYP-1372",
+          "title": "Explorer component click no longer opens split view — file lands in same group as Hyper Canvas",
+          "state": "done",
+          "url": "https://tasks.glide.vc/issues/34048cd1-f356-5b75-a624-7a29aaa7a18d",
+          "uuid": "34048cd1-f356-5b75-a624-7a29aaa7a18d",
+          "note": ""
+        }
+      ],
+      "pullRequests": [
+        {
+          "number": 762,
+          "role": "restore split view on first Explorer click",
+          "url": "https://github.com/hyperide/hyper-saas/pull/762",
+          "state": "merged",
+          "title": "fix(preview): restore split view on first Explorer click (HYP-1372)",
+          "base": "main",
+          "mergedAt": "2026-08-28T10:54:39Z",
+          "mergeSha": "805b6eab0ce33688c296f81fa73025066726d8f0",
+          "credit": {
+            "kind": "whole",
+            "commits": 2
+          },
+          "openedFromAnotherAccount": false
+        }
+      ]
+    },
+    {
       "id": "c1-stale-context-cancellation",
       "family": "canvas-contract",
       "status": "implemented-branch",
@@ -915,7 +1053,7 @@
       "scope": "A bounded pre-dispatch guard. Not Canvas demo sign-off.",
       "verification": [
         "Recorded proof (author report, not rerun here): 121 host, RPC, hook and overlay tests pass on a4421822, and a 29 September commit adds 11 hook regressions that fail on the previous source.",
-        "The pull request body has two screenshots from a real VS Code run in an isolated profile: the “Edit cancelled” notice with the source unchanged, and the next ordinary edit persisting. They are single states, hosted on GitHub attachments and not re-fetched here."
+        "The pull request body has two screenshots from a real VS Code run in an isolated profile: the “Edit cancelled” notice with the source unchanged, and the next ordinary edit persisting. They are two stages of one run, and annotated crops of both are shown above."
       ],
       "caveats": [
         "The full composed and SaaS interaction matrix and hover-exit parity remain open under HYP-1481. HYP-1588 leaves SaaS single-select without the reread.",
@@ -1013,7 +1151,7 @@
       "scope": "Move and order-drop paths in VS Code.",
       "verification": [
         "Recorded proof on 4c7bcb0e (author report, not rerun here): application 8,103 pass and 0 fail, native packages 913 and 0, changed extension suites 199 and 0. `bun run test` exits 1 only because of a state-lib site gate in files the pull request does not touch. A route control for HYP-1541 fails on a mutant that reloads before every restore echo.",
-        "The pull request body embeds nine screenshots from an installed VS Code: the drag outline and result, a restore after a failed module, typing 0.8 s and 0.2 s after a drop, a selection change mid-move, and an order drop before and after. They are hosted on GitHub attachments and not re-fetched here."
+        "The pull request body embeds nine screenshots from an installed VS Code: the drag outline and result, a restore after a failed module, typing 0.8 s and 0.2 s after a drop, a selection change mid-move, and an order drop before and after. The order drop before and after, and the restore notice, are shown above as annotated crops; the other images are not reproduced."
       ],
       "caveats": [
         "The pull request has a CHANGES_REQUESTED review on an earlier head and conflicts with its base.",
@@ -1145,7 +1283,7 @@
       "scope": "Fallback policy and the save and typing races of the move path.",
       "verification": [
         "Host tests ran per spec paragraph. The pull request says single native runs were observed and the ten-run sets after the fix are not recorded.",
-        "No screenshot is attached or claimed."
+        "Pull request #819 attaches no screenshot. The crop above comes from the integration branch of #823, committed at a4caec76: it shows the Fix with AI button offered after a failed move."
       ],
       "caveats": [
         "Three tickets stay todo although their fixes are on the unmerged branch, so task state does not match code state. The §14.6a.4 wording follows an owner direction that the spec cites; that source was not read for this report."
@@ -1267,7 +1405,7 @@
       "scope": "Move scope and selection identity in VS Code. Not complete SaaS parity.",
       "verification": [
         "Recorded proof is the author's test report; it was not rerun for this report.",
-        "Three screenshots are committed in the repository at a4caec76 (typing and save keep Flex A selected, a newer Flex B selection survives verification, a failed marked render restores the source before the AI click). They are single states without a before image, so they are not shown here."
+        "Three screenshots are committed in the repository at a4caec76 (typing and save keep Flex A selected, a newer Flex B selection survives verification, a failed marked render restores the source before the AI click). The restore notice with its Fix with AI button is shown above as an annotated crop. The others are single states without a before image and are not reproduced."
       ],
       "caveats": [
         "The pull request states that no merge, extension release or novice-demo sign-off is claimed. Render-verified Undo and Redo, complete SaaS and occurrence acceptance, real-OS hover and live-data order adapters remain separate work."
@@ -1421,7 +1559,7 @@
       "scope": "Edit-component navigation, drag lifecycle and snapshot-conflict rejection.",
       "verification": [
         "Recorded proof (author report, not rerun here): 7,832 application tests with 2 existing skips and 0 failing, and 946 native tests with 0 failing, on 1e9559a5.",
-        "The pull request body has a before and after pair from an isolated real VS Code run on the Twitter fixture: the Feed call site inside App, then Canvas switched to the Feed definition with the Elements tree rebuilt. The images are hosted on GitHub attachments and not re-fetched here."
+        "The pull request body has a before and after pair from an isolated real VS Code run on the Twitter fixture: the Feed call site inside App, then Canvas switched to the Feed definition with the Elements tree rebuilt. Annotated crops of the editor tab and the Canvas are shown above, and the Elements tree and the notices are in the block under them."
       ],
       "caveats": [
         "Credit is narrow. In #794 only commit fda9e4a9 is claimed. Its Undo-guard file refines a colleague's earlier commit in another pull request; the Undo-guard idea is not claimed.",
@@ -1550,7 +1688,7 @@
       "now": "#827 gives the shared useStyleSync hook one revocable operation scope per committed editor context. When the context ends, through a new selection, an A→B→A return or an unmount, the scope is revoked. Stale feedback is dropped and a retained input handler can no longer enqueue a write. A read-only lease keeps the source-reread obligation. The writer, planner, rollback and journal stay where they were.",
       "scope": "Operation authority in one hook. Not a state-lib migration of the Style Editor.",
       "verification": [
-        "A real VS Code 1.124.2 extension write changed the fixture's `w-12` to `w-[140px]`, and the preview width became 140 px after hot reload (pair below). It proves that an ordinary write still settles. It does not test stale responses or rollback.",
+        "A real VS Code 1.124.2 extension write changed the fixture's `w-12` to `w-[140px]`, and the preview width became 140 px after hot reload (pair above). It proves that an ordinary write still settles. It does not test stale responses or rollback.",
         "Recorded proof (author report, not rerun here): with only the library guard removed, 2 of 4 real-hook tests fail. Stale-response behavior is checked in a browser fixture built from the real right sidebar with a simulated extension host, so it is a fixture result, not acceptance in the live editor.",
         "Recorded proof (author report, not rerun here): 7,975 application tests pass with 7 existing skips, and 1,086 package tests pass."
       ],
@@ -2528,70 +2666,6 @@
   ],
   "taskOnly": [
     {
-      "title": "New-component dialog",
-      "tasks": [
-        {
-          "key": "HYP-1184",
-          "title": "New-component creation (atom/composite/page) for ext + SaaS parity, friendly to non-programmers",
-          "state": "done",
-          "url": "https://tasks.glide.vc/issues/aa543505-1800-5146-a42b-8ba594b40757",
-          "uuid": "aa543505-1800-5146-a42b-8ba594b40757"
-        }
-      ],
-      "pullRequests": [
-        {
-          "number": 705,
-          "role": "New-component dialog",
-          "url": "https://github.com/hyperide/hyper-saas/pull/705",
-          "state": "merged",
-          "title": "feat(component-create): guided New-component dialog with shared ext+SaaS logic (HYP-1184)",
-          "base": "main",
-          "mergedAt": "2026-08-07T01:21:07Z",
-          "mergeSha": "b901fb76f227b373b94eef3c0b4683bcbb014471",
-          "credit": {
-            "kind": "whole",
-            "commits": 4
-          },
-          "openedFromAnotherAccount": false
-        }
-      ],
-      "before": "Creating a component went through AI-chat stand-ins.",
-      "now": "A guided dialog with a type picker for building block, section or page, live name validation with collision detection and an automatically chosen folder, shared by the extension and SaaS.",
-      "evidence": "Tests for the dialog and shared logic. Two committed screenshots of the result, with no before image."
-    },
-    {
-      "title": "Explorer empty state",
-      "tasks": [
-        {
-          "key": "HYP-1237",
-          "title": "Hyper Explorer shows infinite loading spinner when no folder is open (single file, no workspace)",
-          "state": "done",
-          "url": "https://tasks.glide.vc/issues/bd4938b2-371f-5ef7-acbe-528fe86879e5",
-          "uuid": "bd4938b2-371f-5ef7-acbe-528fe86879e5"
-        }
-      ],
-      "pullRequests": [
-        {
-          "number": 721,
-          "role": "Explorer empty state",
-          "url": "https://github.com/hyperide/hyper-saas/pull/721",
-          "state": "merged",
-          "title": "fix(ext): resolve HyperIDE webview views when no folder is open (HYP-1237)",
-          "base": "main",
-          "mergedAt": "2026-08-14T21:19:27Z",
-          "mergeSha": "89d73f4afd7ec5ac980941af5cee069802817c42",
-          "credit": {
-            "kind": "whole",
-            "commits": 5
-          },
-          "openedFromAnotherAccount": false
-        }
-      ],
-      "before": "With no folder open, the Explorer views showed a loading spinner forever.",
-      "now": "Every Hyper view resolves to an Open Folder empty state.",
-      "evidence": "Tests with a drift guard against the extension's view list. Real before and after screenshots are shown below."
-    },
-    {
       "title": "Dead dev server recovery",
       "tasks": [
         {
@@ -2693,38 +2767,6 @@
       "before": "Components that get children only through `extends *HTMLAttributes` rendered with no visible content.",
       "now": "The preview synthesizes a children prop for them, and never for void elements.",
       "evidence": "Regression tests for inherited children, including void elements."
-    },
-    {
-      "title": "Split view on first Explorer click",
-      "tasks": [
-        {
-          "key": "HYP-1372",
-          "title": "Explorer component click no longer opens split view — file lands in same group as Hyper Canvas",
-          "state": "done",
-          "url": "https://tasks.glide.vc/issues/34048cd1-f356-5b75-a624-7a29aaa7a18d",
-          "uuid": "34048cd1-f356-5b75-a624-7a29aaa7a18d"
-        }
-      ],
-      "pullRequests": [
-        {
-          "number": 762,
-          "role": "Split view on first Explorer click",
-          "url": "https://github.com/hyperide/hyper-saas/pull/762",
-          "state": "merged",
-          "title": "fix(preview): restore split view on first Explorer click (HYP-1372)",
-          "base": "main",
-          "mergedAt": "2026-08-28T10:54:39Z",
-          "mergeSha": "805b6eab0ce33688c296f81fa73025066726d8f0",
-          "credit": {
-            "kind": "whole",
-            "commits": 2
-          },
-          "openedFromAnotherAccount": false
-        }
-      ],
-      "before": "A first Explorer click opened the component file in the same group as the canvas, so there was no side-by-side view.",
-      "now": "The file opens before the preview panel, which restores the split on a fresh window.",
-      "evidence": "Tests, and a live reproduction with the Playwright harness cited in the commit message; no screenshot exists."
     },
     {
       "title": "Create-Sample children",
@@ -2944,68 +2986,6 @@
         },
         "openedFromAnotherAccount": false
       }
-    }
-  ],
-  "images": [
-    {
-      "path": "reports/hyper-2026-10/images/explorer-no-folder-before.png",
-      "sha256": "4a5a405a057a77084867df53d0dd164473ab072b5ffe792eb14059be17b8a5da",
-      "width": 2400,
-      "height": 1536,
-      "bytes": 398390,
-      "figure": "fig-explorer-empty-state",
-      "side": "before",
-      "pr": 721,
-      "task": "HYP-1237",
-      "sourceRepo": "hyperide/hyper-saas",
-      "sourceRevision": "5c26b9c68060e520e555774d37141b11d2aa12aa",
-      "sourcePath": ".github/pr-screenshots/pr721-20260814-01-before-blank-panel-spinner.png",
-      "kind": "real-editor-screenshot"
-    },
-    {
-      "path": "reports/hyper-2026-10/images/explorer-no-folder-after.png",
-      "sha256": "f85b2341c4df27f1a61addffe90e8a07f4f7085e8efc9ba3d8936782abe2377d",
-      "width": 2400,
-      "height": 1536,
-      "bytes": 409560,
-      "figure": "fig-explorer-empty-state",
-      "side": "after",
-      "pr": 721,
-      "task": "HYP-1237",
-      "sourceRepo": "hyperide/hyper-saas",
-      "sourceRevision": "5c26b9c68060e520e555774d37141b11d2aa12aa",
-      "sourcePath": ".github/pr-screenshots/pr721-20260814-02-after-empty-state.png",
-      "kind": "real-editor-screenshot"
-    },
-    {
-      "path": "reports/hyper-2026-10/images/style-write-before.png",
-      "sha256": "199847407455ebf23115c639f0439f487e34fcb904137595d80de1b47cc731c2",
-      "width": 1440,
-      "height": 835,
-      "bytes": 259980,
-      "figure": "fig-inspector-width-write",
-      "side": "before",
-      "pr": 827,
-      "task": "HYP-1536",
-      "sourceRepo": "hyperide/hyper-saas",
-      "sourceRevision": "57ce396900f77ae3f6555164ce318e4fe584276b",
-      "sourcePath": "docs/reports/evidence/style-operation-20261016/native-before.png",
-      "kind": "real-editor-screenshot"
-    },
-    {
-      "path": "reports/hyper-2026-10/images/style-write-after.png",
-      "sha256": "ffb57145c8fb2fc28e98c08797cc82a68ac2c169b67a9b91d0c120957ef692aa",
-      "width": 1440,
-      "height": 835,
-      "bytes": 260507,
-      "figure": "fig-inspector-width-write",
-      "side": "after",
-      "pr": 827,
-      "task": "HYP-1536",
-      "sourceRepo": "hyperide/hyper-saas",
-      "sourceRevision": "57ce396900f77ae3f6555164ce318e4fe584276b",
-      "sourcePath": "docs/reports/evidence/style-operation-20261016/native-after.png",
-      "kind": "real-editor-screenshot"
     }
   ],
   "tiles": [

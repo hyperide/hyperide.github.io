@@ -25,6 +25,12 @@ jobs:
       - name: Verify the HyperIDE product report against its evidence record
         run: python3 scripts/ci/check-product-report.py
 
+      - name: Make sure ffprobe is available to decode the recordings
+        run: command -v ffprobe || (sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg)
+
+      - name: Verify screenshots, original requests and recordings
+        run: python3 scripts/ci/check-media-report.py
+
       - name: Install dependencies
         run: npm ci
 
@@ -39,3 +45,6 @@ jobs:
 
       - name: Check October reports render without JavaScript and on phones
         run: npm run ci:render-october
+
+      - name: Check screenshots, original requests and recordings render and play
+        run: npm run ci:render-media

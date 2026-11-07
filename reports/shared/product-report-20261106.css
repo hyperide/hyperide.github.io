@@ -10,8 +10,7 @@
 .outcomes-index .family-nav li {
   margin: 0;
 }
-.report-section > .outcomes,
-.report-section > .figure-pair {
+.report-section > .outcomes {
   margin-top: 18px;
 }
 .report-section h3 {
@@ -202,49 +201,9 @@ ul.plain blockquote {
   color: var(--text);
   overflow-wrap: anywhere;
 }
-.figure-pair {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--border);
-  border-radius: 10px;
-  padding: 20px 24px;
-  margin: 18px 0;
-}
-.figure-pair.kind-merged {
-  border-left-color: var(--green);
-}
-.figure-pair.kind-pilot {
-  border-left-color: var(--orange);
-}
-.figure-pair.kind-implemented-branch {
-  border-left-color: var(--yellow);
-}
-.figure-pair .refs {
-  margin-top: 12px;
-}
 @media (max-width: 650px) {
-  .figure-pair {
-    padding: 16px 14px;
-  }
   figure.requirement {
     padding: 10px 12px;
-  }
-  /* Phone crops magnify one region of a real capture. Each offset is tuned to its PNG:
-     crop-explorer shows the Explorer panel of the 2400x1536 capture (top-left 30% x 26%);
-     crop-inspector shows the inspector width field of the 1440x835 capture (right 28%).
-     Re-tune both if an image is replaced. */
-  .crop.crop-explorer img {
-    left: 0;
-    top: -11.4%;
-    width: 333%;
-  }
-  .crop.crop-inspector {
-    aspect-ratio: 5 / 4;
-  }
-  .crop.crop-inspector img {
-    left: -257.1%;
-    top: -72.5%;
-    width: 357.1%;
   }
   .outcome details.evidence ul {
     margin-left: 16px;

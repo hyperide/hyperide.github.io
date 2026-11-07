@@ -13,7 +13,6 @@ import hashlib
 import html
 import json
 import re
-import struct
 import sys
 import unittest
 from pathlib import Path
@@ -110,7 +109,7 @@ class ProductReport(unittest.TestCase):
                        "not declared complete"):
             self.assertIn(needle, text)
         marks = ['class="report-nav"', "<h1>", 'class="byline"', 'id="overview"', 'id="architecture"', 'id="outcomes"',
-                 'id="style-editor"', 'id="task-only"', 'id="canvas-contract"', 'id="state"', 'id="figures"', 'id="coverage"',
+                 'id="style-editor"', 'id="task-only"', 'id="canvas-contract"', 'id="state"', 'id="visual-proof"', 'id="coverage"',
                  'id="other-specs"', 'id="proof"']
         positions = [self.no_script.index(m) for m in marks]
         self.assertEqual(positions, sorted(positions))
@@ -152,7 +151,7 @@ class ProductReport(unittest.TestCase):
             else:
                 primary = [q for q in o["quotes"] if q["primary"]]
                 self.assertEqual(len(primary), 1, o["id"])
-                self.assertEqual(len(re.findall(r"<blockquote\b", visible)), 1, o["id"])
+                self.assertEqual(len(re.findall(r'<figure class="requirement">', visible)), 1, o["id"])
                 self.assertIn(plain_quote(primary[0]["text"]), strip(visible), o["id"])
 
     def test_every_outcome_names_tasks_and_pull_requests_with_status(self):
@@ -229,7 +228,7 @@ class ProductReport(unittest.TestCase):
         # Every translation paragraph on the page belongs to a Russian quote, and each is labelled.
         translations = re.findall(r'<p class="translation">(.*?)</p>', self.no_script, re.S)
         self.assertTrue(all(t.startswith('<span class="tag">Translation, not source text</span>') for t in translations))
-        self.assertEqual(len(re.findall(r'<blockquote lang="ru">', self.no_script)), len(translations))
+        self.assertEqual(len(re.findall(r'<figure class="requirement"><blockquote lang="ru">', self.no_script)), len(translations))
         # The translation never sits inside the quoted source text.
         for m in re.finditer(r"<blockquote lang=\"ru\">(.*?)</blockquote>", self.no_script, re.S):
             self.assertNotIn("Translation", m.group(1))
@@ -437,13 +436,13 @@ class ProductReport(unittest.TestCase):
     # ------------------------------------------------------------ task-only labels
     def test_task_only_results_are_labelled_and_have_no_spec_claim(self):
         task_only = [o for o in self.data["outcomes"] if o["family"] == "task-only"]
-        self.assertEqual(len(task_only), 3)
+        self.assertEqual(len(task_only), 6)
         for o in task_only:
             self.assertEqual(o["status"], "task-only")
             self.assertEqual(o["quotes"], [])
             self.assertIn(o["requirementTask"], [t["key"] for t in o["tasks"]])
             self.assertIn("no spec claim", o["statusLabel"].lower())
-        self.assertEqual(len(self.data["taskOnly"]), 10)
+        self.assertEqual(len(self.data["taskOnly"]), 7)
         table = self.no_script.split('class="figures report-table taskonly-table"', 1)[1].split("</table>", 1)[0]
         self.assertEqual(table.count("<tr>") - 1, len(self.data["taskOnly"]))
         for row in self.data["taskOnly"]:
@@ -572,72 +571,55 @@ class ProductReport(unittest.TestCase):
         self.assertIn("No window commit found, so no delivery is claimed", strip(table))
 
     def test_tables_stack_on_phones_with_labels(self):
-        for cls in ("arch-table", "specs-table", "taskonly-table"):
+        for cls in ("arch-table", "specs-table", "taskonly-table", "visual-table"):
             table = self.no_script.split(f'class="figures report-table {cls}"', 1)[1].split("</table>", 1)[0]
             heads = re.findall(r'<th scope="col">(.*?)</th>', table)
             for row in re.findall(r"<tr>(.*?)</tr>", table.split("<tbody>", 1)[1], re.S):
                 labels = re.findall(r'<td data-label="([^"]+)">', row)
                 self.assertEqual([html.unescape(h) for h in heads], [html.unescape(l) for l in labels], cls)
 
-    # ------------------------------------------------------------ images
-    def test_images_are_real_decodable_distinct_pairs_in_the_manifest(self):
-        recorded = {r["path"]: r for r in self.data["images"]}
+    # ------------------------------------------------------------ screenshots sit beside their results
+    def test_every_screenshot_sits_inside_a_result_and_is_in_the_media_record(self):
+        media = json.loads((PAGE.parent / "media-evidence.json").read_text(encoding="utf-8"))
+        recorded = {i["path"] for i in media["images"]}
         tags = re.findall(r"<img\b[^>]*>", self.no_script)
         self.assertEqual(len(tags), len(recorded))
-        self.assertGreaterEqual(len(tags), 4)
         for tag in tags:
-            src = re.search(r'src="([^"]+)"', tag).group(1)
-            r = recorded[f"reports/{SLUG}/{src}"]
-            data = (PAGE.parent / src).read_bytes()
-            self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
-            self.assertEqual(hashlib.sha256(data).hexdigest(), r["sha256"])
-            self.assertEqual(struct.unpack(">II", data[16:24]), (r["width"], r["height"]))
-            self.assertEqual(len(data), r["bytes"])
-            self.assertGreater(len(data), 50000)
-            self.assertRegex(tag, r'alt="[^"]{40,}"')
-            self.assertIn(f'width="{r["width"]}"', tag)
-            self.assertIn(f'height="{r["height"]}"', tag)
-            self.assertRegex(r["sourceRevision"], r"^[0-9a-f]{40}$")
-            self.assertEqual(r["kind"], "real-editor-screenshot")
-            for fixture in ("scripts/style-state-pilot", "state-bench", "field-subscriptions", "feedback-capability", "/evidence/fields", "parent.png"):
-                self.assertNotIn(fixture, r["sourcePath"])
-            self.assertNotIn("hyperide.github.io", r["sourcePath"])
-        crops = re.findall(r'<a class="crop [^"]+" href="([^"]+)">\s*<img src="([^"]+)"', self.no_script)
-        self.assertEqual(len(crops), len(tags))
-        self.assertTrue(all(h == s for h, s in crops))
-        by_fig = {}
-        for r in self.data["images"]:
-            by_fig.setdefault(r["figure"], {})[r["side"]] = r
-        self.assertEqual(len(by_fig), 2)
-        for fig, sides in by_fig.items():
-            self.assertEqual(set(sides), {"before", "after"})
-            self.assertNotEqual(sides["before"]["sha256"], sides["after"]["sha256"], fig)
-            self.assertEqual(sides["before"]["pr"], sides["after"]["pr"])
+            self.assertIn(re.search(r'src="([^"]+)"', tag).group(1), recorded)
+        # No gallery at the bottom: the screenshots live in the results and in the appendix of the same results.
+        proof = self.no_script.split('id="visual-proof"', 1)[1].split('id="coverage"', 1)[0]
+        self.assertNotIn("<img", proof)
+        for art in self.articles.values():
+            visible = art.split('<details class="evidence">', 1)[0]
+            self.assertEqual(visible.count("<img"), art.count("<img"), "a screenshot is hidden in a collapsed evidence block")
 
-    def test_screenshots_are_labelled_with_their_status_and_limits(self):
-        figs = self.no_script.split('id="figures"', 1)[1].split('id="proof"', 1)[0]
-        pairs = re.findall(r'<div class="figure-pair kind-([\w-]+)" id="([^"]+)" data-pr="(\d+)">.*?<span class="status-label">(.*?)</span>', figs, re.S)
-        self.assertEqual([(p[0], p[1], p[2]) for p in pairs], [("merged", "fig-explorer-empty-state", "721"), ("implemented-branch", "fig-inspector-width-write", "827")])
-        self.assertIn("task-only", pairs[0][3])
-        self.assertIn("not merged", pairs[1][3])
-        self.assertIn("Implemented and checked on the cited branch", pairs[1][3])
-        text = strip(figs)
-        self.assertIn("It is not a speed result and does not test stale responses or rollback", text)
-        self.assertIn("Benchmark fixture captures are not shown", text)
-        self.assertIn("Only real before and after pairs", text)
+    def test_visual_proof_index_names_kinds_and_the_missing_recordings(self):
+        sec = self.no_script.split('id="visual-proof"', 1)[1].split('id="coverage"', 1)[0]
+        text = strip(sec)
+        for needle in ("before and after", "single capture", "sequence", "No hosted end-to-end recording or trace exists",
+                       "a CI job page is not a recording", "Benchmark fixture captures are not shown"):
+            self.assertIn(needle, text)
+        rows = re.findall(r"<tr>(.*?)</tr>", sec.split("<tbody>", 1)[1], re.S)
+        self.assertEqual(len(rows), 10)
+        for row in rows:
+            for href in re.findall(r'href="#([^"]+)"', row):
+                self.assertIn(f'id="{href}"', self.no_script)
 
     # ------------------------------------------------------------ styles and mobile flow
     def test_versioned_styles_leave_the_earlier_files_unchanged(self):
         for rel, digest in OLD_CSS_SHA256.items():
             self.assertEqual(hashlib.sha256((ROOT / rel).read_bytes()).hexdigest(), digest, rel)
         head = self.page.split("</head>", 1)[0]
-        order = [head.index(f'href="../shared/{n}"') for n in ("styles.css", "october-own-20261106.css", "product-report-20261106.css")]
+        order = [head.index(f'href="../shared/{n}"') for n in ("styles.css", "october-own-20261106.css", "product-report-20261106.css", "media-proof-20261106.css")]
         self.assertEqual(order, sorted(order))
         self.assertNotIn("<style>", self.page)
         css = self.css
         self.assertIn("@media (max-width: 650px)", css)
-        for needle in (".crop.crop-explorer", ".crop.crop-inspector", "figure.requirement", ".outcome .state-todo", ".kind-implemented-branch", ".report-table td"):
+        for needle in ("figure.requirement", ".outcome .state-todo", ".kind-implemented-branch", ".report-table td"):
             self.assertIn(needle, css)
+        media_css = (ROOT / "reports/shared/media-proof-20261106.css").read_text()
+        for needle in (".shot-grid", ".owner-request", ".chip-before", "ol.marks", ".clip video", "@media (max-width: 650px)"):
+            self.assertIn(needle, media_css)
         self.assertNotIn("product-report", (ROOT / "reports/shared/october-own-20261106.css").read_text())
 
     def test_every_status_kind_used_has_a_style(self):
@@ -652,7 +634,7 @@ class ProductReport(unittest.TestCase):
         for art in self.articles.values():
             evidence = art.split('<details class="evidence">', 1)[1]
             self.assertNotIn("<table", evidence)
-        self.assertEqual(len(re.findall(r"<table\b", self.no_script)), 3)
+        self.assertEqual(len(re.findall(r"<table\b", self.no_script)), 4)
 
     def test_all_reports_index_names_the_period(self):
         index = (ROOT / "index.html").read_text(encoding="utf-8")

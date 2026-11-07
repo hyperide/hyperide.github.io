@@ -1,0 +1,2129 @@
+{
+  "report": "hyper",
+  "generatedAt": "2026-11-06",
+  "note": "Public-safe subset: hashes, crop coordinates and source labels. Private chat text outside the quoted excerpts, raw message dumps, local file paths and protected originals are not included.",
+  "originalRequests": [
+    {
+      "id": "req-hyp990-warning-with-autofix",
+      "outcome": "a3-dead-prop-refusal",
+      "report": "hyper",
+      "sourceRecord": "A1",
+      "language": "ru",
+      "ru": "Короче думаю да надо варнинг с кнопкой auto fix через ии. Ии должен проверить и задать вопрос как лучше сделать или отменить",
+      "en": "In short, I think yes: we need a warning with an Auto fix button, through AI. The AI should check and ask a question about how best to do it, or cancel.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "5d66d8bdd6f5f86ea1ffd4dc0c1e1824c4e658b519a7340ceb8d1436d1158cc6",
+      "messageSha256": "0dec09e9a155f89651bcd1c4ed965a9f90fd9a070700943c07778d9fa32dc3ae",
+      "dateUtc": "2026-07-16T18:33:06Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#9034, Telegram message id 174396",
+      "ids": {
+        "tg": "tg#9034",
+        "telegramMessageId": 174396
+      },
+      "relationKind": "inferred",
+      "relation": "By topic only (HYP-990): an edit that cannot be applied must show a warning with an Auto fix action, and the pull request does not cite this message.",
+      "windowNote": "before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": "The message opens by quoting an assistant status bullet; only the owner's reply is quoted here.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp990-native-notification",
+      "outcome": "a3-dead-prop-refusal",
+      "report": "hyper",
+      "sourceRecord": "A2",
+      "language": "ru",
+      "ru": "Перекрывает все, гора текста, текст слева от кнопки, куча пустоты \nКакая-то нестандартная нотификация. На ext надо чтобы стандартные испзровались для vscode а на saas  стандартные для saas",
+      "en": "It covers everything, a huge amount of text, the text is to the left of the button, a lot of empty space. Some kind of non-standard notification. In the extension the standard VS Code ones should be used, and in SaaS the standard SaaS ones.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "75965920a90f7e06b2fc259686b8102a353747d9b596e767228eacbbee71df72",
+      "messageSha256": "eb71987e04e6357ec0c85fc72a495e915490d24c8db41f695d202caf4e4ef7f9",
+      "dateUtc": "2026-07-17T06:33:18Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#9122, Telegram message id 174497",
+      "ids": {
+        "tg": "tg#9122",
+        "telegramMessageId": 174497
+      },
+      "relationKind": "pr",
+      "relation": "The body of pull request #665 cites “CTO tg#9122/#9125” for presenting the warning through each platform's native notification.",
+      "windowNote": "before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": "The message's opening exclamation is left out; the rest is quoted exactly. The message came with a screenshot of the old in-Inspector card, which was not recovered.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp990-details-and-ai-context",
+      "outcome": "a3-dead-prop-refusal",
+      "report": "hyper",
+      "sourceRecord": "A3",
+      "language": "ru",
+      "ru": "И подумай как раскрывать длинный текст с подробностями \nЛибо разворачивать прямо с тосте либо показать ещё подробнее в баннере по клику подробнее ну и в ии нужно чтобы все подробности уходили в лютом случае",
+      "en": "And think about how to reveal the long text with details. Either expand it right in the toast, or show more in a banner when Details is clicked, and in any case the AI must receive all the details.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "f07e16a579836f600f31a2b54f36dc693d2d8b0a67f7a9ce6b6999a07aad8e19",
+      "messageSha256": "f07e16a579836f600f31a2b54f36dc693d2d8b0a67f7a9ce6b6999a07aad8e19",
+      "dateUtc": "2026-07-17T06:36:25Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#9125, Telegram message id 174500",
+      "ids": {
+        "tg": "tg#9125",
+        "telegramMessageId": 174500
+      },
+      "relationKind": "pr",
+      "relation": "The body of pull request #665 says “the AI always receives the complete structured context (CTO tg#9125)”.",
+      "windowNote": "before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp706-fallback-is-good",
+      "outcome": "a4-css-miss-inline-floor",
+      "report": "hyper",
+      "sourceRecord": "D3",
+      "language": "ru",
+      "ru": "почему отвергнут этот фолбек? Он хороший же",
+      "en": "why was this fallback rejected? It's a good one, isn't it.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "1172df26937ef3bb6387f782f4718f14f235bf683e2b72f339adbe78e6d410aa",
+      "messageSha256": "2840d656e9575bfc7070214edf879935e4ae957117210b789e40ff600775e8cf",
+      "dateUtc": "2026-06-11T11:05:19Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyper-canvas-draft",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "spec",
+      "relation": "Master spec decision D24 records this wording about the inline-style fallback.",
+      "windowNote": "11 June 2026, before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": "The line above it in the same message is a pasted assistant proposal and is not attributed to the owner. The lines after it ask for explanations and are not quoted.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp722-same-file-const",
+      "outcome": "a5-fill-color-class-sync",
+      "report": "hyper",
+      "sourceRecord": "D1",
+      "language": "ru",
+      "ru": "через twMerge надо решать проблемы только с (внешними) мастер-компонентами, если же константа с заменяемым значением в том же файле, должна работать та логика что у нас и раньше всегда была, находить значение и заменять",
+      "en": "twMerge should be used to solve problems only with (external) master components; but if the constant with the replaceable value is in the same file, the logic we always had before should work: find the value and replace it.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "a9934d5c7608051c9d71c6913b470bf4129698e7ea477c2251bd0aeb6286a9d3",
+      "messageSha256": "b1f7e6743b1bb4898765f20a46f5749c1f7557c10eab0f13dca618293080bffd",
+      "dateUtc": "2026-06-09T18:00:43Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyper-canvas-draft",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "spec",
+      "relation": "Master spec decision D25 records this rule (twMerge for external master components only; a same-file constant is found and replaced at its definition).",
+      "windowNote": "9 June 2026, before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": "The rest of the message is about message-attachment rules of another tool and is not quoted.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp722-edit-in-place",
+      "outcome": "a5-fill-color-class-sync",
+      "report": "hyper",
+      "sourceRecord": "D2",
+      "language": "ru",
+      "ru": "пользователь должен ожидать изменение по месту",
+      "en": "the user should expect the change in place.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "79260c9acdb75489d2a52506a86b5e37282a0dd387345c59f4a7d221bd11389c",
+      "messageSha256": "af48674468be79a94adf237688f1831d2fd477c22f9f322004ce21283060a0ed",
+      "dateUtc": "2026-06-08T14:50:47Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyper-canvas-draft",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (HYP-722 master-spec decision D25, in-place edits). Written about master components, the neighbouring case of the same rule.",
+      "windowNote": "8 June 2026, before the 6 August window; kept because it is the origin of the requirement",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp1420-auto-height",
+      "outcome": "t3-layout-panel-pixel-size",
+      "report": "hyper",
+      "sourceRecord": "B1",
+      "language": "ru",
+      "ru": "а еще у кнопки Get started почему-то предлагается ручное визуальное изменение высоты хотя высота у нее Auto! разберись тоже/ причем не ad hoc чисто для одного случая и только для высоты само собой",
+      "en": "And also, for the Get started button, manual visual resizing of the height is offered for some reason, even though its height is Auto! Look into that too, and not ad hoc for just one case and, of course, not only for height.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "28696fa4bf7ec1051da8c7256086bdab2b57a18d074f66e499f5a04e05eb74d9",
+      "messageSha256": "28696fa4bf7ec1051da8c7256086bdab2b57a18d074f66e499f5a04e05eb74d9",
+      "dateUtc": "2026-08-28T11:45:34Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "task",
+      "relation": "HYP-1420 “Why” says the owner reported this with a live screenshot (the screenshot was not recovered).",
+      "windowNote": null,
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp1372-old-bug-back",
+      "outcome": "t-split-first-click",
+      "report": "hyper",
+      "sourceRecord": "C1",
+      "language": "ru",
+      "ru": "А еще вернулся старый баг \nПри клике на компонент в hyper explorer не создается Сплит",
+      "en": "And another thing: an old bug has come back. When I click a component in Hyper Explorer, a split is not created.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "9eb8a44deb8c65e676ce2aebe44839463691ea0ab8f2bcaacf57659f6c6ccef6",
+      "messageSha256": "9eb8a44deb8c65e676ce2aebe44839463691ea0ab8f2bcaacf57659f6c6ccef6",
+      "dateUtc": "2026-08-27T20:58:43Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#13863, Telegram message id 182966",
+      "ids": {
+        "tg": "tg#13863",
+        "telegramMessageId": 182966
+      },
+      "relationKind": "task",
+      "relation": "HYP-1372 “Why” records this report (Telegram screenshot, Feed.tsx opened in the same group as Hyper Canvas).",
+      "windowNote": null,
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp1372-first-click",
+      "outcome": "t-split-first-click",
+      "report": "hyper",
+      "sourceRecord": "C2",
+      "language": "ru",
+      "ru": "Кстати второй подряд клик уже Сплит открывает но первый клик у меня никогда не открывает сплит/ несколько раз пробовал",
+      "en": "By the way, the second click in a row does open the split, but the first click never opens the split for me. I tried several times.",
+      "excerptIsWholeMessage": true,
+      "excerptSha256": "243c6a1cf4c5ceef03dc4860a38cc6f75fb0976479de0f1a133d61f6768fcbad",
+      "messageSha256": "243c6a1cf4c5ceef03dc4860a38cc6f75fb0976479de0f1a133d61f6768fcbad",
+      "dateUtc": "2026-08-27T21:15:43Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#13879, Telegram message id 182984",
+      "ids": {
+        "tg": "tg#13879",
+        "telegramMessageId": 182984
+      },
+      "relationKind": "task",
+      "relation": "Same HYP-1372 report.",
+      "windowNote": null,
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp1372-accepted",
+      "outcome": "t-split-first-click",
+      "report": "hyper",
+      "sourceRecord": "C3",
+      "language": "ru",
+      "ru": "Принимаю",
+      "en": "I accept.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "c0a5d6e4e696d19ca9ca325106a37ae45fb430e8b7a0e15db844fe470b74a1f1",
+      "messageSha256": "098783b05319744084618099e7766e9a3cf98d245e17ebe93538a793ae1c0fff",
+      "dateUtc": "2026-08-28T08:04:58Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "bridged Telegram message tg#13924",
+      "ids": {
+        "tg": "tg#13924"
+      },
+      "relationKind": "inferred",
+      "relation": "A reply to the assistant's message tg#13906 (“After the fix: first click on a component in Ex…”). Linked by that message's text; the acceptance is the owner's, the fix claim is the assistant's.",
+      "windowNote": null,
+      "omitted": "Only the owner's one-word reply is quoted; the quoted assistant text above it is not.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-canvas-drag-complaint",
+      "outcome": "c2-verified-move",
+      "report": "hyper",
+      "sourceRecord": "E1",
+      "language": "ru",
+      "ru": "Я потаскал элементы в hyper canvas в открытом в hyper ext проекте conloca и ужаснулся  как плохо это работает.",
+      "en": "I dragged elements around in Hyper Canvas, in the Conloca project open in Hyper ext, and was horrified at how badly it works.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "dc80962479f34d1bb2de55dd3c59d08e355a1825930a1bb38687d43ec905584a",
+      "messageSha256": "024830278cc22430b7bf6f224615db59dbc9816d3337d8f3180f490d09ab692f",
+      "dateUtc": "2026-09-02T20:36:21Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic and date (the Canvas drag-move work, HYP-732 and HYP-1456); the message names no ticket.",
+      "windowNote": "2 September 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-hyp1404-wrong-instance",
+      "outcome": "open-hyp1404",
+      "report": "hyper",
+      "sourceRecord": "B2",
+      "language": "ru",
+      "ru": "кликаю на Try Demo а выделяется Get started. Мы уже много раз решали эту проблему/ реши ее с разных сторон раз и навсегда чтобы такое было невозможно в принципе",
+      "en": "I click Try Demo and Get started gets selected. We have solved this problem many times; solve it from different sides once and for all, so that it is impossible in principle.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "dd2bd7729fd139c238730edb51df810e8d29ac66099133d94b6e41c76160ff1d",
+      "messageSha256": "013ec364d31a2f09c4268c606e11ace5235e1c1ade1ab01b6f67cde667f9aed7",
+      "dateUtc": "2026-08-28T11:44:19Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Ultra's Claude Code prompt history, project hyperide",
+      "senderBasis": "the owner's own prompt history; it has no per-message author field, so attribution is by account",
+      "messageIdentity": "no message id",
+      "ids": {},
+      "relationKind": "inferred",
+      "relation": "By topic (HYP-1404: a click on one of two sibling instances selects the wrong one). The message starts with the path of a screenshot that was not recovered.",
+      "windowNote": "28 August 2026",
+      "omitted": "The path of the screenshot and the instruction about which review models to use are not quoted.",
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    },
+    {
+      "id": "req-retro-is-not-styles",
+      "outcome": "r1-retro-identity",
+      "report": "hyper",
+      "sourceRecord": "D6",
+      "language": "ru",
+      "ru": "Запомни что это ретро спек. Стили тут не причем. Про стили мастер спек.",
+      "en": "Note that this is the retro spec. Styles have nothing to do with it. Styles are in the master spec.",
+      "excerptIsWholeMessage": false,
+      "excerptSha256": "5b4a24a85558e8ad5884bd743ed06a2981c30b4ec61905d759d61f516147dbee",
+      "messageSha256": "015e6f8b0a56ecdc5e3d0d1ffce0c190cd50d879c25d401087c55fde40ebb05c",
+      "dateUtc": "2026-08-18T18:11:39Z",
+      "author": "Ultra / Mextner",
+      "sourceLabel": "Telegram, private chat between Ultra and the assistant bot",
+      "senderBasis": "incoming Telegram message from the owner's account (not the assistant, not another person)",
+      "messageIdentity": "tg#12319, Telegram message id 180850",
+      "ids": {
+        "tg": "tg#12319",
+        "telegramMessageId": 180850
+      },
+      "relationKind": "inferred",
+      "relation": "By topic: the owner separating the retro spec from the master styles spec.",
+      "windowNote": "18 August 2026",
+      "omitted": null,
+      "pastedEnglishBugText": false,
+      "permalink": null,
+      "permalinkNote": "private chat or local history: there is no public link and none is invented"
+    }
+  ],
+  "images": [
+    {
+      "id": "pr721-before-explorer",
+      "path": "media/pr721-before-explorer.png",
+      "sha256": "93537d33d98052395a7bb977edc99abada97c5d698e504b11195d9f520039891",
+      "width": 824,
+      "height": 446,
+      "bytes": 20809,
+      "role": "before",
+      "pair": "pr721-explorer",
+      "outcome": "t-explorer-empty-state",
+      "chip": "Before",
+      "alt": "HyperIDE Explorer panel in VS Code with no folder open, before the fix: the panel body under the HYPERIDE: EXPLORER title is empty",
+      "caption": "HyperIDE Explorer with no folder open, before the fix. The panel body is empty.",
+      "roi": [
+        90,
+        70,
+        700,
+        400
+      ],
+      "scale": 1.35,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            115,
+            165,
+            690,
+            390
+          ],
+          "crop_xyxy": [
+            34,
+            128,
+            810,
+            432
+          ],
+          "note": "The Explorer view body is empty: no message and no action."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr721-before.png",
+        "sha256": "4a5a405a057a77084867df53d0dd164473ab072b5ffe792eb14059be17b8a5da",
+        "width": 2400,
+        "height": 1536,
+        "bytes": 398390,
+        "source": "hyperide/hyper-saas @683b016b .github/pr-screenshots/pr721-20260814-01-before-blank-panel-spinner.png"
+      }
+    },
+    {
+      "id": "pr721-after-explorer",
+      "path": "media/pr721-after-explorer.png",
+      "sha256": "4c3ce81652b17a7e98ce63ce815522130aea9af35a89c29b82984112ec789c2c",
+      "width": 824,
+      "height": 446,
+      "bytes": 108676,
+      "role": "after",
+      "pair": "pr721-explorer",
+      "outcome": "t-explorer-empty-state",
+      "chip": "After",
+      "alt": "Same Explorer panel and crop after the fix: it says No folder opened, explains that opening a folder closes all current editors, offers an add a folder link and shows an Open Folder button",
+      "caption": "Same window, fixture and crop after the merged fix, taken from the pull request's follow-up commit with the final wording.",
+      "roi": [
+        90,
+        70,
+        700,
+        400
+      ],
+      "scale": 1.35,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            118,
+            164,
+            676,
+            298
+          ],
+          "crop_xyxy": [
+            38,
+            127,
+            791,
+            308
+          ],
+          "note": "Message: “No folder opened. Opening folder will close all current editors. To keep them open, add a folder instead.”"
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            285,
+            314,
+            506,
+            382
+          ],
+          "crop_xyxy": [
+            263,
+            329,
+            562,
+            421
+          ],
+          "note": "Open Folder button."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr721-after-final.png",
+        "sha256": "db843126c805832bf876915eb9da80778cea6d6945c48428215161bda2fc1fdf",
+        "width": 2400,
+        "height": 1536,
+        "bytes": 415663,
+        "source": "hyperide/hyper-saas @4fa7dd8c .github/pr-screenshots/pr721-20260814-03-followup-exact-copy-and-two-actions.png"
+      }
+    },
+    {
+      "id": "pr721-after-interim-explorer",
+      "path": "media/pr721-after-interim-explorer.png",
+      "sha256": "7790ffcee838b189899897d4a24791098113f22d5604edbcde194310f2512077",
+      "width": 824,
+      "height": 446,
+      "bytes": 79692,
+      "role": "interim-after",
+      "pair": null,
+      "outcome": "t-explorer-empty-state",
+      "chip": "Interim after",
+      "alt": "Same Explorer panel and crop at the first fix commit: an earlier wording saying HyperIDE needs a folder open, with an Open Folder button",
+      "caption": "Interim capture at the first fix commit. A follow-up commit changed this wording, so it is not the merged copy.",
+      "roi": [
+        90,
+        70,
+        700,
+        400
+      ],
+      "scale": 1.35,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            115,
+            168,
+            690,
+            250
+          ],
+          "crop_xyxy": [
+            34,
+            132,
+            810,
+            243
+          ],
+          "note": "Interim message: “HyperIDE needs a folder open to preview and edit components.”"
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            285,
+            266,
+            505,
+            335
+          ],
+          "crop_xyxy": [
+            263,
+            265,
+            560,
+            358
+          ],
+          "note": "Open Folder button."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr721-after-interim.png",
+        "sha256": "f85b2341c4df27f1a61addffe90e8a07f4f7085e8efc9ba3d8936782abe2377d",
+        "width": 2400,
+        "height": 1536,
+        "bytes": 409560,
+        "source": "hyperide/hyper-saas @683b016b .github/pr-screenshots/pr721-20260814-02-after-empty-state.png"
+      }
+    },
+    {
+      "id": "pr721-link-clicked-explorer",
+      "path": "media/pr721-link-clicked-explorer.png",
+      "sha256": "52b84ef535aad07b5660560b3220803a6d59c2e327c66756075922e623b34018",
+      "width": 824,
+      "height": 446,
+      "bytes": 108489,
+      "role": "stage",
+      "pair": null,
+      "outcome": "t-explorer-empty-state",
+      "chip": "Stage",
+      "alt": "Same Explorer panel after the add a folder link was clicked: the link shows a focus outline",
+      "caption": "Later stage of the same run: the add a folder link after a click.",
+      "roi": [
+        90,
+        70,
+        700,
+        400
+      ],
+      "scale": 1.35,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            385,
+            254,
+            546,
+            294
+          ],
+          "crop_xyxy": [
+            398,
+            248,
+            616,
+            302
+          ],
+          "note": "The add a folder link, activated: it shows the focus outline."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            285,
+            314,
+            506,
+            382
+          ],
+          "crop_xyxy": [
+            263,
+            329,
+            562,
+            421
+          ],
+          "note": "Open Folder button."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr721-after-link-clicked.png",
+        "sha256": "6438a78b2a9e33cfd2ccae7f9dabc05d1e50ac50c3c964c6c6a53f8498b31d7e",
+        "width": 2400,
+        "height": 1536,
+        "bytes": 415695,
+        "source": "hyperide/hyper-saas @4fa7dd8c .github/pr-screenshots/pr721-20260814-04-followup-addfolder-link-clicked.png"
+      }
+    },
+    {
+      "id": "pr827-before-canvas",
+      "path": "media/pr827-before-canvas.png",
+      "sha256": "1b5fb5b129f49f854d02e002e9a7c4653c273590691329501fa607900f146c08",
+      "width": 845,
+      "height": 216,
+      "bytes": 13350,
+      "role": "before",
+      "pair": "pr827-canvas",
+      "outcome": "s1-operation-authority-in-style-editor",
+      "chip": "Before",
+      "alt": "Canvas crop before the width write: element R is a narrow square",
+      "caption": "Canvas, element R, before the Inspector width write.",
+      "roi": [
+        760,
+        312,
+        1112,
+        402
+      ],
+      "scale": 2.4,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            768,
+            324,
+            824,
+            379
+          ],
+          "crop_xyxy": [
+            19,
+            29,
+            154,
+            161
+          ],
+          "note": "Element R is the narrow square, Tailwind w-12 (3rem)."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr827-before.png",
+        "sha256": "199847407455ebf23115c639f0439f487e34fcb904137595d80de1b47cc731c2",
+        "width": 1440,
+        "height": 835,
+        "bytes": 259980,
+        "source": "hyperide/hyper-saas @57ce3969 docs/reports/evidence/style-operation-20261016/native-before.png"
+      }
+    },
+    {
+      "id": "pr827-after-canvas",
+      "path": "media/pr827-after-canvas.png",
+      "sha256": "d948af0054b08bd0c68cc2e7fabc848b7a12d9236ac0bbf5bdf1b98598fed978",
+      "width": 845,
+      "height": 216,
+      "bytes": 13466,
+      "role": "after",
+      "pair": "pr827-canvas",
+      "outcome": "s1-operation-authority-in-style-editor",
+      "chip": "After",
+      "alt": "Same canvas crop after the width write: element R is clearly wider",
+      "caption": "Same element and crop after the write.",
+      "roi": [
+        760,
+        312,
+        1112,
+        402
+      ],
+      "scale": 2.4,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            768,
+            324,
+            916,
+            379
+          ],
+          "crop_xyxy": [
+            19,
+            29,
+            374,
+            161
+          ],
+          "note": "Element R is wider after the write; the pull request measures 140 px."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr827-after.png",
+        "sha256": "ffb57145c8fb2fc28e98c08797cc82a68ac2c169b67a9b91d0c120957ef692aa",
+        "width": 1440,
+        "height": 835,
+        "bytes": 260507,
+        "source": "hyperide/hyper-saas @57ce3969 docs/reports/evidence/style-operation-20261016/native-after.png"
+      }
+    },
+    {
+      "id": "pr827-before-inspector",
+      "path": "media/pr827-before-inspector.png",
+      "sha256": "233c1fdd86038e1505ac0301b7ac5ace0c81e868e77b49cbf21cc540b21405ca",
+      "width": 804,
+      "height": 132,
+      "bytes": 21197,
+      "role": "before",
+      "pair": "pr827-inspector",
+      "outcome": "s1-operation-authority-in-style-editor",
+      "chip": "Before",
+      "alt": "Inspector Layout row crop before the write: the width field reads 3rem",
+      "caption": "Inspector Layout row, width and height fields, before the write.",
+      "roi": [
+        1150,
+        468,
+        1418,
+        512
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1156,
+            476,
+            1268,
+            505
+          ],
+          "crop_xyxy": [
+            18,
+            24,
+            354,
+            111
+          ],
+          "note": "The W field reads 3rem."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr827-before.png",
+        "sha256": "199847407455ebf23115c639f0439f487e34fcb904137595d80de1b47cc731c2",
+        "width": 1440,
+        "height": 835,
+        "bytes": 259980,
+        "source": "hyperide/hyper-saas @57ce3969 docs/reports/evidence/style-operation-20261016/native-before.png"
+      }
+    },
+    {
+      "id": "pr827-after-inspector",
+      "path": "media/pr827-after-inspector.png",
+      "sha256": "58718488b7b6e7a538e9fb74feb0f0b39c51a75837157d6e43072f0591154e2a",
+      "width": 804,
+      "height": 132,
+      "bytes": 16022,
+      "role": "after",
+      "pair": "pr827-inspector",
+      "outcome": "s1-operation-authority-in-style-editor",
+      "chip": "After",
+      "alt": "Same Inspector Layout row crop after the write: the width field reads 140",
+      "caption": "Same fields after the write: width shows the new value.",
+      "roi": [
+        1150,
+        468,
+        1418,
+        512
+      ],
+      "scale": 3.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1156,
+            476,
+            1268,
+            505
+          ],
+          "crop_xyxy": [
+            18,
+            24,
+            354,
+            111
+          ],
+          "note": "The W field reads 140."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr827-after.png",
+        "sha256": "ffb57145c8fb2fc28e98c08797cc82a68ac2c169b67a9b91d0c120957ef692aa",
+        "width": 1440,
+        "height": 835,
+        "bytes": 260507,
+        "source": "hyperide/hyper-saas @57ce3969 docs/reports/evidence/style-operation-20261016/native-after.png"
+      }
+    },
+    {
+      "id": "pr665-after-native-warning",
+      "path": "media/pr665-after-native-warning.png",
+      "sha256": "e1df364477a43431212a6416d46814608c886893546156f9da8dc8226f6a6315",
+      "width": 950,
+      "height": 258,
+      "bytes": 41388,
+      "role": "single-after",
+      "pair": null,
+      "outcome": "a3-dead-prop-refusal",
+      "chip": "After (single capture)",
+      "alt": "Native VS Code warning notification: Style could not be applied, Badge does not forward this prop to the DOM, with Details and Auto fix via AI buttons",
+      "caption": "Native VS Code warning after a border-radius edit on a Badge component that forwards neither className nor style.",
+      "roi": [
+        1930,
+        1452,
+        2880,
+        1710
+      ],
+      "scale": 1.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1975,
+            1476,
+            2775,
+            1590
+          ],
+          "crop_xyxy": [
+            45,
+            24,
+            845,
+            138
+          ],
+          "note": "Warning text: Style could not be applied, and <Badge> does not forward this prop to the DOM."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            2515,
+            1596,
+            2855,
+            1664
+          ],
+          "crop_xyxy": [
+            585,
+            144,
+            925,
+            212
+          ],
+          "note": "Details and Auto fix via AI buttons."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr665-after.png",
+        "sha256": "ac639d764c014623f3deb5681f8c4fe187cf6bf67b074c8130f9ee47cb06ad31",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 568690,
+        "source": "image embedded in the body of hyperide/hyper-saas#665"
+      }
+    },
+    {
+      "id": "pr738-after-inspector-warning",
+      "path": "media/pr738-after-inspector-warning.png",
+      "sha256": "3d65de2c7371520564637bd5d7ecc77d140ed7c2ec344625dfe45cdeb4542580",
+      "width": 810,
+      "height": 716,
+      "bytes": 185949,
+      "role": "single-after",
+      "pair": null,
+      "outcome": "a2-no-style-surface-warning",
+      "chip": "After (single capture)",
+      "alt": "Inspector toast in VS Code: This component may not accept style edits, NonForwardingBadge does not appear to forward className or style to a DOM element, with an Ask AI action",
+      "caption": "Inspector after selecting a component that does not forward className or style.",
+      "roi": [
+        2280,
+        190,
+        2880,
+        720
+      ],
+      "scale": 1.35,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            2345,
+            255,
+            2700,
+            640
+          ],
+          "crop_xyxy": [
+            88,
+            88,
+            567,
+            608
+          ],
+          "note": "Warning: “This component may not accept style edits”, with the reason."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            2715,
+            415,
+            2856,
+            490
+          ],
+          "crop_xyxy": [
+            587,
+            304,
+            778,
+            405
+          ],
+          "note": "Ask AI action."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr738-after.png",
+        "sha256": "a35de0a9f5a2431965b244f85235c5249564d88b032363c96e2c47ff4547b685",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 436954,
+        "source": "image attached to hyperide/hyper-saas#738"
+      }
+    },
+    {
+      "id": "pr738-after-canvas-selection",
+      "path": "media/pr738-after-canvas-selection.png",
+      "sha256": "54138354689329d47a352dd8559e20bf3bfa252dd32a0142f188a8d314781b9f",
+      "width": 800,
+      "height": 280,
+      "bytes": 28952,
+      "role": "context",
+      "pair": null,
+      "outcome": "a2-no-style-surface-warning",
+      "chip": "Same capture",
+      "alt": "Canvas region of the same capture: the selected element has a blue selection outline",
+      "caption": "The element selected in the Canvas in the same capture.",
+      "roi": [
+        1500,
+        1340,
+        1900,
+        1480
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1548,
+            1388,
+            1762,
+            1442
+          ],
+          "crop_xyxy": [
+            96,
+            96,
+            524,
+            204
+          ],
+          "note": "The selected element, labelled “No style surface”, with a blue selection outline."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr738-after.png",
+        "sha256": "a35de0a9f5a2431965b244f85235c5249564d88b032363c96e2c47ff4547b685",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 436954,
+        "source": "image attached to hyperide/hyper-saas#738"
+      }
+    },
+    {
+      "id": "pr794-before-tab",
+      "path": "media/pr794-before-tab.png",
+      "sha256": "ae04c8ded2d66fc6baecf3aab07be80994c5ca36c7d6c84152352b3f041e751b",
+      "width": 794,
+      "height": 112,
+      "bytes": 31489,
+      "role": "before",
+      "pair": "pr794-tab",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "Before",
+      "alt": "Editor tab strip before Edit component: the active tab is App.tsx",
+      "caption": "Editor tabs before Edit component, with the Feed call-site selected inside App.",
+      "roi": [
+        348,
+        40,
+        745,
+        96
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            352,
+            42,
+            462,
+            66
+          ],
+          "crop_xyxy": [
+            8,
+            4,
+            228,
+            52
+          ],
+          "note": "Active editor tab: App.tsx."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            362,
+            72,
+            530,
+            91
+          ],
+          "crop_xyxy": [
+            28,
+            64,
+            364,
+            102
+          ],
+          "note": "Breadcrumb ends at App.tsx."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-before.png",
+        "sha256": "bc1e8d9d542b8b336f930fed8fd65219affcf28eca1b082315da6457de4557d5",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 264064,
+        "source": "image in the body of hyperide/hyper-saas#794 (Before)"
+      }
+    },
+    {
+      "id": "pr794-after-tab",
+      "path": "media/pr794-after-tab.png",
+      "sha256": "964e95887cc6d53adf7b7508c1e93b52b49fb233a7a513460efc24ceafe991e4",
+      "width": 794,
+      "height": 112,
+      "bytes": 39849,
+      "role": "after",
+      "pair": "pr794-tab",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "After",
+      "alt": "Same tab strip after Edit component: the active tab is Feed.tsx and the breadcrumb reads src, components, Feed.tsx",
+      "caption": "Same crop after Edit component: the editor opened the Feed definition.",
+      "roi": [
+        348,
+        40,
+        745,
+        96
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            466,
+            42,
+            584,
+            66
+          ],
+          "crop_xyxy": [
+            236,
+            4,
+            472,
+            52
+          ],
+          "note": "Active editor tab: Feed.tsx."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            362,
+            72,
+            592,
+            91
+          ],
+          "crop_xyxy": [
+            28,
+            64,
+            488,
+            102
+          ],
+          "note": "Breadcrumb: src › components › Feed.tsx."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-after.png",
+        "sha256": "0e7f863a1a9223f9addd74bcdbcecd88bd5b3b2a097cc6c2e0e1f79648e1a4fc",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 352024,
+        "source": "image in the body of hyperide/hyper-saas#794 (After)"
+      }
+    },
+    {
+      "id": "pr794-before-canvas",
+      "path": "media/pr794-before-canvas.png",
+      "sha256": "b4213372739a2eec11c334fa7a46440b0969bb2a9915c78bff422b0e407d4544",
+      "width": 790,
+      "height": 580,
+      "bytes": 134483,
+      "role": "before",
+      "pair": "pr794-canvas",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "Before",
+      "alt": "Canvas before Edit component: the whole App page with its top bar, and the Feed call-site outlined in blue",
+      "caption": "Canvas before: the whole App page, with Feed selected inside it.",
+      "roi": [
+        745,
+        40,
+        1140,
+        330
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            763,
+            122,
+            1016,
+            325
+          ],
+          "crop_xyxy": [
+            36,
+            164,
+            542,
+            570
+          ],
+          "note": "Blue outline: the Feed call-site, selected inside the App page."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            762,
+            76,
+            1132,
+            118
+          ],
+          "crop_xyxy": [
+            34,
+            72,
+            774,
+            156
+          ],
+          "note": "App's own top bar is still part of what the Canvas renders."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-before.png",
+        "sha256": "bc1e8d9d542b8b336f930fed8fd65219affcf28eca1b082315da6457de4557d5",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 264064,
+        "source": "image in the body of hyperide/hyper-saas#794 (Before)"
+      }
+    },
+    {
+      "id": "pr794-after-canvas",
+      "path": "media/pr794-after-canvas.png",
+      "sha256": "af3a83ee3a0c8671c41af1b881300821741ced5a75a19f39f8d2c4cdce4bb532",
+      "width": 790,
+      "height": 580,
+      "bytes": 190014,
+      "role": "after",
+      "pair": "pr794-canvas",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "After",
+      "alt": "Same canvas crop after Edit component: the Canvas shows the Feed definition on its own, starting at the Home heading, without App's top bar",
+      "caption": "Same crop after: the Canvas switched to the Feed definition.",
+      "roi": [
+        745,
+        40,
+        1140,
+        330
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            770,
+            78,
+            856,
+            114
+          ],
+          "crop_xyxy": [
+            50,
+            76,
+            222,
+            148
+          ],
+          "note": "The Canvas renders the Feed definition on its own, starting at its Home heading. App's top bar is gone."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-after.png",
+        "sha256": "0e7f863a1a9223f9addd74bcdbcecd88bd5b3b2a097cc6c2e0e1f79648e1a4fc",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 352024,
+        "source": "image in the body of hyperide/hyper-saas#794 (After)"
+      }
+    },
+    {
+      "id": "pr794-before-tree",
+      "path": "media/pr794-before-tree.png",
+      "sha256": "e90362a291ac0b5beed42b4921c06c62a6bd6d8d33bd52c0105380a428e96fda",
+      "width": 780,
+      "height": 775,
+      "bytes": 127318,
+      "role": "before",
+      "pair": "pr794-tree",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "Before",
+      "alt": "Elements tree before Edit component: the Feed call-site row is selected",
+      "caption": "Elements tree before: the Feed call-site row is selected.",
+      "roi": [
+        48,
+        664,
+        348,
+        962
+      ],
+      "scale": 2.6,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            56,
+            856,
+            340,
+            882
+          ],
+          "crop_xyxy": [
+            21,
+            499,
+            759,
+            567
+          ],
+          "note": "Selected row: Feed, a call-site inside App."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-before.png",
+        "sha256": "bc1e8d9d542b8b336f930fed8fd65219affcf28eca1b082315da6457de4557d5",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 264064,
+        "source": "image in the body of hyperide/hyper-saas#794 (Before)"
+      }
+    },
+    {
+      "id": "pr794-after-tree",
+      "path": "media/pr794-after-tree.png",
+      "sha256": "0da2163b58c93af9e491264d2c8eb068994a2e1eef921b0048e13609bec1612e",
+      "width": 780,
+      "height": 775,
+      "bytes": 152407,
+      "role": "after",
+      "pair": "pr794-tree",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "After",
+      "alt": "Same Elements tree crop after Edit component: the tree is rebuilt from the Feed definition and starts at main, div, h1 Home",
+      "caption": "Same crop after: the tree is rebuilt from the Feed definition.",
+      "roi": [
+        48,
+        664,
+        348,
+        962
+      ],
+      "scale": 2.6,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            56,
+            684,
+            340,
+            758
+          ],
+          "crop_xyxy": [
+            21,
+            52,
+            759,
+            244
+          ],
+          "note": "The tree now starts at the root of Feed's own source, main › div › h1 Home."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-after.png",
+        "sha256": "0e7f863a1a9223f9addd74bcdbcecd88bd5b3b2a097cc6c2e0e1f79648e1a4fc",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 352024,
+        "source": "image in the body of hyperide/hyper-saas#794 (After)"
+      }
+    },
+    {
+      "id": "pr794-before-notice",
+      "path": "media/pr794-before-notice.png",
+      "sha256": "a1122c563e31588fb19b98bd4fe5d009344bef23ac0a9d62755b6b66360ef413",
+      "width": 790,
+      "height": 167,
+      "bytes": 40103,
+      "role": "before",
+      "pair": "pr794-notice",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "Before",
+      "alt": "Bottom-right notices before Edit component: only the dev server notice",
+      "caption": "Notices before: only the dev server notice.",
+      "roi": [
+        975,
+        878,
+        1440,
+        976
+      ],
+      "scale": 1.7,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            982,
+            930,
+            1436,
+            970
+          ],
+          "crop_xyxy": [
+            12,
+            88,
+            784,
+            156
+          ],
+          "note": "Only notice: “Dev server running at localhost”."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-before.png",
+        "sha256": "bc1e8d9d542b8b336f930fed8fd65219affcf28eca1b082315da6457de4557d5",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 264064,
+        "source": "image in the body of hyperide/hyper-saas#794 (Before)"
+      }
+    },
+    {
+      "id": "pr794-after-notice",
+      "path": "media/pr794-after-notice.png",
+      "sha256": "92e97c5335a1546ca017aff6730450e0a3722dd9df5389533891c24f8559a459",
+      "width": 790,
+      "height": 167,
+      "bytes": 62180,
+      "role": "after",
+      "pair": "pr794-notice",
+      "outcome": "c5-edit-component-drag-undo",
+      "chip": "After",
+      "alt": "Same notices crop after Edit component: a new notice says Editing Feed and that changes to this component definition affect all its instances",
+      "caption": "Same crop after: a notice explains the scope of editing a definition.",
+      "roi": [
+        975,
+        878,
+        1440,
+        976
+      ],
+      "scale": 1.7,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            982,
+            890,
+            1436,
+            920
+          ],
+          "crop_xyxy": [
+            12,
+            20,
+            784,
+            71
+          ],
+          "note": "New notice: “Editing Feed. Changes to this component definition affect all its instances.”"
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr794-after.png",
+        "sha256": "0e7f863a1a9223f9addd74bcdbcecd88bd5b3b2a097cc6c2e0e1f79648e1a4fc",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 352024,
+        "source": "image in the body of hyperide/hyper-saas#794 (After)"
+      }
+    },
+    {
+      "id": "pr805-step1-edit-cancelled",
+      "path": "media/pr805-step1-edit-cancelled.png",
+      "sha256": "dad2503f6001f1c48b4ea1683028b6c7dd1a4ad761300221732ced618843ebe1",
+      "width": 783,
+      "height": 551,
+      "bytes": 180827,
+      "role": "step-1",
+      "pair": "pr805-sequence",
+      "outcome": "c1-stale-context-cancellation",
+      "chip": "Step 1",
+      "alt": "Inspector panel with a message: Edit cancelled. The selected element or preview changed before this edit was applied. Select the element and try again",
+      "caption": "Step 1, Inspector: the selection changed before a delayed edit was dispatched, and the edit is refused.",
+      "roi": [
+        1146,
+        96,
+        1436,
+        300
+      ],
+      "scale": 2.7,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1156,
+            106,
+            1426,
+            284
+          ],
+          "crop_xyxy": [
+            27,
+            27,
+            756,
+            508
+          ],
+          "note": "Inspector: “Edit cancelled. The selected element or preview changed before this edit was applied. Select the element and try again. (src/ContextGuardFixture.tsx)”"
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr805-edit-cancelled.png",
+        "sha256": "8af51db9f1c7f051d995a2914b55c3cb04b2c93cf5fff9d163aa6fb241be958e",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 172684,
+        "source": "image in the body of hyperide/hyper-saas#805 (HYP-1480 criterion 1)"
+      }
+    },
+    {
+      "id": "pr805-step1-selection-kept",
+      "path": "media/pr805-step1-selection-kept.png",
+      "sha256": "cc023ac804c7ce2f868c5b01bf246cf87975fab2639d3880d120e113f5bcfdcf",
+      "width": 803,
+      "height": 550,
+      "bytes": 139679,
+      "role": "step-1",
+      "pair": "pr805-sequence",
+      "outcome": "c1-stale-context-cancellation",
+      "chip": "Step 1",
+      "alt": "Canvas region of the same capture: the second heading stays selected with a blue outline",
+      "caption": "Step 1, Canvas, same capture: the second heading stays selected after the cancellation.",
+      "roi": [
+        765,
+        70,
+        1130,
+        320
+      ],
+      "scale": 2.2,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            790,
+            204,
+            1030,
+            244
+          ],
+          "crop_xyxy": [
+            55,
+            295,
+            583,
+            383
+          ],
+          "note": "The second heading, “Second editable heading”, stays selected."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr805-edit-cancelled.png",
+        "sha256": "8af51db9f1c7f051d995a2914b55c3cb04b2c93cf5fff9d163aa6fb241be958e",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 172684,
+        "source": "image in the body of hyperide/hyper-saas#805 (HYP-1480 criterion 1)"
+      }
+    },
+    {
+      "id": "pr805-step2-next-edit-persisted",
+      "path": "media/pr805-step2-next-edit-persisted.png",
+      "sha256": "7c0e2ff68f1fd8ed20e3663b610e7f90f8cf9d31060b405223df05ae24ce7b41",
+      "width": 803,
+      "height": 550,
+      "bytes": 100104,
+      "role": "step-2",
+      "pair": "pr805-sequence",
+      "outcome": "c1-stale-context-cancellation",
+      "chip": "Step 2",
+      "alt": "Canvas region at a later stage of the same run: the first heading is almost transparent, because the next ordinary Inspector edit was applied",
+      "caption": "Step 2, same run: the next ordinary edit persisted. The test typed a near-zero opacity, so the heading is almost invisible.",
+      "roi": [
+        765,
+        70,
+        1130,
+        320
+      ],
+      "scale": 2.2,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            790,
+            98,
+            1000,
+            170
+          ],
+          "crop_xyxy": [
+            55,
+            62,
+            517,
+            220
+          ],
+          "note": "The first heading is almost transparent: the next Inspector edit was applied."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr805-next-edit.png",
+        "sha256": "a1f4bbfa86041f9405149c08680eef1ab0b01155499ad62bbd2f635be167597c",
+        "width": 1440,
+        "height": 1000,
+        "bytes": 154508,
+        "source": "image in the body of hyperide/hyper-saas#805 (HYP-1480 criterion 2)"
+      }
+    },
+    {
+      "id": "pr811-before-order-row",
+      "path": "media/pr811-before-order-row.png",
+      "sha256": "5c1f6429d10732f848058707b1892834b1646143b432dc1ec842bf50a6102bfe",
+      "width": 816,
+      "height": 238,
+      "bytes": 46764,
+      "role": "before",
+      "pair": "pr811-order-row",
+      "outcome": "c2-verified-move",
+      "chip": "Before",
+      "alt": "Canvas crop before the order drop: the row of chips reads Order A, Order B, Order C",
+      "caption": "Canvas, the order row, before Order A is dropped after Order C.",
+      "roi": [
+        1500,
+        790,
+        1980,
+        930
+      ],
+      "scale": 1.7,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1540,
+            862,
+            1935,
+            912
+          ],
+          "crop_xyxy": [
+            68,
+            122,
+            740,
+            207
+          ],
+          "note": "The order row reads Order A, Order B, Order C."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr811-order-before.png",
+        "sha256": "5f6df6841c19a430a04f29b8a608dc1635f6762a12b4de5fc6fe7c81f0a8e7f8",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 631230,
+        "source": "image in the body of hyperide/hyper-saas#811 (hyp732-r2-5-order-before)"
+      }
+    },
+    {
+      "id": "pr811-after-order-row",
+      "path": "media/pr811-after-order-row.png",
+      "sha256": "38037a9462ea14c31b6b7100f92a85238fb99acc1351e967f9e70aa048178434",
+      "width": 816,
+      "height": 238,
+      "bytes": 46955,
+      "role": "after",
+      "pair": "pr811-order-row",
+      "outcome": "c2-verified-move",
+      "chip": "After",
+      "alt": "Same canvas crop after the order drop: the row of chips reads Order B, Order C, Order A, with Order A outlined as selected",
+      "caption": "Same crop after the drop: the visual order is B, C, A.",
+      "roi": [
+        1500,
+        790,
+        1980,
+        930
+      ],
+      "scale": 1.7,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1540,
+            862,
+            1935,
+            912
+          ],
+          "crop_xyxy": [
+            68,
+            122,
+            740,
+            207
+          ],
+          "note": "The row now reads Order B, Order C, Order A, and Order A is selected."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr811-order-after.png",
+        "sha256": "6ddb11e8f241a44cd5ac2353b151d440c2a640dd8595b37a433c32bd6a3bcc03",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 568535,
+        "source": "image in the body of hyperide/hyper-saas#811 (hyp732-r2-5-order-after)"
+      }
+    },
+    {
+      "id": "pr811-before-order-inspector",
+      "path": "media/pr811-before-order-inspector.png",
+      "sha256": "9c620df90389ceac4d587af7e2e7a8c1f11bdea37f268c71e0cdf9eb90334f61",
+      "width": 798,
+      "height": 504,
+      "bytes": 72545,
+      "role": "before",
+      "pair": "pr811-order-inspector",
+      "outcome": "c2-verified-move",
+      "chip": "Before",
+      "alt": "Inspector crop before the order drop: it reads No element selected",
+      "caption": "Inspector before the drop.",
+      "roi": [
+        2290,
+        120,
+        2860,
+        480
+      ],
+      "scale": 1.4,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            2300,
+            330,
+            2850,
+            470
+          ],
+          "crop_xyxy": [
+            14,
+            294,
+            784,
+            490
+          ],
+          "note": "Inspector: “No element selected”."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr811-order-before.png",
+        "sha256": "5f6df6841c19a430a04f29b8a608dc1635f6762a12b4de5fc6fe7c81f0a8e7f8",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 631230,
+        "source": "image in the body of hyperide/hyper-saas#811 (hyp732-r2-5-order-before)"
+      }
+    },
+    {
+      "id": "pr811-after-order-inspector",
+      "path": "media/pr811-after-order-inspector.png",
+      "sha256": "66ba864bd264985b790d9c672ee37fdf257394a2929a4dfe7df75442f36cca98",
+      "width": 798,
+      "height": 504,
+      "bytes": 61097,
+      "role": "after",
+      "pair": "pr811-order-inspector",
+      "outcome": "c2-verified-move",
+      "chip": "After",
+      "alt": "Same Inspector crop after the order drop: it shows Frame (div) named Order A",
+      "caption": "Same crop after the drop: the Inspector follows the moved element.",
+      "roi": [
+        2290,
+        120,
+        2860,
+        480
+      ],
+      "scale": 1.4,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            2295,
+            215,
+            2850,
+            335
+          ],
+          "crop_xyxy": [
+            7,
+            133,
+            784,
+            301
+          ],
+          "note": "Inspector: Frame (div), named Order A, the moved element."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr811-order-after.png",
+        "sha256": "6ddb11e8f241a44cd5ac2353b151d440c2a640dd8595b37a433c32bd6a3bcc03",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 568535,
+        "source": "image in the body of hyperide/hyper-saas#811 (hyp732-r2-5-order-after)"
+      }
+    },
+    {
+      "id": "pr811-restored-notice",
+      "path": "media/pr811-restored-notice.png",
+      "sha256": "1fad2f995bb497a710b14643e779a84c0f9650795d3963902ea878a0baf74f47",
+      "width": 940,
+      "height": 330,
+      "bytes": 81307,
+      "role": "single-after",
+      "pair": null,
+      "outcome": "c2-verified-move",
+      "chip": "After (single capture)",
+      "alt": "VS Code notice: Canvas move did not verify and was restored. The preview did not render the moved version of TestElements.tsx. The verification deadline passed. An AI recovery proposal was queued in the AI Chat panel, with an Open AI Chat button",
+      "caption": "A move whose target module throws while loading: the file is restored and the notice says so.",
+      "roi": [
+        1940,
+        1370,
+        2880,
+        1700
+      ],
+      "scale": 1.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            1990,
+            1395,
+            2800,
+            1585
+          ],
+          "crop_xyxy": [
+            50,
+            25,
+            860,
+            215
+          ],
+          "note": "Notice: the move did not verify and was restored; an AI recovery proposal was queued."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            2650,
+            1600,
+            2850,
+            1655
+          ],
+          "crop_xyxy": [
+            710,
+            230,
+            910,
+            285
+          ],
+          "note": "Open AI Chat button."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr811-restored-toast.png",
+        "sha256": "3e64de85fd8681034f17d68151802a4383b4cd66ad274c268f57b578e017a93f",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 611670,
+        "source": "image in the body of hyperide/hyper-saas#811 (hyp732-r2-2-restored-toast)"
+      }
+    },
+    {
+      "id": "pr823-restored-fix-with-ai",
+      "path": "media/pr823-restored-fix-with-ai.png",
+      "sha256": "071938a657a9724622ea7e29161cd89f8f884e0c07cca7f53ccba34ae4cfc6f7",
+      "width": 960,
+      "height": 230,
+      "bytes": 78162,
+      "role": "single-after",
+      "pair": null,
+      "outcome": "c3-ai-fix-on-click-only",
+      "chip": "After (single capture)",
+      "alt": "VS Code notice: Canvas couldn't apply the move and put the file back, with Fix with AI and Details buttons",
+      "caption": "After a failed move the notice offers Fix with AI as a button.",
+      "roi": [
+        960,
+        705,
+        1440,
+        820
+      ],
+      "scale": 2.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            988,
+            726,
+            1330,
+            756
+          ],
+          "crop_xyxy": [
+            56,
+            42,
+            740,
+            102
+          ],
+          "note": "Notice: “Canvas couldn't apply the move and put the file back.”"
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            1280,
+            762,
+            1426,
+            795
+          ],
+          "crop_xyxy": [
+            640,
+            114,
+            932,
+            180
+          ],
+          "note": "Fix with AI and Details are buttons in the notice."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr823-restored-toast.png",
+        "sha256": "122365e4b6f573229dfd6617ead6656616ce4f04f8db856a8bde22cdf0a31af2",
+        "width": 1440,
+        "height": 835,
+        "bytes": 277659,
+        "source": "hyperide/hyper-saas @a4caec76 docs/notes/canvas-proof-20261016/restored.png"
+      }
+    },
+    {
+      "id": "pr705-step1-dialog",
+      "path": "media/pr705-step1-dialog.png",
+      "sha256": "1ba03f1ca8b147b0570353db9470c638c3451d0705dbe0fcb8bdb1638011cb82",
+      "width": 793,
+      "height": 1710,
+      "bytes": 329682,
+      "role": "step-1",
+      "pair": "pr705-sequence",
+      "outcome": "t-new-component-dialog",
+      "chip": "Step 1",
+      "alt": "The guided New component dialog in VS Code: three kinds in plain words, a name field with HeroBadge and the target folder, and Create and Cancel buttons",
+      "caption": "Step 1: the guided New component dialog, opened from the Components + button.",
+      "roi": [
+        90,
+        260,
+        700,
+        1575
+      ],
+      "scale": 1.3,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            145,
+            517,
+            646,
+            1084
+          ],
+          "crop_xyxy": [
+            72,
+            334,
+            723,
+            1071
+          ],
+          "note": "Three kinds in plain words: Building block, Section, Page."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            140,
+            1163,
+            653,
+            1259
+          ],
+          "crop_xyxy": [
+            65,
+            1174,
+            732,
+            1299
+          ],
+          "note": "Name field, filled with HeroBadge, with the target folder hint."
+        },
+        {
+          "n": 3,
+          "original_xyxy": [
+            145,
+            1356,
+            646,
+            1440
+          ],
+          "crop_xyxy": [
+            72,
+            1425,
+            723,
+            1534
+          ],
+          "note": "The Create button; Cancel sits below it."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr705-dialog.png",
+        "sha256": "ee77f190d5bbac3e30df5ed2530c912f36ce5504b3488ad62e3d52bcb9588655",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 721362,
+        "source": "hyperide/hyper-saas @b901fb76 .github/pr-screenshots/20260806-hyp1184-create-dialog.png"
+      }
+    },
+    {
+      "id": "pr705-step2-created-list",
+      "path": "media/pr705-step2-created-list.png",
+      "sha256": "4bb28b1bd3e69976fc2a6d50f9dfd32d1ac1d2f8d4b47f9daae107000662a6f1",
+      "width": 793,
+      "height": 494,
+      "bytes": 122964,
+      "role": "step-2",
+      "pair": "pr705-sequence",
+      "outcome": "t-new-component-dialog",
+      "chip": "Step 2",
+      "alt": "Components list after Create: HeroBadge.tsx appears in Composite components and is selected, and the Elements tree shows its root",
+      "caption": "Step 2: after Create, the new file is listed and opened.",
+      "roi": [
+        90,
+        880,
+        700,
+        1260
+      ],
+      "scale": 1.3,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            160,
+            904,
+            680,
+            962
+          ],
+          "crop_xyxy": [
+            91,
+            31,
+            767,
+            107
+          ],
+          "note": "HeroBadge.tsx now appears in Composite components, selected."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            95,
+            1196,
+            420,
+            1244
+          ],
+          "crop_xyxy": [
+            6,
+            411,
+            429,
+            473
+          ],
+          "note": "The Elements tree shows the new component's root."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr705-created.png",
+        "sha256": "0472c6b2aa0868b52e7980de8ba2c7989994513544b8dfeb865832d704fafe2d",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 323033,
+        "source": "hyperide/hyper-saas @b901fb76 .github/pr-screenshots/20260806-hyp1184-created-in-preview.png"
+      }
+    },
+    {
+      "id": "pr705-step2-created-canvas",
+      "path": "media/pr705-step2-created-canvas.png",
+      "sha256": "a2544a2f7c5eb947914be58f8a792206b0a17057ad8f89f2621d896037031c02",
+      "width": 950,
+      "height": 190,
+      "bytes": 41815,
+      "role": "step-2",
+      "pair": "pr705-sequence",
+      "outcome": "t-new-component-dialog",
+      "chip": "Step 2",
+      "alt": "Editor tab HeroBadge.tsx and the Hyper Canvas rendering the Hero Badge component",
+      "caption": "Step 2, same capture: the new component opens in the editor and renders in the Canvas.",
+      "roi": [
+        900,
+        70,
+        1850,
+        260
+      ],
+      "scale": 1.0,
+      "boxes": [
+        {
+          "n": 1,
+          "original_xyxy": [
+            935,
+            76,
+            1240,
+            134
+          ],
+          "crop_xyxy": [
+            35,
+            6,
+            340,
+            64
+          ],
+          "note": "Editor tab HeroBadge.tsx."
+        },
+        {
+          "n": 2,
+          "original_xyxy": [
+            1540,
+            186,
+            1732,
+            238
+          ],
+          "crop_xyxy": [
+            640,
+            116,
+            832,
+            168
+          ],
+          "note": "The Canvas renders Hero Badge."
+        }
+      ],
+      "original": {
+        "path": "media/orig/pr705-created.png",
+        "sha256": "0472c6b2aa0868b52e7980de8ba2c7989994513544b8dfeb865832d704fafe2d",
+        "width": 2880,
+        "height": 1736,
+        "bytes": 323033,
+        "source": "hyperide/hyper-saas @b901fb76 .github/pr-screenshots/20260806-hyp1184-created-in-preview.png"
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "pr721-explorer",
+      "kind": "pair",
+      "crops": [
+        "pr721-before-explorer",
+        "pr721-after-explorer",
+        "pr721-after-interim-explorer",
+        "pr721-link-clicked-explorer"
+      ]
+    },
+    {
+      "id": "pr827-write",
+      "kind": "pair",
+      "crops": [
+        "pr827-before-canvas",
+        "pr827-after-canvas",
+        "pr827-before-inspector",
+        "pr827-after-inspector"
+      ]
+    },
+    {
+      "id": "pr665-warning",
+      "kind": "single",
+      "crops": [
+        "pr665-after-native-warning"
+      ]
+    },
+    {
+      "id": "pr738-warning",
+      "kind": "single",
+      "crops": [
+        "pr738-after-inspector-warning",
+        "pr738-after-canvas-selection"
+      ]
+    },
+    {
+      "id": "pr794-edit-component",
+      "kind": "pair",
+      "crops": [
+        "pr794-before-tab",
+        "pr794-after-tab",
+        "pr794-before-canvas",
+        "pr794-after-canvas",
+        "pr794-before-tree",
+        "pr794-after-tree",
+        "pr794-before-notice",
+        "pr794-after-notice"
+      ]
+    },
+    {
+      "id": "pr805-sequence",
+      "kind": "sequence",
+      "crops": [
+        "pr805-step1-edit-cancelled",
+        "pr805-step1-selection-kept",
+        "pr805-step2-next-edit-persisted"
+      ]
+    },
+    {
+      "id": "pr811-order",
+      "kind": "pair",
+      "crops": [
+        "pr811-before-order-row",
+        "pr811-after-order-row",
+        "pr811-before-order-inspector",
+        "pr811-after-order-inspector"
+      ]
+    },
+    {
+      "id": "pr811-restored",
+      "kind": "single",
+      "crops": [
+        "pr811-restored-notice"
+      ]
+    },
+    {
+      "id": "pr823-restored",
+      "kind": "single",
+      "crops": [
+        "pr823-restored-fix-with-ai"
+      ]
+    },
+    {
+      "id": "pr705-sequence",
+      "kind": "sequence",
+      "crops": [
+        "pr705-step1-dialog",
+        "pr705-step2-created-list",
+        "pr705-step2-created-canvas"
+      ]
+    }
+  ],
+  "videos": []
+}

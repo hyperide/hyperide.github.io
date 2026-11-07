@@ -30,8 +30,9 @@ import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
-import { join, dirname, resolve as resolvePath, extname, sep } from 'node:path';
+import { join, dirname, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { staticHandler } from './_static_server.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolvePath(__dirname, '..', '..');
@@ -145,6 +146,51 @@ const P_CLOSING_TAGS = new Set([
   'section', 'table', 'ul',
 ]);
 
+/**
+ * Handle one closing tag against the open-element stack. Returns an error string for a real mismatch, else null.
+ * Rule 2 applies first: the closing tag may implicitly close still-open optional-close children above its match.
+ */
+function closeTag(stack, tag) {
+  if (stack.length > 0 && stack[stack.length - 1] === tag) {
+    stack.pop();
+    return null;
+  }
+  // Walk down through any still-open optional-close elements looking for this closing tag's match;
+  // each one is implicitly closed by the ancestor's closing tag, not a real error.
+  let idx = -1;
+  for (let i = stack.length - 1; i >= 0; i--) {
+    if (stack[i] === tag) {
+      idx = i;
+      break;
+    }
+    if (!OPTIONAL_CLOSE_SIBLINGS.has(stack[i])) break; // real mismatch
+  }
+  if (idx !== -1) {
+    stack.length = idx;
+    return null;
+  }
+  // A stray explicit close for an optional-close element that is no longer on the stack was already implicitly
+  // closed earlier (Rule 1 sibling-close or the P_CLOSING_TAGS case); browsers silently ignore it, e.g. the
+  // trailing </p> in `<p>text<div>...</div></p>`.
+  if (OPTIONAL_CLOSE_SIBLINGS.has(tag)) return null;
+  const error = `unbalanced tag: found </${tag}> but stack top is ${stack[stack.length - 1] || '(empty)'}`;
+  // Best-effort recovery: drop matching tag if present anywhere in stack.
+  const anyIdx = stack.lastIndexOf(tag);
+  if (anyIdx !== -1) stack.length = anyIdx;
+  return error;
+}
+
+/** Push an opening tag. Rule 1: a second optional-close element closes a same-tag sibling; a block closes an open <p>. */
+function openTag(stack, tag) {
+  const top = stack[stack.length - 1];
+  if (OPTIONAL_CLOSE_SIBLINGS.has(tag) && top === tag) {
+    stack.pop();
+  } else if (top === 'p' && P_CLOSING_TAGS.has(tag)) {
+    stack.pop();
+  }
+  stack.push(tag);
+}
+
 function checkHtmlStructure(html, stripped, relPath) {
   const errors = [];
   if (!/^\s*<!DOCTYPE html>/i.test(html.replace(/^\uFEFF/, ''))) {
@@ -155,54 +201,14 @@ function checkHtmlStructure(html, stripped, relPath) {
   const stack = [];
   let match;
   while ((match = tagRe.exec(stripped)) !== null) {
-    const [full, name, attrs] = match;
+    const [full, name] = match;
     const tag = name.toLowerCase();
-    const isClosing = full.startsWith('</');
-    const isSelfClosing = /\/\s*>$/.test(full) || VOID_ELEMENTS.has(tag);
-
-    if (isClosing) {
-      if (stack.length > 0 && stack[stack.length - 1] === tag) {
-        stack.pop();
-      } else {
-        // Rule 2: walk down through any still-open optional-close elements
-        // looking for this closing tag's match — each one is implicitly
-        // closed by the ancestor's closing tag, not a real error.
-        let idx = -1;
-        for (let i = stack.length - 1; i >= 0; i--) {
-          if (stack[i] === tag) {
-            idx = i;
-            break;
-          }
-          if (!OPTIONAL_CLOSE_SIBLINGS.has(stack[i])) break; // real mismatch
-        }
-        if (idx !== -1) {
-          stack.length = idx;
-        } else if (OPTIONAL_CLOSE_SIBLINGS.has(tag)) {
-          // A stray explicit close for an optional-close element that is no
-          // longer on the stack — it was already implicitly closed earlier
-          // (Rule 1 sibling-close or the P_CLOSING_TAGS case below).
-          // Browsers silently ignore an unmatched closing tag like this;
-          // e.g. `<p>text<div>...</div></p>` implicitly closes <p> at
-          // <div>, leaving the trailing explicit </p> a harmless no-op.
-        } else {
-          errors.push(`unbalanced tag: found </${tag}> but stack top is ${stack[stack.length - 1] || '(empty)'}`);
-          // Best-effort recovery: drop matching tag if present anywhere in stack.
-          const anyIdx = stack.lastIndexOf(tag);
-          if (anyIdx !== -1) stack.length = anyIdx;
-        }
-      }
-    } else if (!isSelfClosing) {
-      // Rule 1: an optional-close element (e.g. a second <li>) implicitly
-      // closes a same-tag sibling still open at the top of the stack.
-      if (OPTIONAL_CLOSE_SIBLINGS.has(tag) && stack[stack.length - 1] === tag) {
-        stack.pop();
-      } else if (stack[stack.length - 1] === 'p' && P_CLOSING_TAGS.has(tag)) {
-        // A block-level sibling implicitly closes a still-open <p>.
-        stack.pop();
-      }
-      stack.push(tag);
+    if (full.startsWith('</')) {
+      const error = closeTag(stack, tag);
+      if (error) errors.push(error);
+    } else if (!/\/\s*>$/.test(full) && !VOID_ELEMENTS.has(tag)) {
+      openTag(stack, tag);
     }
-    void attrs;
   }
 
   if (stack.length > 0) {
@@ -236,27 +242,57 @@ function checkLocalAssetPaths(html, relPath, fileDir) {
   return errors;
 }
 
+/** A link to a directory implicitly means its index.html. */
+function resolvesToPage(resolved) {
+  if (!existsSync(resolved)) return false;
+  return statSync(resolved).isDirectory() ? existsSync(join(resolved, 'index.html')) : true;
+}
+
+/** Only repo-relative links are checked: external, mail, fragment, data and bare/unknown schemes are skipped. */
+function isCheckableInternalLink(url) {
+  // `(https?:)?\/\/` also skips protocol-relative URLs ("//cdn.example.com/x"), which would otherwise be
+  // mistaken for a root-relative internal path and resolved against the filesystem root, always "missing".
+  if (/^(https?:)?\/\//i.test(url) || /^(mailto:|tel:)/i.test(url) || url.startsWith('#') || url.startsWith('data:')) return false;
+  return url.startsWith('.') || url.startsWith('/');
+}
+
 function checkInternalLinks(html, relPath, fileDir) {
   const errors = [];
   const hrefRe = /<a\b[^>]*(?<=\s)href="([^"]+)"[^>]*>/gi;
   let match;
   while ((match = hrefRe.exec(html)) !== null) {
     const url = match[1];
-    // `(https?:)?\/\/` also skips protocol-relative URLs ("//cdn.example.com/x") —
-    // without this a protocol-relative link is mistaken for a root-relative
-    // internal path and resolved against the filesystem root, always "missing".
-    if (/^(https?:)?\/\//i.test(url) || /^(mailto:|tel:)/i.test(url) || url.startsWith('#') || url.startsWith('data:')) continue;
-    if (!url.startsWith('.') && !url.startsWith('/')) continue; // skip bare/unknown schemes
+    if (!isCheckableInternalLink(url)) continue;
     const cleanUrl = url.split('#')[0].split('?')[0];
     if (!cleanUrl) continue;
     const base = url.startsWith('/') ? REPO_ROOT : fileDir;
     const resolved = resolvePath(base, cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl);
-    // A link to a directory implicitly means its index.html.
-    const ok = existsSync(resolved)
-      ? (statSync(resolved).isDirectory() ? existsSync(join(resolved, 'index.html')) : true)
-      : false;
-    if (!ok) {
+    if (!resolvesToPage(resolved)) {
       errors.push(`[${relPath}] internal link does not resolve: "${url}" -> ${resolved}`);
+    }
+  }
+  return errors;
+}
+
+/**
+ * Rendered-DOM link check: catches internal links built at runtime by Report.init (e.g. the `links`/productChanges
+ * file-link data), which never appear as literal <a href="..."> in the static HTML source.
+ */
+async function renderedLinkErrors(page, baseUrl, relPath) {
+  const siteOrigin = new URL(baseUrl).origin;
+  const renderedHrefs = await page.evaluate((origin) => {
+    return Array.from(document.querySelectorAll('a[href]'))
+      .map((a) => a.href)
+      .filter((href) => href.startsWith(origin));
+  }, siteOrigin);
+
+  const errors = [];
+  for (const absoluteUrl of renderedHrefs) {
+    const urlPath = decodeURIComponent(new URL(absoluteUrl).pathname);
+    const resolved = resolvePath(REPO_ROOT, urlPath.replace(/^\/+/, ''));
+    // Mirror checkInternalLinks: a directory only resolves if it has an index.html.
+    if (!resolvesToPage(resolved)) {
+      errors.push(`[${relPath}] rendered internal link does not resolve: "${absoluteUrl}" -> ${resolved}`);
     }
   }
   return errors;
@@ -299,29 +335,7 @@ async function smokeRenderCheck(browser, baseUrl, relPath) {
       errors.push(`[${relPath}] smoke-render: 0 of ${totalSections} [data-section] elements populated — Report.init likely did not run`);
     }
 
-    // Rendered-DOM link check: catches internal links built at runtime by
-    // Report.init (e.g. the `links`/productChanges file-link data), which
-    // never appear as literal <a href="..."> in the static HTML source.
-    const siteOrigin = new URL(baseUrl).origin;
-    const renderedHrefs = await page.evaluate((origin) => {
-      return Array.from(document.querySelectorAll('a[href]'))
-        .map((a) => a.href)
-        .filter((href) => href.startsWith(origin));
-    }, siteOrigin);
-
-    for (const absoluteUrl of renderedHrefs) {
-      const urlPath = decodeURIComponent(new URL(absoluteUrl).pathname);
-      const resolved = resolvePath(REPO_ROOT, urlPath.replace(/^\/+/, ''));
-      // Mirror checkInternalLinks: a link to a directory only resolves if
-      // that directory has an index.html — existsSync(resolved) alone would
-      // wrongly pass a directory that exists but has no index page.
-      const ok = existsSync(resolved)
-        ? (statSync(resolved).isDirectory() ? existsSync(join(resolved, 'index.html')) : true)
-        : false;
-      if (!ok) {
-        errors.push(`[${relPath}] rendered internal link does not resolve: "${absoluteUrl}" -> ${resolved}`);
-      }
-    }
+    errors.push(...(await renderedLinkErrors(page, baseUrl, relPath)));
   } catch (err) {
     // A goto timeout/navigation exception must not abort the whole run —
     // record it against this file and let the remaining files still get
@@ -335,39 +349,7 @@ async function smokeRenderCheck(browser, baseUrl, relPath) {
 }
 
 function startStaticServer(root) {
-  const MIME = {
-    '.html': 'text/html', '.css': 'text/css', '.js': 'application/javascript',
-    '.mjs': 'application/javascript', '.json': 'application/json',
-    '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg',
-  };
-  const server = createServer((req, res) => {
-    try {
-      const urlPath = decodeURIComponent(req.url.split('?')[0]);
-      // No favicon is shipped for this static site; Chromium auto-requests
-      // it on every page load and a 404 would otherwise register as a
-      // console error indistinguishable from a real bug. Answer 204.
-      if (urlPath === '/favicon.ico') {
-        res.writeHead(204);
-        res.end();
-        return;
-      }
-      const filePath = join(root, urlPath);
-      // startsWith(root) alone would also match a sibling directory that
-      // happens to share root's prefix (e.g. root + "-secrets"); require an
-      // exact match or a path separator boundary.
-      if (filePath !== root && !filePath.startsWith(root + sep)) {
-        res.writeHead(403);
-        res.end();
-        return;
-      }
-      const data = readFileSync(filePath);
-      res.writeHead(200, { 'Content-Type': MIME[extname(filePath)] || 'application/octet-stream' });
-      res.end(data);
-    } catch {
-      res.writeHead(404);
-      res.end('not found');
-    }
-  });
+  const server = createServer(staticHandler(root));
   return new Promise((resolvePromise, reject) => {
     // Without an error listener, a bind failure leaves this promise pending
     // forever — the run hangs with no diagnostic instead of failing fast.
