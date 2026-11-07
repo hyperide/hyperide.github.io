@@ -141,7 +141,10 @@ class ReportContract(unittest.TestCase):
     def test_all_ci_links_have_source_receipts(self):
         receipts = {r["url"] for r in self.data.get("checks", [])}
         for slug in self.data["reports"]:
-            for url in Links((ROOT / "reports" / slug / "index.html").read_text()).urls:
+            page = (ROOT / "reports" / slug / "index.html").read_text()
+            # The November native-stage block is covered by its own record and contract (check-native-stage-proof.py).
+            page = re.sub(r'<section class="report-section" id="native-stage-proof">.*?</section>', "", page, flags=re.S)
+            for url in Links(page).urls:
                 if "/actions/runs/" in url:
                     self.assertIn(url, receipts)
 
