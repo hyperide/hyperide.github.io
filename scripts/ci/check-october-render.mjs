@@ -14,9 +14,10 @@
  */
 import { chromium } from 'playwright';
 import { createServer } from 'node:http';
-import { readFileSync, mkdirSync, statSync } from 'node:fs';
-import { dirname, extname, join, resolve, sep } from 'node:path';
+import { readFileSync, mkdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { staticHandler } from './_static_server.mjs';
 
 const args = process.argv.slice(2);
 const opt = (name) => {
@@ -36,10 +37,12 @@ try {
   throw new Error(`cannot read the product report source record ${productRecord}: ${error.message}`);
 }
 
+// Image counts come from each report's own media record: crops of real captures, not whole-page screenshots.
+const imageCount = (slug) => JSON.parse(readFileSync(join(ROOT, 'reports', slug, 'media-evidence.json'), 'utf8')).images.length;
 const REPORTS = [
-  { slug: 'hyper-2026-10', title: product.title, outcomes: product.outcomes.length, images: product.images.length },
-  { slug: 'state-lib-2026-10', title: 'StateLib: October 2026', outcomes: 7, images: 2 },
-  { slug: 'conloca-2026-10', title: 'Conloca: October 2026', outcomes: 7, images: 2 },
+  { slug: 'hyper-2026-10', title: product.title, outcomes: product.outcomes.length, images: imageCount('hyper-2026-10'), sections: ['overview', 'outcomes', 'visual-proof', 'proof'] },
+  { slug: 'state-lib-2026-10', title: 'StateLib: October 2026', outcomes: 7, images: imageCount('state-lib-2026-10'), sections: ['overview', 'outcomes', 'figures', 'proof'] },
+  { slug: 'conloca-2026-10', title: 'Conloca: October 2026', outcomes: 7, images: imageCount('conloca-2026-10'), sections: ['overview', 'outcomes', 'figures', 'proof'] },
 ];
 
 const PROFILES = [
@@ -50,20 +53,8 @@ const PROFILES = [
   { name: 'no-js-390', viewport: { width: 390, height: 844 }, isMobile: true, javaScriptEnabled: false, deviceScaleFactor: 2 },
 ];
 
-const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png' };
 
-const server = createServer((req, res) => {
-  try {
-    const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-    if (path === '/favicon.ico') return res.writeHead(204).end();
-    let file = resolve(ROOT, '.' + path);
-    if (file !== ROOT && !file.startsWith(ROOT + sep)) return res.writeHead(403).end();
-    if (statSync(file).isDirectory()) file = join(file, 'index.html');
-    res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' }).end(readFileSync(file));
-  } catch {
-    res.writeHead(404).end();
-  }
-});
+const server = createServer(staticHandler(ROOT));
 await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
 const base = `http://127.0.0.1:${server.address().port}`;
 
@@ -84,11 +75,11 @@ try {
       page.on('response', (r) => r.status() >= 400 && problems.push(`${r.status()} ${r.url()}`));
       await page.goto(`${base}/reports/${report.slug}/`, { waitUntil: 'networkidle' });
       await page.evaluate(() => document.fonts.ready);
-      const m = await page.evaluate(() => {
+      const m = await page.evaluate((sectionIds) => {
         const box = (el) => el.getBoundingClientRect();
         const h1 = document.querySelector('h1');
         const overview = document.querySelector('#overview p');
-        const ids = ['overview', 'outcomes', 'figures', 'proof'].map((id) => document.getElementById(id));
+        const ids = sectionIds.map((id) => document.getElementById(id));
         // The collapsed audit appendix is closed on purpose, so its content has no height until opened.
         const shown = (el) => !el.closest('details.appendix');
         const opaque = [...document.querySelectorAll('.outcome, .summary-card, .figures tbody tr, .report-section')].filter(shown).filter(
@@ -113,7 +104,7 @@ try {
           whatVisible: [...document.querySelectorAll('.outcome .what')].filter(shown).every((p) => p.getBoundingClientRect().height > 40 && getComputedStyle(p).visibility === 'visible'),
           imgs,
         };
-      });
+      }, report.sections);
 
       if (m.h1 !== report.title) fail(tag, `h1 is ${JSON.stringify(m.h1)}, expected ${JSON.stringify(report.title)}`);
       if (m.h1Top === null || m.h1Top >= m.viewport) fail(tag, 'title is not on the first screen');
@@ -121,7 +112,7 @@ try {
       if (m.scrollWidth > m.innerWidth + 1) fail(tag, `horizontal overflow ${m.scrollWidth} > ${m.innerWidth}`);
       if (m.outcomes < report.outcomes) fail(tag, `${m.outcomes} outcome sections, expected at least ${report.outcomes}`);
       if (m.tiles < 3) fail(tag, `${m.tiles} summary tiles`);
-      if (!m.orderOk) fail(tag, 'overview, outcomes, figures and proof are not in reading order');
+      if (!m.orderOk) fail(tag, 'overview, outcomes, figures or visual proof, and proof are not in reading order');
       if (m.hiddenOrTransparent) fail(tag, `${m.hiddenOrTransparent} sections are transparent, hidden or empty`);
       if (!m.details) fail(tag, 'technical detail must be collapsed by default with a summary');
       if (!m.whatVisible) fail(tag, 'an outcome paragraph is not visible');
@@ -141,6 +132,8 @@ try {
       });
       if (toggled.before || !toggled.after || !toggled.visible || !toggled.closedAgain) fail(tag, `technical detail does not toggle: ${JSON.stringify(toggled)}`);
 
+      // Extra captures sit in a closed disclosure; open it so that their lazy images can load and be decoded.
+      await page.evaluate(() => document.querySelectorAll('details.more-shots').forEach((d) => { d.open = true; }));
       // Full-page pass: lazy images only load once they are near the viewport.
       for (const image of await page.locator('img').all()) {
         await image.scrollIntoViewIfNeeded();
@@ -148,11 +141,10 @@ try {
         if (!ok) fail(tag, `image failed to decode: ${await image.getAttribute('src')}`);
       }
       if (contextOptions.isMobile) {
-        // Phone crop: the visible part of a screenshot must be large enough to read.
-        for (const el of await page.locator('.crop').all()) {
-          const { w, h, iw } = await el.evaluate((c) => ({ w: c.getBoundingClientRect().width, h: c.getBoundingClientRect().height, iw: c.querySelector('img').getBoundingClientRect().width }));
-          if (h < 150) fail(tag, `crop is only ${h}px tall`);
-          if (iw < w * 2.5) fail(tag, `image is shown at ${iw}px inside a ${w}px crop; detail is not magnified`);
+        // Phone: every annotated crop must be shown wide enough to read, and its full-size original is one tap away.
+        for (const el of await page.locator('.shot img').all()) {
+          const w = await el.evaluate((i) => i.getBoundingClientRect().width);
+          if (w < 280) fail(tag, `crop ${await el.getAttribute('src')} is shown only ${Math.round(w)}px wide on a phone`);
         }
       }
       if (!noJs) {

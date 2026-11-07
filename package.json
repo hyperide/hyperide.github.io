@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "ci:validate-reports": "node scripts/ci/validate-reports.mjs",
-    "ci:render-october": "node scripts/ci/check-october-render.mjs"
+    "ci:render-october": "node scripts/ci/check-october-render.mjs",
+    "ci:render-media": "node scripts/ci/check-media-render.mjs"
   },
   "devDependencies": {
     "playwright": "^1.61.0"

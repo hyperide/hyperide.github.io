@@ -405,19 +405,26 @@ class ReportContract(unittest.TestCase):
         recorded = {r["path"] for r in self.data["images"]}
         for slug in self.data["reports"]:
             text = self._page(slug)
+            media = json.loads((ROOT / "reports" / slug / "media-evidence.json").read_text(encoding="utf-8"))
+            crops = {f"reports/{slug}/{i['path']}": i for i in media["images"]}
             for tag in re.findall(r"<img\b[^>]*>", text):
                 src = re.search(r'src="([^"]+)"', tag).group(1)
-                self.assertIn(f"reports/{slug}/{src}", recorded)
+                self.assertIn(f"reports/{slug}/{src}", crops, src)
                 self.assertRegex(tag, r'alt="[^"]{12,}"')
                 self.assertRegex(tag, r'width="\d+"')
                 self.assertRegex(tag, r'height="\d+"')
                 data = (ROOT / "reports" / slug / src).read_bytes()
                 self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
                 self.assertGreater(len(data), 5000)
-            crops = re.findall(r'<a class="crop[^"]*" href="([^"]+)">\s*<img src="([^"]+)"', text)
-            self.assertEqual(len(crops), len(re.findall(r"<img\b", text)), slug)
-            for href, src in crops:
-                self.assertEqual(href, src)
+            # Every screenshot is a crop in the media record and links to its hashed full-size original.
+            links = re.findall(r'<a class="shot-link" href="([^"]+)"[^>]*>\s*<img src="([^"]+)"', text)
+            self.assertEqual(len(links), len(re.findall(r"<img\b", text)), slug)
+            for href, src in links:
+                orig = crops[f"reports/{slug}/{src}"]["original"]
+                self.assertEqual(href, orig["path"])
+                if href.startswith("images/"):
+                    self.assertIn(f"reports/{slug}/{href}", recorded, "an earlier original must stay in the source record")
+                self.assertEqual(hashlib.sha256((ROOT / "reports" / slug / href).read_bytes()).hexdigest(), orig["sha256"])
 
     def test_figures_and_screenshots_are_not_report_screenshots(self):
         for row in self.data["images"]:
